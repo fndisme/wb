@@ -26,11 +26,12 @@
 #include <pantheios/inserters/i.hpp>
 #include <folly/Optional.h>
 
+#include "webgame/netcore/DataGetter.h"
+#include "webgame/netcore/DataSender.h"
+
 #include "net_connection_storage.h"
 #include "game_message.h"
 #include "identity_type.h"
-#include "DataGetter.h"
-#include "DataSender.h"
 
 // create connection easy for async
 #include "net_connection_property.h"
