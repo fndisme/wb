@@ -45,12 +45,12 @@ namespace WebGame {
       m_used(0) {
       }
   template<int N>
-    void PoolBuffer<N>::reset_capacity(size_t new_capacity) {
+    void PoolBuffer<N>::resetCapacity(size_t new_capacity) {
       clear() ;
       if(new_capacity <= capacity()) return ;
       m_buffer.resize(1) ;
       m_buffer.resize(new_capacity) ;
     }
-  }
+}
 }
 #endif
