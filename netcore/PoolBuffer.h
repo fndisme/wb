@@ -11,6 +11,9 @@
 #include <stlsoft/memory/auto_buffer.hpp>
 namespace WebGame {
   namespace Net {
+    // FIXME
+    // IT's NOT a safe class. just use in some class. should not use as single
+    // part
   template<int N>
     class PoolBuffer {
       public:
@@ -25,6 +28,7 @@ namespace WebGame {
         inline void size(size_t s) { m_used = s ;}
         void resetCapacity(size_t new_capacity) ;
         inline void clear() { size(0); }
+        // is not safe, but because we show Data to user. it can not be safe
         inline void append(size_t s) { m_used += s ;}
         PoolBuffer(class_type&& rhs) : m_buffer(1),
         m_used(rhs.m_used) {
