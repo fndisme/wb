@@ -1,0 +1,509 @@
+#include "webgame/message/MessageBuilder.h"
+#include <boost/functional/factory.hpp>
+//#include "webgame/message/DataBlock.h"
+#include "login.pb.h"
+#include "LoginResult.pb.h"
+//#include "ChatToRoom.pb.h"
+//#include	"UnityMove.pb.h"
+#include "DataQuery_Vip.pb.h"
+#include "GameSystemTick.pb.h"
+#include "UnityWhipCorpseState.pb.h"
+#include "UnityConsumeOfflineRecharging.pb.h"
+#include "UnityAskForWhipTarget.pb.h"
+#include "UnityQuickStarWarResult.pb.h"
+#include "UnityVipSweepAway.pb.h"
+#include "Radio_ArmyGroupGiveUpStar.pb.h"
+#include "UnityVipSweepAwayReward.pb.h"
+#include "CurrentDiamondState.pb.h"
+#include "UnityCaculateStarWar.pb.h"
+#include "UnityNormalSweepAwayReward.pb.h"
+#include "UnityNotifyHasOfflineRecharging.pb.h"
+#include "UnityNormalSweepAway.pb.h"
+#include "Platform_ArmyGroupStarWarStart.pb.h"
+#include "PlayerIndugledState.pb.h"
+#include "UnityGhostOffline.pb.h"
+#include "UnityGhostOnline.pb.h"
+#include "DataCall_FinishSpecialTask.pb.h"
+#include "UnitySystemFlag.pb.h"
+#include "UnityVipInitState.pb.h"
+#include "UnityResetVipState.pb.h"
+#include "Platform_ArmyGroupStar.pb.h"
+#include "Radio_ArmyGroupStar.pb.h"
+#include "Radio_PlayerBecomeVip.pb.h"
+#include "DataQuery_BaseExperience.pb.h"
+#include "Radio_ArmyGroupDispatch.pb.h"
+#include "SpecialTaskMetaInfo.pb.h"
+#include "Horn.pb.h"
+#include "UnityResetRechargingTimes.pb.h"
+#include "UnityActiveRecharging.pb.h"
+#include "DataCall_OfflinePlayerRecharging.pb.h"
+#include "DataCall_UnityAdjuntantScore.pb.h"
+#include "UnityInitRechargingState.pb.h"
+#include "UnityNotifyChallengeRankAward.pb.h"
+#include "UnityStartQuickSummonBoss.pb.h"
+#include "DataCall_UnityNormalSweepAway.pb.h"
+#include "UnityQuickSummonBossReward.pb.h"
+#include "PlayerOnlineNumber.pb.h"
+#include "Platform_RoomNumberLimit.pb.h"
+#include "Platform_ArmyGroupDispatch.pb.h"
+#include "Platform_ArmyGroupStarStatus.pb.h"
+#include "Platform_RefreshChallengeGroup.pb.h"
+#include "Platform_RefreshPlayerState.pb.h"
+#include "Platform_GiveUpStar.pb.h"
+#include "Platform_ResetAward.pb.h"
+#include "Radio_VipPlayerOnline.pb.h"
+#include "Radio_ArmyGroupStarStatus.pb.h"
+#include "DataCall_UnityVipSweepAway.pb.h"
+#include "Platform_SystemIndugleState.pb.h"
+#include "PlayerAskForRecommendFriend.pb.h"
+#include "PlayerDontTalk.pb.h"
+#include "PlayerAskForRecommendFriendResult.pb.h"
+#include "UnityCareTreasureInformation.pb.h"
+#include "ChallengeHeroList.pb.h"
+#include "UnityQuickDailyBossStart.pb.h"
+#include "DataCall_OnlinePlayerRecharging.pb.h"
+#include "UnityInitTreasureInformation.pb.h"
+#include "DataQuery_MaxPlayerId.pb.h"
+#include "PlayerMaxIdInDb.pb.h"
+#include "InnerForceOfflineResult.pb.h"
+#include "FriendOnline.pb.h"
+#include "UnityOfflineRecharging.pb.h"
+#include "UnityClearTodayDailyBossAttempts.pb.h"
+#include "FriendOffline.pb.h"
+#include "Platform_CriticalMessage.pb.h"
+#include "Platform_WindowMessage.pb.h"
+#include "Platform_TreasureHunt.pb.h"
+#include "Platform_KickPlayer.pb.h"
+#include "DataQuery_SaveAdjuntantScore.pb.h"
+#include "UnityTreasureInformation.pb.h"
+#include "UnityFastenNormalSweepAway.pb.h"
+#include "UnityCancelNormalSweepAway.pb.h"
+#include "Platform_ChargeMoney.pb.h"
+#include "PlayerDealFriendApplicantSuccessed.pb.h"
+#include "PlayerAddedByOtherFriend.pb.h"
+#include "PlayerDealFriendApplicantFailed.pb.h"
+#include "DataCall_AddFriend.pb.h"
+#include "DataCall_MakeFriendWith.pb.h"
+#include "DataQuery_PlayerLogin.pb.h"
+#include "UnityRefreshChallengeTimes.pb.h"
+#include "DataQuery_ArmyGroup.pb.h"
+#include "UnityFirstBeatDownDailyBoss.pb.h"
+#include "UnityArmyGroupKickMember.pb.h"
+#include "UnityCareHallEvent.pb.h"
+#include "UnityQuickSummonBossResult.pb.h"
+#include "Radio_UnityClientToClient.pb.h"
+#include "UnityArmyGroupTransferDuty.pb.h"
+#include "Radio_ArmyGroupNewChairman.pb.h"
+#include "Radio_ArmyGroupMemberOnline.pb.h"
+#include "Radio_ArmyGroupAction.pb.h"
+#include "UnityQueryOnlineArmyGroupMember.pb.h"
+#include "UnityQueryOnlineArmyGroupMemberResult.pb.h"
+#include "Radio_ArmyGroupMemberOffline.pb.h"
+#include "UnitySummonBossState.pb.h"
+#include "UnityArmyGroupTransferDutyFailed.pb.h"
+#include "PlayerMakeFriendWithResult.pb.h"
+#include "PlayerRemoveFriend.pb.h"
+#include "DataCall_RemoveFriend.pb.h"
+#include "PlayerDealFriendApplicant.pb.h"
+#include "UnityAdjuntantInformation.pb.h"
+#include "UnityAdjuntantChangeHint.pb.h"
+#include "FriendInitList.pb.h"
+#include "Radio_ArmyGroupNewMember.pb.h"
+#include "UnityQueryWhipRank.pb.h"
+#include "Dispatcher_FreeKey.pb.h"
+#include "UnityCareTask.pb.h"
+#include "Dispatcher_UseKey.pb.h"
+#include "UnityArmyKickMemberFailed.pb.h"
+#include "UnityKickedByArmyGroup.pb.h"
+#include "UnityArmyGroupEnlistMemberResult.pb.h"
+#include "UnityInitHallType.pb.h"
+#include "UnityLeaveArmyGroupSuccessed.pb.h"
+#include "UnityPlayerCreateArmyGroupResult.pb.h"
+#include "UnityJoinInArmyGroupSuccessed.pb.h"
+#include "PlayerMakeFriendWith.pb.h"
+#include "DataQuery_BaseResult.pb.h"
+#include "DataCall_ArmyGroupOfficerChanged.pb.h"
+#include "Radio_ArmyGroupOfficerRankChanged.pb.h"
+#include "UnityArmyGroupAppointAndRemoveOfficer.pb.h"
+//#include "UnityExchangeHall.pb.h"
+#include "UnityQuickFightReward.pb.h"
+#include "Dispatcher_Register.pb.h"
+#include "UnityWhipTarget.pb.h"
+#include "PlayerOnlineState.pb.h"
+#include "Dispatcher_NewKey.pb.h"
+#include "UnityHallEvent.pb.h"
+#include "UnityDontCareHallEvent.pb.h"
+#include "UnityVipChangeHint.pb.h"
+#include "UnityQuickDailyBossResult.pb.h"
+#include "UnityWhipRankAward.pb.h"
+#include "Radio_DailyBossBonus.pb.h"
+#include "UnityResetSummonBossTimes.pb.h"
+#include "UnityQuickDailyBossReward.pb.h"
+#include "UnityCurrentHallCount.pb.h"
+#include "UnityLeaveArmyGroup.pb.h"
+#include "UnityLeaveArmyGroupFailed.pb.h"
+#include "DataQuery_SyncArmyGroup.pb.h"
+#include "Platform_PlayerDbLevel.pb.h"
+#include "UnityQuickFightResult.pb.h"
+#include "UnityValidDailyBoss.pb.h"
+#include "UnityFollowHall.pb.h"
+#include "UnityFollowHallFailed.pb.h"
+#include "ServerCache_HallPosition.pb.h"
+#include "ServerCache_SummonBossTimes.pb.h"
+#include "ServerCache_ChallengeRanks.pb.h"
+#include "UnityUnfollowHall.pb.h"
+#include "QueryPlayerOnlineState.pb.h"
+#include "QueryServer.pb.h"
+#include "DataQuery_Q_PlayerCareTask.pb.h"
+#include "PlayerOnlineAwardTimeInteval.pb.h"
+#include	"ClientLogicError.pb.h"
+#include "UnityQueryAdjuntant.pb.h"
+#include "pack_group_message.pb.h"
+#include	"UnityRoundFightScore.pb.h"
+#include "ResetOnlineReward.pb.h"
+#include "DataCall_SaveQuickWhipResult.pb.h"
+#include "DataCall_ArmyGroupPlayerLeave.pb.h"
+#include "DataQuery_Q_UseMoneyPoint.pb.h"
+#include "UnityValidDailyBossState.pb.h"
+#include "UnityQuickWhipCorpse.pb.h"
+#include "BuddyState.pb.h"
+#include "Administrator_Command_DriveOutPlayer.pb.h"
+#include "DataQuery_Failed.pb.h"
+#include "QueryHallPlayerIdList.pb.h"
+#include "Radio_ArmyGroupLeaveMember.pb.h"
+#include "DataQuery_PlayerProperty.pb.h"
+#include "DataCall_ArmyGroupKickMember.pb.h"
+#include "DataCall_RefreshTreatureMine.pb.h"
+#include "DataCall_RecordPlayerDailyBossResult.pb.h"
+#include "DataCall_SentenceIndulgePlayers.pb.h"
+#include "UnityHallChat.pb.h"
+#include "UnityCreateArmyGroup.pb.h"
+#include "ChatToPlayer.pb.h"
+#include "ChatToWorld.pb.h"
+#include "UnityQueryWhipRankResult.pb.h"
+#include "ChatToNation.pb.h"
+#include "ChatToLeague.pb.h"
+#include "JoinInChallengeRoom.pb.h"
+#include "ValidServer.pb.h"
+#include "PlayerIdList.pb.h"
+#include "ChallengeRoomList.pb.h"
+#include	"DataCall_StampCurrentPlayerNumber.pb.h"
+#include "DataQuery_Base.pb.h"
+#include	"DataCall_RecordPlayerRoundFightResult.pb.h"
+#include "DataCall_RecordPlayerRoundInstanceResult.pb.h"
+#include	"DataCall_SavePlayerReward.pb.h"
+#include "DataCall_SaveChat.pb.h"
+#include	"PlayerEnterWorld.pb.h"
+#include	"UnityInitFightInfomation.pb.h"
+#include "DataQuery_Q_PlayerUseProp.pb.h"
+#include	"UnityPlayerLeave.pb.h"
+#include "UnityMoneyChanged.pb.h"
+#include	"WaitingRoundRoomInitIdList.pb.h"
+#include	"HeartBeat.pb.h"
+#include	"ChangeFightTeam.pb.h"
+#include	"ChangeTeamColorFailed.pb.h"
+#include	"JoinInWaitingRoom.pb.h"
+#include "DataCall_RecordSummonBoss.pb.h"
+//#include	"ChatToTeam.pb.h"
+#include "DataCall_RecordPlayerInstanceDungeonResult.pb.h"
+//#include	"SetFightMap.pb.h"
+#include	"UnityDebugInfomation.pb.h"
+#include "Platform_ShutUp.pb.h"
+#include "Radio_RankingChanged.pb.h"
+#include	"ServerTime.pb.h"
+#include	"SuperCommand_Rush.pb.h"
+#include	"SuperCommand_FlashPropertyFile.pb.h"
+#include "SuperCommand_QueryPlayerOnlineNumber.pb.h"
+#include "SuperCommand_QueryPlayerNumberState.pb.h"
+#include "Super_PlayerNumberState.pb.h"
+#include "SuperCommand_QueryDiamonds.pb.h"
+#include	"ClientNetProperty.pb.h"
+#include	"DataCall_RecordOnlineTime.pb.h"
+#include	"UnityLogicError.pb.h"
+#include	"DataQuery_Response.pb.h"
+#include	"DataQuery_Q_PlayerProperty.pb.h"
+#include "CommanderLevelChangeHint.pb.h"
+#include	"DataQuery_Q_PlayerCommanderLevel.pb.h"
+#include	"DataQuery_AwardPropGroup.pb.h"
+#include	"DataQuery_PlayerCommanderLevel.pb.h"
+#include	"DataQuery_Q_PropAwardGroup.pb.h"
+#include "SuperCommand_QueryHistroyOnlineState.pb.h"
+#include "InnerLoginResult.pb.h"
+#include "InnerGroup.pb.h"
+#include "InnerMessage.pb.h"
+#include "ForceOffline.pb.h"
+#include "Log_OnlineState.pb.h"
+#include "InnerPostMessage.pb.h"
+#include "InnerTempPlayerQuit.pb.h"
+#include	"InnerQuit.pb.h"
+#include "HallPlayerIdList.pb.h"
+#include "PlayerAskForOnlineReward.pb.h"
+#include "PlayerAskForOnlineRewardResult.pb.h"
+#include "DataQuery_Q_PlayerOnlineReward.pb.h"
+#include "UnityArmyGroupEnlistMember.pb.h"
+#include "Platform_ArmyGroupAction.pb.h"
+//#include "UnityExchangeHallFailed.pb.h"
+
+#include "Log_PlayerCountState.pb.h"
+
+// ZSERVER
+#include "InnerLogin.pb.h"
+namespace WebGame {
+  namespace Message {
+
+  MessageBuilder::MessageBuilder() {
+    initDefaultMessage() ;
+  }
+
+  void MessageBuilder::initDefaultMessage() {
+#define RB(MSG) registerBuilder<game_connection::MSG>()
+    RB(UnityWhipTarget) ;
+    RB(UnityInitRechargingState) ;
+    RB(UnityAskForWhipTarget) ;
+    RB(PlayerDealFriendApplicant) ;
+    RB(PlayerRemoveFriend) ;
+    RB(DataQuery_SaveAdjuntantScore) ;
+    RB(Log_PlayerCountState) ;
+    RB(UnityOfflineRecharging) ;
+    RB(Radio_UnityClientToClient) ;
+    RB(Radio_ArmyGroupAction) ;
+    RB(Platform_ArmyGroupAction) ;
+    RB(UnityNormalSweepAwayReward) ;
+    RB(UnityArmyGroupEnlistMember) ;
+    RB(UnityCreateArmyGroup) ;
+    RB(UnityRefreshChallengeTimes) ;
+    RB(DataCall_OnlinePlayerRecharging) ;
+    RB(QueryHallPlayerIdList) ;
+    //RB(UnityExchangeHall) ;
+    RB(UnityQuickWhipCorpse) ;
+    RB(DataCall_SaveQuickWhipResult) ;
+        //RB(UnityExchangeHallFailed) ;
+    RB(UnityInitHallType) ;
+    RB(Platform_ArmyGroupStarWarStart) ;
+    RB(UnityActiveRecharging) ;
+    RB(Radio_ArmyGroupMemberOffline) ;
+    RB(Radio_ArmyGroupMemberOnline) ;
+    RB(Platform_RefreshPlayerState) ;
+    RB(Radio_PlayerBecomeVip) ;
+    RB(UnityQueryOnlineArmyGroupMember) ;
+    RB(PlayerMakeFriendWith) ;
+    RB(PlayerMakeFriendWithResult) ;
+    RB(DataCall_MakeFriendWith) ;
+    RB(UnityQuickSummonBossReward) ;
+    RB(DataCall_FinishSpecialTask) ;
+    RB(UnityClearTodayDailyBossAttempts) ;
+    RB(UnitySummonBossState) ;
+    RB(UnityQuickSummonBossResult) ;
+    RB(UnityQuickDailyBossStart) ;
+    RB(Radio_ArmyGroupNewMember) ;
+    RB(DataCall_UnityNormalSweepAway) ;
+    RB(UnityResetSummonBossTimes) ;
+    RB(Radio_ArmyGroupStar) ;
+		RB(InnerLoginResult) ;
+    RB(CurrentDiamondState) ;
+    RB(Platform_ArmyGroupDispatch) ;
+    RB(UnityCaculateStarWar) ;
+    RB(DataQuery_PlayerLogin) ;
+    RB(UnityValidDailyBoss) ;
+    RB(UnityStartQuickSummonBoss) ;
+    RB(SuperCommand_QueryDiamonds) ;
+    RB(Platform_RoomNumberLimit) ;
+    RB(Platform_ResetAward) ;
+    RB(UnityVipInitState) ;
+    RB(UnityNotifyChallengeRankAward) ;
+    RB(UnityResetVipState) ;
+    RB(DataQuery_Base) ;
+    RB(DataQuery_BaseResult) ;
+    RB(UnityArmyGroupAppointAndRemoveOfficer) ;
+    RB(PlayerAskForRecommendFriend) ;
+    RB(PlayerAskForRecommendFriendResult) ;
+    RB(Radio_ArmyGroupOfficerRankChanged) ;
+    RB(Platform_KickPlayer) ;
+    RB(DataCall_ArmyGroupOfficerChanged) ;
+    RB(DataCall_ArmyGroupKickMember) ;
+    RB(UnityArmyKickMemberFailed) ;
+    RB(Platform_CriticalMessage) ;
+    RB(DataCall_OfflinePlayerRecharging) ;
+    RB(Platform_WindowMessage) ;
+    RB(Radio_VipPlayerOnline) ;
+    RB(Radio_ArmyGroupStarStatus) ;
+    RB(UnityNotifyHasOfflineRecharging) ;
+    RB(UnityConsumeOfflineRecharging) ;
+    RB(Radio_ArmyGroupDispatch) ;
+    RB(Horn) ;
+    RB(UnityGhostOffline) ;
+    RB(UnityGhostOnline) ;
+    RB(Platform_RefreshChallengeGroup) ;
+    RB(Platform_ChargeMoney) ;
+    RB(Platform_ShutUp) ;
+    RB(UnityQuickStarWarResult) ;
+    RB(Platform_TreasureHunt) ;
+    RB(Platform_SystemIndugleState) ;
+    RB(UnityCareTreasureInformation) ;
+    RB(ChallengeHeroList) ;
+    RB(Platform_GiveUpStar) ;
+    RB(Radio_ArmyGroupGiveUpStar) ;
+    RB(UnityResetRechargingTimes) ;
+    RB(Log_OnlineState) ;
+    RB(UnityInitTreasureInformation) ;
+    RB(PlayerIndugledState) ;
+    RB(UnitySystemFlag) ;
+    RB(SpecialTaskMetaInfo) ;
+    RB(PlayerDontTalk) ;
+    RB(UnityPlayerCreateArmyGroupResult) ;
+    RB(UnityFirstBeatDownDailyBoss) ;
+    RB(Platform_PlayerDbLevel) ;
+    RB(UnityTreasureInformation) ;
+    RB(UnityFastenNormalSweepAway) ;
+    RB(UnityCancelNormalSweepAway) ;
+    RB(UnityArmyGroupKickMember) ;
+		RB(UnityLogicError) ;
+    RB(UnityQueryAdjuntant) ;
+    RB(UnityAdjuntantChangeHint) ;
+    RB(UnityAdjuntantInformation) ;
+    RB(PlayerDealFriendApplicantFailed) ;
+    RB(DataCall_AddFriend) ;
+    RB(UnityNormalSweepAway) ;
+    RB(DataCall_UnityVipSweepAway) ;
+    RB(DataCall_UnityAdjuntantScore) ;
+    RB(Platform_ArmyGroupStarStatus) ;
+    RB(Platform_ArmyGroupStar) ;
+    RB(DataQuery_BaseExperience) ;
+    RB(PlayerAddedByOtherFriend) ;
+    RB(DataCall_RecordSummonBoss) ;
+    RB(UnityVipSweepAway) ;
+    RB(UnityVipSweepAwayReward);
+    RB(DataCall_ArmyGroupPlayerLeave) ;
+    RB(UnityLeaveArmyGroupFailed) ;
+    RB(UnityLeaveArmyGroupSuccessed) ;
+    RB(DataQuery_SyncArmyGroup) ;
+    RB(DataQuery_ArmyGroup) ;
+    RB(DataCall_RemoveFriend) ;
+    RB(UnityArmyGroupEnlistMemberResult) ;
+    RB(UnityJoinInArmyGroupSuccessed) ;
+    RB(Radio_ArmyGroupLeaveMember) ;
+    RB(UnityMoneyChanged) ;
+    RB(UnityArmyGroupTransferDuty) ;
+    RB(UnityHallChat) ;
+		RB(DataQuery_Response) ;
+    RB(FriendInitList) ;
+    RB(QueryPlayerOnlineState) ;
+    RB(PlayerAskForOnlineReward);
+    RB(DataQuery_Q_UseMoneyPoint) ;
+    RB(PlayerAskForOnlineRewardResult);
+		RB(DataQuery_Q_PropAwardGroup) ;
+    RB(UnityLeaveArmyGroup) ;
+    RB(BuddyState) ;
+    RB(UnityQueryWhipRank) ;
+    RB(UnityQueryWhipRankResult) ;
+    RB(DataQuery_MaxPlayerId) ;
+    RB(Dispatcher_UseKey) ;
+    RB(Dispatcher_FreeKey) ;
+		RB(InnerLogin) ;
+    RB(UnityQuickFightResult) ;
+    RB(UnityQuickFightReward) ;
+    RB(DataCall_RecordPlayerDailyBossResult) ;
+    RB(Radio_ArmyGroupNewChairman) ;
+    RB(UnityArmyGroupTransferDutyFailed) ;
+    RB(UnityWhipRankAward) ;
+    RB(SuperCommand_QueryHistroyOnlineState) ;
+    RB(Radio_RankingChanged) ;
+    RB(UnityQueryOnlineArmyGroupMemberResult) ;
+    RB(PlayerDealFriendApplicantSuccessed) ;
+    RB(DataCall_SentenceIndulgedPlayers) ;
+    RB(UnityCareTask) ;
+    RB(DataQuery_Q_PlayerCareTask) ;
+    RB(UnityKickedByArmyGroup) ;
+    RB(QueryServer) ;
+    RB(ServerCache_HallPosition) ;
+    RB(ServerCache_SummonBossTimes) ;
+    RB(ServerCache_ChallengeRanks) ;
+    RB(UnityWhipCorpseState) ;
+    RB(GameSystemTick) ;
+		RB(DataQuery_Failed) ;
+		RB(DataQuery_AwardPropGroup) ;
+    RB(UnityCurrentHallCount) ;
+    RB(UnityFollowHall) ;
+    RB(UnityFollowHallFailed) ;
+    RB(UnityUnfollowHall) ;
+    RB(DataCall_SaveChat) ;
+    RB(UnityValidDailyBossState) ;
+		RB(CommanderLevelChangeHint) ;
+		RB(DataQuery_PlayerProperty) ;
+    RB(UnityCareHallEvent) ;
+    RB(UnityDontCareHallEvent) ;
+    RB(UnityHallEvent) ;
+		RB(DataQuery_Q_PlayerProperty) ;
+		RB(DataQuery_Q_PlayerUseProp) ;
+    RB(Dispatcher_Register) ;
+    RB(Dispatcher_NewKey) ;
+    RB(HallPlayerIdList) ;
+		RB(ServerTime) ;
+		RB(InnerQuit) ;
+    RB(InnerPostMessage) ;
+    RB(InnerTempPlayerQuit) ;
+    RB(ForceOffline) ;
+    RB(InnerForceOfflineResult) ;
+    RB(Administrator_Command_DriveOutPlayer) ;
+    RB(PlayerOnlineAwardTimeInteval) ;
+		RB(SuperCommand_Rush) ;
+    RB(DataCall_RefreshTreatureMine) ;
+		RB(SuperCommand_FlashPropertyFile) ;
+    RB(SuperCommand_QueryPlayerOnlineNumber) ;
+    RB(SuperCommand_QueryPlayerNumberState) ;
+    RB(Super_PlayerNumberState) ;
+		RB(ClientNetProperty) ;
+		RB(DataQuery_Q_PlayerCommanderLevel) ;
+		RB(DataCall_RecordOnlineTime) ;
+		RB(DataQuery_PlayerCommanderLevel) ;
+    RB(PlayerOnlineNumber) ;
+    RB(DataQuery_Q_PlayerOnlineReward) ;
+		RB(WaitingRoundRoomInitIdList) ;
+    RB(PlayerMaxIdInDb) ;
+    RB(DataCall_RecordPlayerInstanceDungeonResult) ;
+		RB(HeartBeat) ;
+		RB(DataCall_StampCurrentPlayerNumber) ;
+    RB(PlayerOnlineState) ;
+		RB(UnityDebugInfomation) ;
+    RB(UnityVipChangeHint) ;
+    RB(FriendOnline) ;
+    RB(FriendOffline) ;
+    RB(ResetOnlineReward) ;
+		RB(UnityRoundFightScore) ;
+		RB(DataCall_SavePlayerReward) ;
+		RB(DataCall_RecordPlayerRoundFightResult) ;
+    RB(DataCall_RecordPlayerRoundInstanceResult) ;
+    RB(InnerMessage) ;
+    RB(InnerGroup) ;
+    RB(ValidServer) ;
+    RB(UnityQuickDailyBossReward) ;
+    RB(DataQuery_Vip) ;
+    RB(Radio_DailyBossBonus) ;
+    RB(UnityQuickDailyBossResult) ;
+		RB(ClientLogicError) ;
+		//register_builder<game_connection::ChatToRoom>() ;
+		RB(PlayerEnterWorld) ;
+		RB(Login) ;
+		RB(LoginResult) ;
+		RB(ChatToPlayer) ;
+		RB(ChatToWorld) ;
+		RB(ChatToNation) ;
+		RB(ChatToLeague) ;
+		RB(PlayerIdList) ;
+    RB(pack_group) ;
+#undef RB
+    m_builders.makeFinal() ;
+  }
+
+
+  MessageBuilder& MessageBuilder::instance() {
+    static MessageBuilder instance_ ;
+    return instance_ ;
+  }
+
+	std::string MessageBuilder::describeMessageBody(int type,
+			const ::google::protobuf::Message& msg) const {
+		return msg.DebugString() ;
+	}
+  }
+}

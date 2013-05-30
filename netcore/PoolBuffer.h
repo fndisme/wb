@@ -10,7 +10,7 @@
 #define FND_WEB_GAME_POOL_BUFFER_H
 #include <stlsoft/memory/auto_buffer.hpp>
 namespace WebGame {
-  namespace Net {
+  namespace NetCore {
     // FIXME
     // IT's NOT a safe class. just use in some class. should not use as single
     // part

@@ -17,10 +17,10 @@
  */
 // dont need header protect
 template<typename NetConnection>
-char* WebGame::Net::DataGetter<NetConnection>::data() { return m_pool_buffer.data() ;}
+char* WebGame::NetCore::DataGetter<NetConnection>::data() { return m_pool_buffer.data() ;}
 
 template<typename NetConnection>
-void WebGame::Net::DataGetter<NetConnection>::start(SystemConnectionPointer conn) {
+void WebGame::NetCore::DataGetter<NetConnection>::start(SystemConnectionPointer conn) {
   pan::log_DEBUG("nc real start");
 	boost::asio::async_read(m_socket,
 			boost::asio::buffer(this->data(), this->header_size()),
@@ -34,7 +34,7 @@ void WebGame::Net::DataGetter<NetConnection>::start(SystemConnectionPointer conn
 }
 
 template<typename NetConnection>
-void WebGame::Net::DataGetter<NetConnection>::handleReceiveDataHeader(
+void WebGame::NetCore::DataGetter<NetConnection>::handleReceiveDataHeader(
     SystemConnectionPointer conn,
 		boost::system::error_code const& error) {
   if(!conn) {
@@ -64,7 +64,7 @@ void WebGame::Net::DataGetter<NetConnection>::handleReceiveDataHeader(
 }
 
 template<typename NetConnection>
-void WebGame::Net::DataGetter<NetConnection>::handleReceiveDataBody(
+void WebGame::NetCore::DataGetter<NetConnection>::handleReceiveDataBody(
     SystemConnectionPointer conn,
     boost::system::error_code const& error) {
   if(error || !this->importBody()) {
@@ -94,40 +94,40 @@ void WebGame::Net::DataGetter<NetConnection>::handleReceiveDataBody(
 }
 
 template<typename NetConnection>
-void WebGame::Net::DataGetter<NetConnection>::initOrUninitDealMessage(
+void WebGame::NetCore::DataGetter<NetConnection>::initOrUninitDealMessage(
 		const std::false_type&,
 		net_connection_pointer ) {
 	m_blocks.push_back(m_current_block) ;
 }
 
 template<typename NetConnection>
-void WebGame::Net::DataGetter<NetConnection>::initOrUninitDealMessage(const std::true_type&,
+void WebGame::NetCore::DataGetter<NetConnection>::initOrUninitDealMessage(const std::true_type&,
 		net_connection_pointer nc) {
 	messageDealer(std::cref(m_current_block), nc) ;
 }
 
 template<typename NetConnection>
-void WebGame::Net::DataGetter<NetConnection>::set_max_body_size(size_t size)
+void WebGame::NetCore::DataGetter<NetConnection>::setMaxBodySize(size_t size)
 { m_pool_buffer.resetCapacity(size) ;}
 
 template<typename NetConnection>
-void WebGame::Net::DataGetter<NetConnection>::dealMessage(net_connection_pointer nc) {
+void WebGame::NetCore::DataGetter<NetConnection>::dealMessage(net_connection_pointer nc) {
 	typedef std::is_void<ActiveManageMessageType> ActiveType ;
 	initOrUninitDealMessage(ActiveType(), nc) ;
 }
 
 template<typename NetConnection>
-bool WebGame::Net::DataGetter<NetConnection>::importBody() {
-  return m_current_block.import_body_from_array(m_pool_buffer.data(),
+bool WebGame::NetCore::DataGetter<NetConnection>::importBody() {
+  return m_current_block.importBodyFromArray(m_pool_buffer.data(),
 			bodySize()) ;
 }
 
 template<typename NetConnection>
-bool WebGame::Net::DataGetter<NetConnection>::importHeader() {
-  if(m_current_block.import_header_from_array(m_pool_buffer.data(),
-        header_size())) {
-    if((!m_can_change_pool_size) && m_pool_buffer.capacity() < body_size()) return false ;
-    m_pool_buffer.resetCapacity(body_size()) ;
+bool WebGame::NetCore::DataGetter<NetConnection>::importHeader() {
+  if(m_current_block.importHeaderFromArray(m_pool_buffer.data(),
+        headerSize())) {
+    if((!m_can_change_pool_size) && m_pool_buffer.capacity() < bodySize()) return false ;
+    m_pool_buffer.resetCapacity(bodySize()) ;
     return true ;
   } else {
     return false ;
@@ -135,7 +135,7 @@ bool WebGame::Net::DataGetter<NetConnection>::importHeader() {
 }
 
 template<typename NetConnection>
-WebGame::Net::DataGetter<NetConnection>::DataGetter(
+WebGame::NetCore::DataGetter<NetConnection>::DataGetter(
 		std::shared_ptr<NetConnection> conn,
 		size_t buffer_size,
 		bool can_change_pool_size) :
@@ -150,30 +150,30 @@ WebGame::Net::DataGetter<NetConnection>::DataGetter(
   m_receive_allocator{} {}
 
 template<typename NetConnection>
-void WebGame::Net::DataGetter<NetConnection>::popHeadStockMessage()
+void WebGame::NetCore::DataGetter<NetConnection>::popHeadStockMessage()
 { m_blocks.pop_front() ;}
 
 template<typename NetConnection>
-size_t WebGame::Net::DataGetter<NetConnection>::headerSize() const
-{ return m_current_block.header_size() ;}
+size_t WebGame::NetCore::DataGetter<NetConnection>::headerSize() const
+{ return m_current_block.headerSize() ;}
 
 template<typename NetConnection>
-bool WebGame::Net::DataGetter<NetConnection>::receiveAsyncMessage
-(typename WebGame::DataGetter<NetConnection>::block_type& db) {
+bool WebGame::NetCore::DataGetter<NetConnection>::receiveAsyncMessage
+(typename WebGame::NetCore::DataGetter<NetConnection>::block_type& db) {
 	if (!this->has_stock_message()) return false ;
-	db = std::move(this->head_message()) ;
+	db = std::move(this->headMessage()) ;
 	popHeadStockMessage() ;
 	return true ;
 }
 
 template<typename NetConnection>
-size_t WebGame::Net::DataGetter<NetConnection>::bodySize() const
-{ return m_current_block.body_size() ;}
+size_t WebGame::NetCore::DataGetter<NetConnection>::bodySize() const
+{ return m_current_block.bodySize() ;}
 
 template<typename NetConnection>
-const typename WebGame::Net::DataGetter<NetConnection>::block_type&
-WebGame::DataGetter<NetConnection>::headMesage() const { return m_blocks.front() ;}
+const typename WebGame::NetCore::DataGetter<NetConnection>::block_type&
+WebGame::NetCore::DataGetter<NetConnection>::headMessage() const { return m_blocks.front() ;}
 
 template<typename NetConnection>
-bool WebGame::Net::DataGetter<NetConnection>::hasStockMessage() const
+bool WebGame::NetCore::DataGetter<NetConnection>::hasStockMessage() const
 { return !m_blocks.empty() ;}

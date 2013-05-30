@@ -1,0 +1,58 @@
+# depslib dependency file v1.0
+1369820981 source:/home/fndisme/work/github/webgame/utility/RangeRandom.cpp
+	"webgame/utility/RangeRandom.h"
+	<cassert>
+	<ctime>
+	<vector>
+	<boost/random/mersenne_twister.hpp>
+	<boost/random/uniform_int.hpp>
+	<boost/random/uniform_real.hpp>
+	<boost/random/variate_generator.hpp>
+
+1369820981 /home/fndisme/work/github/webgame/utility/RangeRandom.h
+	<cstdlib>
+	<boost/noncopyable.hpp>
+
+1369820981 source:/home/fndisme/work/github/webgame/utility/ReadFromFile.cpp
+	"webgame/utility/ReadFromFile.h"
+	<cstdio>
+	<fstream>
+	<stdexcept>
+	<locale>
+	<iostream>
+	<boost/algorithm/string/classification.hpp>
+	<boost/algorithm/string/split.hpp>
+
+1369820981 /home/fndisme/work/github/webgame/utility/ReadFromFile.h
+	<string>
+	<vector>
+	<iosfwd>
+
+1369820981 source:/home/fndisme/work/github/webgame/utility/TimeoutQueue.cpp
+	"webgame/utility/TimeoutQueue.h"
+	<vector>
+	<algorithm>
+
+1369820981 /home/fndisme/work/github/webgame/utility/TimeoutQueue.h
+	<stdint.h>
+	<functional>
+	<boost/multi_index_container.hpp>
+	<boost/multi_index/indexed_by.hpp>
+	<boost/multi_index/ordered_index.hpp>
+	<boost/multi_index/member.hpp>
+
+1369820981 source:/home/fndisme/work/github/webgame/utility/WriteToFile.cpp
+	"webgame/utility/WriteToFile.h"
+	<cstdio>
+	<algorithm>
+	<functional>
+	<fstream>
+	<iostream>
+	<locale>
+	<stdexcept>
+
+1369820981 /home/fndisme/work/github/webgame/utility/WriteToFile.h
+	<iosfwd>
+	<string>
+	<vector>
+

@@ -30,7 +30,7 @@
 #include "webgame/netcore/DataSender.h"
 
 #include "net_connection_storage.h"
-#include "game_message.h"
+#include "webgame/message/DataBlock.h"
 #include "identity_type.h"
 
 // create connection easy for async
@@ -38,7 +38,7 @@
 
 
 namespace WebGame {
-namespace Net {
+namespace NetCore {
 
 #ifdef  TRINITY_DEBUG
 	class net_stream_infomation ;

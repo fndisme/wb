@@ -38,15 +38,6 @@ namespace Utility {
     void add(const key_type& k, const function_type& func) {
       handleMap.insert(k, func) ;
     }
-    //~MessageManager() {}
-//
-//    bool deal_with_message(const key_type& k, const function_para_type& param) const{
-//			auto ok = handleMap.has_value(k) ;
-//			if(!ok) return ok ;
-//			(handleMap.value(k))(param) ;
-//			return ok ;
-//    }
-//
 		bool dispatch(const key_type& k, function_para_type&& param) const{
 			if(!isRegistered(k)) return false ;
 			(handleMap.value(k))(std::forward<function_para_type>(param)) ;
@@ -56,7 +47,7 @@ namespace Utility {
       return handleMap.hasValue(k) ;
     }
 		void lock() { handleMap.makeFinal() ;}
-    //message_manager() : handleMap() {}
+    MessageManager() : handleMap() {}
 
   private:
     HandleMap handleMap ;

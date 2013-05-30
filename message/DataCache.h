@@ -39,11 +39,11 @@ namespace WebGame{
       typedef std::shared_ptr<DataCache> pointer ;
       typedef std::shared_ptr<const DataCache> const_pointer ;
       void packToArray(void* buffer, size_t buffer_size) const {
-        if(buffer_size < total_size()) throw error("pack array size is too small...") ;
+        if(buffer_size < totalSize()) throw error("pack array size is too small...") ;
 #ifdef _WIN32
-        memcpy_s(buffer, buffer_size, data(), total_size()) ;
+        memcpy_s(buffer, buffer_size, data(), totalSize()) ;
 #else
-        std::memcpy(buffer, data(), total_size()) ;
+        std::memcpy(buffer, data(), totalSize()) ;
 #endif
       }
       const void* data() const { return static_cast<const void*>(m_buffer.data()) ;}
@@ -83,15 +83,15 @@ namespace WebGame{
         m_buffer(db.totalSize()) {
           PANTHEIOS_ASSERT(db.totalSize() > 0) ;
 
-          if(!db.packToArray(data(), total_size())) {
+          if(!db.packToArray(data(), totalSize())) {
             throw error("could not create cache......") ;
           }
         }
 
       DataCache(const DataBlock& db) :
-        m_buffer(db.total_size()) {
-          PANTHEIOS_ASSERT(db.total_size() > 0) ;
-          if(!db.packToArray(data(), total_size())) {
+        m_buffer(db.totalSize()) {
+          PANTHEIOS_ASSERT(db.totalSize() > 0) ;
+          if(!db.packToArray(data(), totalSize())) {
             throw error("could not create cache......") ;
           }
         }
@@ -100,13 +100,13 @@ namespace WebGame{
       template<typename T, typename Body>
         DataCache(const T& header, const Body* body) :
           m_buffer(totalMessageSize(header, body)) {
-            pack_cache_message(header, body, data(), total_size()) ;
+            pack_cache_message(header, body, data(), totalSize()) ;
         }
 
       template<typename T, typename Identity>
         DataCache(T&& msg, size_t header_size, Identity id) : m_buffer(header_size +
             messageBodySize(std::forward<T>(msg))) {
-          pack_cache_message(std::forward<T>(msg), data(), total_size(), id) ;
+          pack_cache_message(std::forward<T>(msg), data(), totalSize(), id) ;
         }
 
       template<typename T, typename Identity>
@@ -117,11 +117,11 @@ namespace WebGame{
       buffer_t m_buffer ;
   } ;
   inline DataCache::const_pointer makeCached(DataBlock& db) {
-    PANTHEIOS_ASSERT(db.total_size() > 0) ;
+    PANTHEIOS_ASSERT(db.totalSize() > 0) ;
     return DataCache::const_pointer(new DataCache(db)) ;
   }
   inline DataCache::const_pointer makeCached(const DataBlock& db) {
-    PANTHEIOS_ASSERT(db.total_size() > 0) ;
+    PANTHEIOS_ASSERT(db.totalSize() > 0) ;
     return DataCache::const_pointer(new DataCache(db)) ;
   }
 

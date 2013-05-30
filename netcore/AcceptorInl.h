@@ -19,10 +19,11 @@
 
 template<typename NetConnection>
 void WebGame::NetCore::Acceptor<NetConnection>::asyncConnect() {
-	m_current_conection.reset(new net_connection_type(m_io_service)) ;
+	m_current_conection.reset(
+      new net_connection_type(m_readStrand.get_io_service(), m_readStrand, m_writeStrand)) ;
 	m_acceptor.async_accept(m_current_conection->socket(),
 			m_readStrand.wrap(
-				boost::bind(&net_acceptor::handleNewConnection,
+				boost::bind(&class_type::handleNewConnection,
 					this,
 					boost::asio::placeholders::error))) ;
 }
@@ -77,13 +78,13 @@ template<typename NetConnection>
 void WebGame::NetCore::Acceptor<NetConnection>::doPostMessageExcept(
 		const data_type& db,
 		nc_pointer_type nc) const {
-	DataCache::const_pointer cache = make_cached(db) ;
-	do_post_a_message_except(cache) ;
+  Message::DataCache::const_pointer cache = make_cached(db) ;
+	doPostMessageExcept(cache) ;
 }
 
 template<typename NetConnection>
 void WebGame::NetCore::Acceptor<NetConnection>::doPostMessageExcept(
-		WebGame::DataCache::const_pointer db,
+		Message::DataCache::const_pointer db,
 		nc_pointer_type nc) const {
 	std::for_each(m_connections.begin(),
 			m_connections.end(),
@@ -95,12 +96,12 @@ void WebGame::NetCore::Acceptor<NetConnection>::doPostMessageExcept(
 template<typename NetConnection>
 void WebGame::NetCore::Acceptor<NetConnection>::doPostMessage(
 		const data_type& db) const {
-	DataCache::const_pointer cache = make_cached(db) ;
-	do_post_a_message(cache) ;
+  Message::DataCache::const_pointer cache = make_cached(db) ;
+	doPostMessage(cache) ;
 }
 template<typename NetConnection>
 void WebGame::NetCore::Acceptor<NetConnection>::doPostMessage(
-		WebGame::DataCache::const_pointer db) const {
+		Message::DataCache::const_pointer db) const {
 	std::for_each(m_connections.begin(),
 			m_connections.end(),
 			[&db](nc_pointer_type nc){nc->sendAsyncMessage(db) ;}
@@ -121,7 +122,7 @@ void WebGame::NetCore::Acceptor<NetConnection>::handleNewConnection(
 			p(new typename net_connection_type::data_getter_type(m_current_conection, m_data_getter_cache_size)) ;
 
 		p->message_dealer = messageCallback;
-		m_current_conection->handle_error.connect(handle_connection_error) ;
+		m_current_conection->handleError.connect(errorCallback) ;
 		m_current_conection->resetGetter(std::move(p)) ;
     pan::log_DEBUG("BF call connect successed") ;
 		successedCallback(m_current_conection) ;
@@ -138,24 +139,25 @@ void WebGame::NetCore::Acceptor<NetConnection>::handleNewConnection(
 /* static */
 template<typename NetConnection>
 typename WebGame::NetCore::Acceptor<NetConnection>::pointer
-WebGame::NetCore::Acceptor<NetConnection>::create(boost::asio::strand& strand,
+WebGame::NetCore::Acceptor<NetConnection>::create(boost::asio::strand& readStrand,
+    boost::asio::strand& writeStrand,
 		int port, const NetAcceptorProperty& p,
 		const NetAcceptorOption& option) {
-	pointer acceptor(new class_type(strand, port)) ;
+	pointer acceptor(new class_type(readStrand, writeStrand, port)) ;
 	acceptor->start(p, option) ;
 	return acceptor ;
 }
 
 template<typename NetConnection>
 void WebGame::NetCore::Acceptor<NetConnection>::postMessage(const data_type& db) const {
-	m_io_service.post(boost::bind(&class_type::doPostMessage,
+	m_writeStrand.post(boost::bind(&class_type::doPostMessage,
 				this,
 				db)) ;
 }
 
 template<typename NetConnection>
-void WebGame::NetCore::Acceptor<NetConnection>::postMessage(WebGame::DataCache::const_pointer db) const {
-	m_io_service.post(boost::bind(&class_type::doPostMessage,
+void WebGame::NetCore::Acceptor<NetConnection>::postMessage(Message::DataCache::const_pointer db) const {
+	m_writeStrand.post(boost::bind(&class_type::doPostMessage,
 				this,
 				db)) ;
 }
@@ -163,24 +165,24 @@ void WebGame::NetCore::Acceptor<NetConnection>::postMessage(WebGame::DataCache::
 template<typename NetConnection>
 void WebGame::NetCore::Acceptor<NetConnection>::postMessageExcept(const data_type& db,
 		nc_pointer_type nc) const {
-	m_io_service.post(m_writeStrand.wrap(boost::bind(&class_type::doPostMessageExcept,
+	m_writeStrand.post(boost::bind(&class_type::doPostMessageExcept,
 					this,
 					db,
-					nc))) ;
+					nc)) ;
 
 }
 template<typename NetConnection>
-void WebGame::NetCore::Acceptor<NetConnection>::postMessageExcept(WebGame::DataCache::const_pointer db,
+void WebGame::NetCore::Acceptor<NetConnection>::postMessageExcept(Message::DataCache::const_pointer db,
 		nc_pointer_type nc) const {
-	m_io_service.post(m_writeStrand.wrap(boost::bind(&class_type::doPostMessageExcept,
+	m_writeStrand.post(boost::bind(&class_type::doPostMessageExcept,
 					this,
 					db,
-					nc))) ;
+					nc)) ;
 
 }
 
 template<typename NetConnection>
-int WebGame::NetCore::Acceptor<NetConnection>::ReceiveBufferSize() {
+int WebGame::NetCore::Acceptor<NetConnection>::receiveBufferSize() {
 	boost::asio::socket_base::receive_buffer_size option;
 	m_acceptor.get_option(option);
 	return option.value();
@@ -203,7 +205,7 @@ size_t WebGame::NetCore::Acceptor<NetConnection>::connectionSize() const
 { return m_connections.size() ;}
 
 template<typename NetConnection>
-int WebGame::NetCore::Acceptor<NetConnection>::setSendBufferSize() {
+int WebGame::NetCore::Acceptor<NetConnection>::sendBufferSize() {
 	boost::asio::socket_base::send_buffer_size option;
 	m_acceptor.get_option(option);
 	return option.value();

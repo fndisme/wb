@@ -18,11 +18,13 @@
 #ifndef FND_WEBGAME_ZDATAQUERY_TRANSLATORPARAMETER_H
 #define FND_WEBGAME_ZDATAQUERY_TRANSLATORPARAMETER_H
 #include <tuple>
-#include "data_block_fwd.h"
+#include "webgame/message/DataBlockFwd.h"
 
 namespace WebGame
 {
-typedef std::tuple<int, const Fnd::data_block&, Fnd::data_block&> ZDataQueryTranslatorParameter ;
+  namespace Server {
+    typedef std::tuple<int, const Message::DataBlock&, Message::DataBlock&> ZDataQueryTranslatorParameter ;
+  }
 }
 
 #endif

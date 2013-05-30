@@ -15,16 +15,17 @@
  *
  * =====================================================================================
  */
+
+#include "webgame/server/ZDataQueryImpl.h"
 #include <algorithm>
 #include <boost/bind.hpp>
 #include <pantheios/assert.h>
 #include <pantheios/pantheios.hpp>
 #include <pantheios/inserters.hpp>
-#include "page_file_parser.h"
-#include "ZDataQueryImpl.h"
-#include "ZPollInManager.h"
-#include "ZSocketUtility.h"
-#include "shims/data_block.h"
+#include "webgame/utility/PageParser.h"
+#include "webgame/server/ZPollInManager.h"
+//#include "webgame/server/ZSocketUtility.h"
+#include "webgame/message/shims/DataBlock.h"
 #include <iostream>
 
 
@@ -32,7 +33,7 @@
 #undef THIS_CLASS
 #endif
 
-#define THIS_CLASS WebGame::ZDataQuery::Impl
+#define THIS_CLASS WebGame::Server::ZDataQuery::Impl
 
 namespace
 {
@@ -44,69 +45,60 @@ const std::string SenderConnection("SenderConnection") ;
 const std::string DefaultReceiveConnection("tcp://localhost:5556") ;
 }
 
-void THIS_CLASS::init(const std::string& initfile)
-{
-    using Utility::page_parser ;
-    page_parser pp(initfile) ;
+void THIS_CLASS::init(const std::string& initfile) {
+    using Utility::PageParser;
+    PageParser pp(initfile) ;
 
     std::string receiver_address(pp.get(Net, ReceiveConnection, DefaultReceiveConnection)) ;
     m_name = pp.get(Net, QueryerName, DefaultName) ;
     if(m_name.empty()) throw std::runtime_error("Query Player name should not empty.") ;
     //m_socket->setsockopt(XS_IDENTITY, m_name.data(), m_name.size()) ;
-    m_socket->setsockopt(QSocketTratis::option_identity(), m_name.data(), m_name.size()) ;
+    m_socket->setsockopt(QSocketTratis::optionIdentity(), m_name.data(), m_name.size()) ;
     m_socket->connect(receiver_address.c_str()) ;
     int linger = 0 ;
 
-    m_socket->setsockopt(QSocketTratis::option_linger(), &linger, sizeof linger) ;
+    m_socket->setsockopt(QSocketTratis::optionLinger(), &linger, sizeof linger) ;
 }
 
 THIS_CLASS::~Impl() {}
 
-THIS_CLASS::Impl(QSocketTratis::context_t& ctx, const std::string& info) :
+THIS_CLASS::Impl(QSocketTratis::context_t& ctx,
+    boost::asio::strand& strand,
+    const std::string& info) :
+    m_strand(strand),
     m_handlers(),
     m_translaters(),
     m_send_messages {},
-                //m_socket(new socket_t(ctx, XS_DEALER)),
-
-                m_socket(new QSocketTratis::socket_t(ctx, QSocketTratis::type_dealer())),
-                m_name()
-{
+    m_socket(new QSocketTratis::socket_t(ctx, QSocketTratis::typeDealer())),
+    m_name() {
     init(info) ;
 }
 
 
-void THIS_CLASS::bind_to_poll_manager(WebGame::ZPollInManager* mgr)
-{
-    mgr->register_absolute_actor(boost::bind(&THIS_CLASS::send_query, this)) ;
-    mgr->register_actor(*m_socket, boost::bind(&THIS_CLASS::deal_message, this)) ;
+void THIS_CLASS::bindPollManager(ZPollInManager* mgr) {
+    mgr->registerWriteActor(boost::bind(&THIS_CLASS::sendQuery, this)) ;
+    mgr->registerReadActor(*m_socket, boost::bind(&THIS_CLASS::dealMessage, this)) ;
 }
 
-void THIS_CLASS::deal_message()
-{
-    auto deal_single_msg = [this](const Fnd::data_block& db) {
-        m_handlers.deal_with_message(db.message_type(), std::cref(db)) ;
+void THIS_CLASS::dealMessage() {
+    auto deal_single_msg = [this](std::shared_ptr<data_type> db) {
+        m_handlers.dispatch(db->messageType(), std::cref(*db)) ;
     } ;
 
-    //xs_absorb_and_handle_message<Fnd::data_block>(*m_socket, deal_single_msg) ;
-    //
-    QSocketTratis::absorb_and_handle_message<Fnd::data_block>(*m_socket, deal_single_msg) ;
+    QSocketTratis::absorbAndDispatchMessage<data_type>(*m_socket, deal_single_msg, m_strand) ;
 }
 
-void THIS_CLASS::send_query()
-{
+void THIS_CLASS::sendQuery() {
     if(m_send_messages.empty()) return ;
-    //xs_send_group_message_and_clear_container(m_send_messages, *m_socket) ;
-    QSocketTratis::send_group_message_and_clear_container(m_send_messages, *m_socket) ;
+    QSocketTratis::sendAllGroupMessage(m_send_messages, *m_socket) ;
 }
 
 
-
-
-THIS_CLASS::data_type THIS_CLASS::translate_message(int hint, const THIS_CLASS::data_type& db) const
-{
+THIS_CLASS::data_type THIS_CLASS::translateMessage(int hint,
+    const THIS_CLASS::data_type& db) const {
     data_type trans ;
-    m_translaters.deal_with_message(db.message_type(),
-                                    std::make_tuple(hint, std::cref(db), std::ref(trans))) ;
+    m_translaters.dispatch(db.messageType(),
+        std::make_tuple(hint, std::cref(db), std::ref(trans))) ;
     return trans ;
 }
 

@@ -22,41 +22,42 @@
 #include <tuple>
 #include <type_traits>
 #include <functional>
-#include "DataCache.h"
-#include "game_message.h"
-#include "ZSocketDef.h"
-#include "ZDataQueryTranslatorParameter.h"
-namespace WebGame
-{
+#include "webgame/message/DataCache.h"
+#include "webgame/message/DataBlock.h"
+#include "webgame/server/ZSocketDef.h"
+#include "webgame/server/ZDataQueryTranslatorParameter.h"
+namespace WebGame {
+namespace Server {
 
 class ZPollInManager ;
-class ZDataQuery
-{
+class ZDataQuery {
 public:
-    ZDataQuery(QSocketTratis::context_t&, const std::string& initfile) ;
+    ZDataQuery(QSocketTratis::context_t&,
+        boost::asio::strand&,
+        const std::string& initfile) ;
     ~ZDataQuery() ;
-    typedef Fnd::data_block data_type ;
-    typedef DataCache::const_pointer cache_data_type ;
+    typedef Message::DataBlock data_type ;
+    typedef Message::DataCache::const_pointer cache_data_type ;
 
     typedef ZDataQueryTranslatorParameter TranslateHandleParameter ;
     typedef std::function<void (const data_type&)> message_handler_function ;
     typedef std::function<void (const TranslateHandleParameter&)> message_translater_function ;
-    void register_handler(int msgtype, const message_handler_function& handler) ;
-    void register_tranlater(int msgtype, const message_translater_function& tranlator) ;
-    void bind_to_poll_manager(ZPollInManager* mgr) ;
+    void registerHandler(int msgtype, const message_handler_function& handler) ;
+    void registerTranslater(int msgtype, const message_translater_function& tranlator) ;
+    void bindPollManager(ZPollInManager* mgr) ;
     void lock() ;
-    data_type translate_message(int hint, const Fnd::data_block& db) const ;
-    void query(const Fnd::data_block& db) ;
-    void cache_query(cache_data_type) ;
+    data_type translateMessage(int hint, const data_type& db) const ;
+    void query(const data_type& db) ;
+    void cacheQuery(cache_data_type) ;
 
     template<typename T>
-    void message_query(T&& msg, player_tt pid = player_tt(0)) {
+    void messageQuery(T&& msg, player_tt pid = player_tt(0)) {
         static_assert(std::is_reference<T>::value ||
                       std::is_rvalue_reference<decltype(msg)>::value,
                       "need ref or rvalue") ;
 
         // static_assert(std::is_reference<T>::value, "msg must be ref") ;
-        cache_query(easy_data_block_cache(std::forward<T>(msg), pid)) ;
+        cacheQuery(easy_data_block_cache(std::forward<T>(msg), pid)) ;
     }
 private:
     class Impl ;
@@ -65,5 +66,6 @@ private:
     ZDataQuery& operator = (const ZDataQuery&) = delete ;
 
 } ;
+}
 }
 #endif

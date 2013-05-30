@@ -26,7 +26,7 @@
 #include <pantheios/pantheios.hpp>
 #include <pantheios/assert.h>
 namespace WebGame {
-
+  namespace Server {
   class ZPollInManager {
     public:
       typedef std::function<void ()> ActionFunctionType ;
@@ -45,7 +45,7 @@ namespace WebGame {
         QSocketTratis::pollitem_t item ;
         item.socket = socket ;
         //item.events = XS_POLLIN ;
-        item.events = QSocketTratis::event_pollin();
+        item.events = QSocketTratis::eventPollIn();
         item.revents = 0 ;
         m_pollers.push_back(item) ;
         m_functions.push_back(fun) ;
@@ -59,7 +59,7 @@ namespace WebGame {
           //rc = zmq::poll(&(m_pollers[0]), m_pollers.size(), ms) ;
           if(rc != 0) {
             for(size_t i = 0, size = m_pollers.size() ; i < size ; ++i) {
-              if(m_pollers[i].revents & QSocketTratis::event_pollin()) {
+              if(m_pollers[i].revents & QSocketTratis::eventPollIn()) {
                 m_functions[i]() ;
               }
             }
@@ -104,9 +104,10 @@ namespace WebGame {
       ActorGroupType m_functions ;
       ActorGroupType m_absolute_functions ;
       ActorGroupType m_fronter_functions ;
-      boost::thread:id m_threadId;
+      boost::thread::id m_threadId;
       ZPollInManager(const ZPollInManager&) = delete ;
       ZPollInManager& operator = (ZPollInManager const&) = delete ;
   } ;
+  }
 }
 #endif

@@ -10,14 +10,14 @@
 
 /*static */
 template<typename ConnectionTraits>
-std::string WebGame::Net::Connection<ConnectionTraits>::describeRemoteConnection(
+std::string WebGame::NetCore::Connection<ConnectionTraits>::describeRemoteConnection(
 		const_pointer nc) {
 	return describeRemoteConnection(*nc) ;
 }
 
 
 template<typename ConnectionTraits>
-std::string WebGame::Net::Connection<ConnectionTraits>::describeRemoteConnection(
+std::string WebGame::NetCore::Connection<ConnectionTraits>::describeRemoteConnection(
 		const class_type& nc) {
 	std::string sink ;
   try {
@@ -32,7 +32,7 @@ std::string WebGame::Net::Connection<ConnectionTraits>::describeRemoteConnection
 }
 
 template<typename ConnectionTraits>
-WebGame::Net::connection<ConnectionTraits>::Connection(
+WebGame::NetCore::connection<ConnectionTraits>::Connection(
 		boost::asio::io_service& io_service,
     boost::asio::strand& readStrand,
     boost::asio::strand& writeStrand,
@@ -52,8 +52,8 @@ WebGame::Net::connection<ConnectionTraits>::Connection(
 }
 
 template<typename ConnectionTraits>
-typename WebGame::Net::Connection<ConnectionTraits>::pointer
-WebGame::Net::connection<ConnectionTraits>::createAsyncConnection(
+typename WebGame::NetCore::Connection<ConnectionTraits>::pointer
+WebGame::NetCore::connection<ConnectionTraits>::createAsyncConnection(
 		boost::asio::io_service& io_service,
     boost::asio::strand& readStrand,
     boost::asio::strand& writeStrand,
@@ -71,8 +71,8 @@ WebGame::Net::connection<ConnectionTraits>::createAsyncConnection(
 }
 
 template<typename ConnectionTraits>
-typename WebGame::Net::Connection<ConnectionTraits>::pointer
-WebGame::Net::Connection<ConnectionTraits>::create_sync_connect(
+typename WebGame::NetCore::Connection<ConnectionTraits>::pointer
+WebGame::NetCore::Connection<ConnectionTraits>::create_sync_connect(
 		boost::asio::io_service& io_service,
     boost::asio::readStrand& readStrand,
     boost::asio::writeStrand& writeStrand,
@@ -94,7 +94,7 @@ WebGame::Net::Connection<ConnectionTraits>::create_sync_connect(
 }
 
 template<typename ConnectionTraits>
-void WebGame::Net::Connection<ConnectionTraits>::sendAsyncMessage(const data_type& db) {
+void WebGame::NetCore::Connection<ConnectionTraits>::sendAsyncMessage(const data_type& db) {
   m_sender.pack_send_message(db) ;
   if (!m_sender.is_traced()) {
     realSendInformation() ;
@@ -103,7 +103,7 @@ void WebGame::Net::Connection<ConnectionTraits>::sendAsyncMessage(const data_typ
 }
 
 template<typename ConnectionTraits>
-void WebGame::Net::Connection<ConnectionTraits>::sendAsyncMessage(
+void WebGame::NetCore::Connection<ConnectionTraits>::sendAsyncMessage(
     typename Connection<ConnectionTraits>::IdentityType pid,
 		const data_type& db) {
 	data_type db2(db) ;
@@ -112,7 +112,7 @@ void WebGame::Net::Connection<ConnectionTraits>::sendAsyncMessage(
 }
 
 template<typename ConnectionTraits>
-void WebGame::Net::Connection<ConnectionTraits>::sendAsyncMessage(DataCache::const_pointer cache) {
+void WebGame::NetCore::Connection<ConnectionTraits>::sendAsyncMessage(DataCache::const_pointer cache) {
 	m_sender.pack_send_message(cache) ;
 	if (!m_sender.is_traced()) {
 		real_send_infomation() ;
@@ -121,7 +121,7 @@ void WebGame::Net::Connection<ConnectionTraits>::sendAsyncMessage(DataCache::con
 }
 
 template<typename ConnectionTraits>
-void WebGame::Net::Connection<ConnectionTraits>::handleSendData(
+void WebGame::NetCore::Connection<ConnectionTraits>::handleSendData(
 		const boost::system::error_code& error) {
 	if (error) {
 		onError(error) ;
@@ -145,7 +145,7 @@ void WebGame::Net::Connection<ConnectionTraits>::handleSendData(
 }
 
 template<typename ConnectionTraits>
-void WebGame::Net::Connection<ConnectionTraits>::handleAsyncConnect(const boost::system::error_code& error,
+void WebGame::NetCore::Connection<ConnectionTraits>::handleAsyncConnect(const boost::system::error_code& error,
 		boost::asio::ip::tcp::resolver::iterator iterator){
 	using boost::asio::ip::tcp ;
 	if (!error) {
@@ -171,7 +171,7 @@ void WebGame::Net::Connection<ConnectionTraits>::handleAsyncConnect(const boost:
 }
 
 template<typename ConnectionTraits>
-void WebGame::Net::Connection<ConnectionTraits>::disconnect(const boost::system::error_code& error) {
+void WebGame::NetCore::Connection<ConnectionTraits>::disconnect(const boost::system::error_code& error) {
   if(!error) { // connection stop by active
     boost::system::error_code error2 ;
     if(m_close_option == send_all_message_and_quit)
@@ -186,7 +186,7 @@ void WebGame::Net::Connection<ConnectionTraits>::disconnect(const boost::system:
 }
 
 template<typename ConnectionTraits>
-void WebGame::Net::Connection<ConnectionTraits>::realSendInformation() {
+void WebGame::NetCore::Connection<ConnectionTraits>::realSendInformation() {
 	m_sender.set_traced() ;
 
 	typedef std::is_void<ActiveSendHugeData> SendHugeOption ;
@@ -204,7 +204,7 @@ void WebGame::Net::Connection<ConnectionTraits>::realSendInformation() {
 }
 
 template<typename ConnectionTraits>
-void WebGame::Net::Connection<ConnectionTraits>::startAsyncConnect(const std::string& address,
+void WebGame::NetCore::Connection<ConnectionTraits>::startAsyncConnect(const std::string& address,
     const std::string& port) {
   using boost::asio::ip::tcp ;
   tcp::resolver resolver(m_io_service) ;
@@ -221,7 +221,7 @@ void WebGame::Net::Connection<ConnectionTraits>::startAsyncConnect(const std::st
 }
 
 template<typename ConnectionTraits>
-void WebGame::Net::Connection<ConnectionTraits>::startAsyncConnect(const std::string& address,
+void WebGame::NetCore::Connection<ConnectionTraits>::startAsyncConnect(const std::string& address,
 		const std::string& port,
 		boost::system::error_code& error) {
 	using boost::asio::ip::tcp ;
@@ -241,7 +241,7 @@ void WebGame::Net::Connection<ConnectionTraits>::startAsyncConnect(const std::st
 }
 
 template<typename ConnectionTraits>
-void WebGame::Net::Connection<ConnectionTraits>::flush() {
+void WebGame::NetCore::Connection<ConnectionTraits>::flush() {
 	//m_io_service.post
   m_io_service.dispatch
 		(make_custom_alloc_handler(m_send_allocator,
@@ -252,7 +252,7 @@ void WebGame::Net::Connection<ConnectionTraits>::flush() {
 }
 
 template<typename ConnectionTraits>
-void WebGame::Net::Connection<ConnectionTraits>::setCloseOption(close_option option){
+void WebGame::NetCore::Connection<ConnectionTraits>::setCloseOption(close_option option){
 	m_close_option = option ;
 	if(m_close_option == send_all_message_and_quit) {
 		shutdown(boost::asio::ip::tcp::socket::shutdown_receive) ;
@@ -260,7 +260,7 @@ void WebGame::Net::Connection<ConnectionTraits>::setCloseOption(close_option opt
 }
 
 template<typename ConnectionTraits>
-bool WebGame::Net::Connection<ConnectionTraits>::receiveAsyncMessage(data_type& db) {
+bool WebGame::NetCore::Connection<ConnectionTraits>::receiveAsyncMessage(data_type& db) {
 	return m_getter->receive_async_message(db) ;
 }
 

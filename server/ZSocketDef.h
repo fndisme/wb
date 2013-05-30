@@ -20,30 +20,25 @@
 //#define FND_USE_ZMQ
 #include <cstdint>
 #include <memory>
+#include <boost/asio.hpp>
 #ifdef FND_USE_ZMQ
-#include "ZMQSocketTraits.h"
+#include "webgame/server/ZMQSocketTraits.h"
 #else
-#include "XSSocketTraits.h"
+#include "webgame/server/XSSocketTraits.h"
 #endif
 //#include "game_message.h"
-#include "DataCache.h"
-namespace boost
-{
-  namespace asio
-  {
-    class io_service ;
-  }
-}
+#include "webgame/message/DataCache.h"
 
-namespace WebGame
-{
+
+namespace WebGame {
+  namespace Server {
 #ifdef FND_USE_ZMQ
   namespace QSocketTratis = ZMQSocketTraits ;
 #else
   namespace QSocketTratis = XSSocketTraits;
 #endif
   typedef std::unique_ptr<QSocketTratis::socket_t> ZSocketPointer ;
-  typedef DataCache::const_pointer ZDataType ;
+  typedef Message::DataCache::const_pointer ZDataType ;
 
   enum NeedLingerOption {
     NEED_LINGER,
@@ -63,5 +58,6 @@ namespace WebGame
       HWM(hwm),
       SwapSize(size) {}
   } ;
+  }
 }
 #endif

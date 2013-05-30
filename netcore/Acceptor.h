@@ -32,7 +32,7 @@ namespace WebGame {
         typedef std::function<bool (nc_pointer_type, const boost::system::error_code&)>
           net_acceptor_connect_function_type ;
         typedef std::function<void (nc_pointer_type)> net_acceptor_connect_successed_function_type ;
-        typedef net_acceptor<NetConnection> class_type ;
+        typedef Acceptor<NetConnection> class_type ;
         typedef std::unique_ptr<class_type> pointer ;
         typedef net_acceptor_property<NetConnection> NetAcceptorProperty ;
         static pointer create(boost::asio::strand& readStrand,
@@ -50,7 +50,7 @@ namespace WebGame {
         typedef std::function<void (nc_pointer_type)> EventFunc ;
 
         class_type& operator = (class_type const&) = delete ;
-        net_acceptor(class_type const&) = delete ;
+        Acceptor(class_type const&) = delete ;
 
 
         void processInplaceAction(EventFunc func) {
@@ -73,9 +73,9 @@ namespace WebGame {
             db.setBody(msg) ;
             postMessage(db) ;
           }
-        void postMessage(DataCache::const_pointer db) const ;
+        void postMessage(Message::DataCache::const_pointer db) const ;
         void postMessage(const data_type& db) const ;
-        void postMessageExcept(DataCache::const_pointer db, nc_pointer_type nc) const ;
+        void postMessageExcept(Message::DataCache::const_pointer db, nc_pointer_type nc) const ;
         void postMessageExcept(const data_type& db,nc_pointer_type nc) const ;
         void stopAll() ;
         size_t connectionSize() const ;
@@ -87,7 +87,7 @@ namespace WebGame {
 
         // timer event
         boost::asio::strand& m_readStrand;
-        boost::asio;:strand& m_writeStrand;
+        boost::asio::strand& m_writeStrand;
         typedef boost::container::set<nc_pointer_type> connection_container_type ;
         connection_container_type m_connections ;
         nc_pointer_type m_current_conection ;
@@ -102,19 +102,20 @@ namespace WebGame {
         void handleNewConnection(const boost::system::error_code& error) ;
         void doPostMessage(const data_type& db) const ;
         void doPostMessageExcept(const data_type& db, nc_pointer_type nc) const ;
-        void doPostMessage(DataCache::const_pointer) const ;
-        void doPostMessageExcept(DataCache::const_pointer, nc_pointer_type nc) const ;
+        void doPostMessage(Message::DataCache::const_pointer) const ;
+        void doPostMessageExcept(Message::DataCache::const_pointer, nc_pointer_type nc) const ;
 
         void removeConnection(const boost::system::error_code& e, nc_pointer_type nc) ;
         // for thread safe...
 
         void start(const NetAcceptorProperty& prop, const NetAcceptorOption& option) ;
-        Acceptor(boost::asio::strand& strand, int port) ;
+        Acceptor(boost::asio::strand& readStrand, 
+            boost::asio::strand& writeStrand, int port) ;
         int m_data_getter_cache_size ;
         void stopAccpetNewConnection() ;
     } ;
   }
 }
-#include	"net_acceptor_inl.h"
+#include	"webgame/netcore/AcceptorInl.h"
 
 #endif
