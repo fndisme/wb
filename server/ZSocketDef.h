@@ -29,28 +29,28 @@
 #include "DataCache.h"
 namespace boost
 {
-namespace asio
-{
-class io_service ;
-}
+  namespace asio
+  {
+    class io_service ;
+  }
 }
 
 namespace WebGame
 {
 #ifdef FND_USE_ZMQ
-namespace QSocketTratis = ZMQSocketTraits ;
+  namespace QSocketTratis = ZMQSocketTraits ;
 #else
-namespace QSocketTratis = XSSocketTraits;
+  namespace QSocketTratis = XSSocketTraits;
 #endif
-typedef std::unique_ptr<QSocketTratis::socket_t> ZSocketPointer ;
-typedef DataCache::const_pointer ZDataType ;
+  typedef std::unique_ptr<QSocketTratis::socket_t> ZSocketPointer ;
+  typedef DataCache::const_pointer ZDataType ;
 
-enum NeedLingerOption {
+  enum NeedLingerOption {
     NEED_LINGER,
     DONT_NEED_LINGER
-} ;
+  } ;
 
-struct ZSockOption {
+  struct ZSockOption {
     NeedLingerOption LingerOption ;
     int HWM ; // high water mark
     uint64_t SwapSize ; // byte
@@ -59,9 +59,9 @@ struct ZSockOption {
         uint64_t size = 100 * 1024 * 1024, // 100 M disc space
         int hwm = 2000,
         NeedLingerOption lingerOption= NEED_LINGER) :
-        LingerOption(lingerOption),
-        HWM(hwm),
-        SwapSize(size) {}
-} ;
+      LingerOption(lingerOption),
+      HWM(hwm),
+      SwapSize(size) {}
+  } ;
 }
 #endif

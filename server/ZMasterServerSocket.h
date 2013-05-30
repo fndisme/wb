@@ -23,12 +23,12 @@
 #include <memory>
 #include <boost/asio.hpp>
 #include <boost/container/flat_map.hpp>
-#include "ZSocketDef.h"
-#include "ZSlaveDef.h"
-#include "ZPollInManager.h"
-#include "ZSocketUtility.h"
-#include "identity_type.h"
 #include <pantheios/assert.h>
+#include "webgame/server/ZSocketDef.h"
+#include "webgame/server/ZSlaveDef.h"
+#include "webgame/server/ZPollInManager.h"
+#include "webgame/server/ZSocketUtility.h"
+#include "webgame/shared/identity_type.h"
 
 namespace WebGame
 {
@@ -67,7 +67,7 @@ public:
       m_publisher(new QSocketTratis::socket_t(ctx, QSocketTratis::typePub())),
       m_socket(new QSocketTratis::socket_t(ctx, QSocketTratis::typeRouter())),
       m_messages {},
-      m_publish_message {},
+      m_publishMessage {},
       m_HWM(option.HWM != 0 ? option.HWM : 1000) {
 
         init(publishaddress, socketaddress, option.LingerOption == NEED_LINGER) ;
@@ -85,51 +85,51 @@ public:
 
     }
 
-    void send_message(const SlaveServerNameType& name, send_data_type msg) const {
+    void sendMessage(const SlaveServerNameType& name, send_data_type msg) const {
         assert(sizeof(msg) <= 3 * sizeof(void *)) ;
         boost::lock_guard<boost::mutex> lock(m_mutex);
         m_messages[name].push_back(msg) ;
     }
 
-    void send_message(const std::string& name, send_data_type msg) const {
+    void sendMessage(const std::string& name, send_data_type msg) const {
         assert(sizeof(msg) <= 3 * sizeof(void *)) ;
         boost::lock_guard<boost::mutex> lock(m_mutex);
         m_messages[SlaveServerNameType(name)].push_back(msg) ;
     }
 
 
-    void publish_message(send_data_type msg) const {
+    void publishMessage(send_data_type msg) const {
         assert(sizeof(msg) <= 3 * sizeof(void *)) ;
         PANTHEIOS_ASSERT(m_publisher) ;
         boost::lock_guard<boost::mutex> lock(m_mutex);
-        m_publish_message.push_back(msg) ;
+        m_publishMessage.push_back(msg) ;
     }
 
     template<typename M>
-    void send_message(const SlaveServerNameType& name, M&& msg, player_tt pid = player_tt(0)) const {
-        send_message(name, easy_data_block_cache(msg, pid)) ;
+    void sendMessage(const SlaveServerNameType& name, M&& msg, player_tt pid = player_tt(0)) const {
+        sendMessage(name, easy_data_block_cache(msg, pid)) ;
     }
 
     template<typename M>
-    void send_message(const std::string& name, M&& msg, player_tt pid = player_tt(0)) const {
-        send_message(name, easy_data_block_cache(msg, pid)) ;
+    void sendMessage(const std::string& name, M&& msg, player_tt pid = player_tt(0)) const {
+        sendMessage(name, easy_data_block_cache(msg, pid)) ;
     }
 
     template<typename M>
-    void publish_message(M&& msg) const {
-        publish_message(easy_data_block_cache(msg, player_tt(0))) ;
+    void publishMessage(M&& msg) const {
+        publishMessage(easy_data_block_cache(msg, player_tt(0))) ;
     }
 
-    void bind_to_poll_manager(ZPollInManager* mgr,
+    void bindPollManager(ZPollInManager* mgr,
                               const MessageDealerFunctionType& func,
                               DirectionEnum direction = ZM_BOTH) {
         if(direction == ZM_BOTH) {
-            mgr->register_absolute_actor(std::bind(&class_type::send_to_slave, this)) ;
-            if(m_publisher) mgr->register_absolute_actor(std::bind(&class_type::send_publish_message, this)) ;
+            mgr->registerWriteActor(std::bind(&class_type::sendToSlave, this)) ;
+            if(m_publisher) mgr->registerWriteActor(std::bind(&class_type::sendPublishMessage, this)) ;
         }
 
         m_dealer_function = func ;
-        mgr->register_actor(*m_socket, std::bind(&class_type::recv, this)) ;
+        mgr->registerReadActor(*m_socket, std::bind(&class_type::recv, this)) ;
     }
 
 private:
@@ -138,7 +138,7 @@ private:
     ZSocketPointer m_socket ;
 
     mutable MessageGroupType m_messages ;
-    mutable container_type m_publish_message ;
+    mutable container_type m_publishMessage ;
 
     MessageDealerFunctionType m_dealer_function ;
     const int m_HWM ; /// high water mark
@@ -148,19 +148,19 @@ private:
         QSocketTratis::absorbHeaderDispatchMesage<read_data_type>(*m_socket, m_dealer_function, m_strand) ;
     }
 
-    void send_publish_message() {
+    void sendPublishMessage() {
         PANTHEIOS_ASSERT(m_publisher) ;
 
       container_type data;
       {
         boost::lock_guard<boost::mutex> lock(m_mutex);
-        data.swap(m_publish_message);
+        data.swap(m_publishMessage);
       }
         QSocketTratis::sendScatterMessage(data,
                 *m_publisher, m_HWM) ;
     }
 
-    void send_to_slave() {
+    void sendToSlave() {
 
       MessageGroupType messages;
       {

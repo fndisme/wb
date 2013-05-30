@@ -26,8 +26,8 @@
 #include <boost/thread/lock.hpp>
 #include <boost/thread/lock_guard.hpp>
 #include <pantheios/assert.h>
-#include "ZSocketDef.h"
-#include "ZPollInManager.h"
+#include "webgame/server/ZSocketDef.h"
+#include "webgame/server/ZPollInManager.h"
 #include "webgame/server/ZSocketUtility.h"
 
 namespace WebGame
@@ -86,7 +86,7 @@ public:
 
     ~ZSlaveServerSocket() = default ;
 
-    void send_message(send_data_type d) const {
+    void sendMessage(send_data_type d) const {
       boost::lock_guard<boost::mutex> lock(m_mutex);
         m_send_data.push_back(d) ;
     }
@@ -97,11 +97,11 @@ public:
     }
 
     template<typename M>
-    void send_message(M&& msg, player_tt pid = player_tt(0)) const {
-        send_message(easy_data_block_cache(std::forward<M>(msg), pid)) ;
+    void sendMessage(M&& msg, player_tt pid = player_tt(0)) const {
+        sendMessage(easy_data_block_cache(std::forward<M>(msg), pid)) ;
     }
 
-    void bind_to_poll_manager(ZPollInManager* mgr, MessageDealerFunctionType const& func_d,
+    void bindPollManager(ZPollInManager* mgr, MessageDealerFunctionType const& func_d,
                               MessageDealerFunctionType const& func_s) {
         m_dealer_function = func_d ;
         m_subscriber_function = func_s ;
@@ -109,20 +109,20 @@ public:
         mgr->register_absolute_actor(std::bind(&class_type::send, this)) ;
         mgr->register_actor(*m_socket, std::bind(&class_type::recv, this)) ;
         if(m_subscriber)
-            mgr->register_actor(*m_subscriber, std::bind(&class_type::recv_subscriber_message, this)) ;
+            mgr->register_actor(*m_subscriber, std::bind(&class_type::recvSubscribeMessage, this)) ;
     }
 
-    void bind_to_poll_manager(ZPollInManager* mgr,
+    void bindPollManager(ZPollInManager* mgr,
                               MessageDealerFunctionType const& func_d) {
         m_dealer_function = func_d ;
-        mgr->register_absolute_actor(std::bind(&class_type::send, this)) ;
-        mgr->register_actor(*m_socket, std::bind(&class_type::recv, this)) ;
+        mgr->registerWriteActor(std::bind(&class_type::send, this)) ;
+        mgr->registerReadActor(*m_socket, std::bind(&class_type::recv, this)) ;
         assert(!m_subscriber) ;
 
     }
 
-    void bind_to_poll_manager(ZPollInManager* mgr) {
-        mgr->register_absolute_actor(std::bind(&class_type::send, this)) ;
+    void bindPollManager(ZPollInManager* mgr) {
+        mgr->registerWriteActor(std::bind(&class_type::send, this)) ;
     }
 
 private:
@@ -152,7 +152,7 @@ private:
             *m_socket, m_dealer_function, m_strand) ;
     }
 
-    void recv_subscriber_message() {
+    void recvSubscribeMessage() {
         PANTHEIOS_ASSERT(m_subscriber) ;
         QSocketTratis::absorbAndDispatchMessage<read_data_type>(
             *m_subscriber, m_subscriber_function, m_strand) ;

@@ -21,12 +21,12 @@
 #include <functional>
 #include	<type_traits>
 #include	"DataCache.h"
-#include	"game_message.h"
+#include	"webgame/message/DataBlock.h"
 #include	"game_message_util.h"
 namespace WebGame
 {
 template<typename T>
-DataCache::const_pointer easy_data_block_cache(T&& msg,  player_tt pid)
+DataCache::const_pointer easyDataBlockCache(T&& msg,  player_tt pid)
 {
     static_assert(std::is_reference<T>::value ||
                   std::is_rvalue_reference<decltype(msg)>::value, "need ref") ;
@@ -34,7 +34,7 @@ DataCache::const_pointer easy_data_block_cache(T&& msg,  player_tt pid)
                   typename std::remove_const< typename std::remove_reference<T>::type>::type >::value  == true,
                   "must be protobuf") ;
 
-    return make_cached(std::forward<T>(msg), Fnd::data_block::header_size(), pid) ;
+    return make_cached(std::forward<T>(msg), WebGame::Message::DataBlock::headerSize(), pid) ;
 }
 
 template<typename T>
@@ -47,13 +47,13 @@ DataCache::const_pointer easy_system_cache(T&& msg)
                   "must be protobuf") ;
 
 
-    return make_cached(std::forward<T>(msg), Fnd::data_block::header_size(), player_tt(0)) ;
+    return make_cached(std::forward<T>(msg), WebGame::Message::headerSize(), player_tt(0)) ;
 }
 
 template<typename T>
 DataCache::const_pointer easy_empty_body(player_tt id = player_tt(0))
 {
-    return make_cached<T>(Fnd::data_block::header_size(), id) ;
+    return make_cached<T>(WebGame::Message::headerSize(), id) ;
 }
 }
 #endif
