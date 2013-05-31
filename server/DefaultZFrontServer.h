@@ -53,15 +53,13 @@ namespace WebGame {
     class ZPollInManager ;
 
     class DefaultZFrontServer : boost::noncopyable {
-
       protected:
-
         virtual ~DefaultZFrontServer() NOEXCEPT;
         void init() ;
         DefaultZFrontServer(const ServerOption& option) ;
 
       public:
-        void bind_to_poll_manager(ZPollInManager* mgr) ;
+        void bindPollManager(ZPollInManager* mgr) ;
         void stop() ;
 
       protected:
@@ -74,47 +72,47 @@ namespace WebGame {
         typedef boost::system::error_code NetErrorType ;
         // typedef FlowControler<NetConnectionType> FlowControlerType ;
         // interface
-        bool handle_customer_enter(NetConnectionPointer, const NetErrorType&) {return true ;}
-        bool need_heart_beat() const { return max_answer_time() != 0;}
-        second_tt max_answer_time() const ;
-        inline bool is_register_client(NetConnectionPointer nc) const {
-          return do_is_register_client(nc) ;
+        bool onNewConnection(NetConnectionPointer, const NetErrorType&) {return true ;}
+        bool needHeartBeat() const { return max_answer_time() != 0;}
+        second_tt maxAnswerTime() const ;
+        inline bool isRegisterConnection(NetConnectionPointer nc) const {
+          return doIsRegisterConnection(nc) ;
         }
-        inline bool is_normal_client_message(int msg) const {
+        inline bool isNormalMessage(int msg) const {
           return m_normal_messages.find(msg) != m_normal_messages.end() ;
         }
-        bool is_normal_post_message(int msg) const ;
-        void register_message_as_normal_client_message(int msg) {
+        bool isNormalPostMessage(int msg) const ;
+        void registerNormalMessage(int msg) {
           m_normal_messages.insert(msg) ;
         }
-        void register_message_as_normal_post_message(int msg) {
+        void registerNormalPostMessage(int msg) {
           m_normal_register_message.insert(msg) ;
         }
 
-        bool is_normal_message_need_delay() const ;
-        bool is_no_delayed_inner_post_message(const DataType&) const ;
-        inline bool is_valid_message(DataType const& db, NetConnectionPointer nc) const {
-          return do_is_valid_message(db, nc) ;
+        bool isNormalMessageNeedDelay() const ;
+        bool isFasterPostMessage(const DataType&) const ;
+        inline bool isValidMessage(DataType const& db, NetConnectionPointer nc) const {
+          return doIsValidMessage(db, nc) ;
         }
-        virtual void handle_customer_award_a_contract(NetConnectionPointer)  ;
-        void receive_customer_message(const DataType&, NetConnectionPointer)  ;
-        inline void handle_customer_leave(const NetErrorType& error, NetConnectionPointer nc) {
-          do_handle_customer_leave(error, nc) ;
+        virtual void makeConnectionValid(NetConnectionPointer)  ;
+        void onReceiveConncetionMessage(const DataType&, NetConnectionPointer)  ;
+        inline void onConnectionLeave(const NetErrorType& error, NetConnectionPointer nc) {
+          doOnConnectionLeave(error, nc) ;
         }
-        inline void send_message_to_all_client(const DataType& db) const {
-          do_send_message_to_all_client(db) ;
+        inline void sendMessageToAllConnection(const DataType& db) const {
+          doSendMessageToAllConnection(db) ;
         }
-        int listen_port() const { return m_port ;}
-        inline void register_actions() {
-          do_register_actions() ;
+        int listenPort() const { return m_port ;}
+        inline void registerActions() {
+          doRegisterActions() ;
         }
-        void make_message_dealers_final() {
+        void makeMessageDealersFinal() {
           m_client_handlers.lock() ; // for client
           m_back_dealer_handlers.lock() ; // for back poster
           m_back_subscriber_dealers.lock() ; // for back radio
         }
 
-        const std::string& property_file_name() const { return m_init_file ;}
+        const std::string& propertyFileName() const { return m_init_file ;}
         typedef QSocketTratis::context_t ContextType ;
         ContextType* context() { return m_zero_ctx ;}
 
@@ -125,28 +123,28 @@ namespace WebGame {
 #else
         typedef folly::fbvector<player_tt> PlayerGroup ;
 #endif
-        void register_client_message_handler(int k, MessageDealerType::function_type const& func) {
-          register_message_as_normal_client_message(k) ;
+        void registerConnectionMessageCallback(int k, MessageDealerType::function_type const& func) {
+          registerNormalMessage(k) ;
           m_client_handlers.add(k, func) ;
         }
 
-        void register_back_poster_message_handler(int k, BackMessageDealerType::function_type const& func) {
+        void registerBackMessageCallback(int k, BackMessageDealerType::function_type const& func) {
           m_back_dealer_handlers.add(k, func) ;
         }
 
-        void register_back_radio_message_handler(int k, BackMessageDealerType::function_type const& func) {
+        void registerBackRedioMessageCallback(int k, BackMessageDealerType::function_type const& func) {
           m_back_subscriber_dealers.add(k, func) ;
         }
-        void push_message_to_back(const DataType& db) const ;
-        void push_cache_message_to_back(Message::DataCache::const_pointer cache) const {
+        void pushMessageToBack(const DataType& db) const ;
+        void pushCacheMessageToBack(Message::DataCache::const_pointer cache) const {
           m_socket->sendMessage(cache) ;
         }
 
-        void register_repeat_timer(second_tt inteval, const NetCore::timer_event_function_type& fun) ;
+        void registerRepeatTimer(second_tt inteval, const NetCore::timer_event_function_type& fun) ;
 
         template<typename MSG>
-          void push_message_to_back(MSG&& msg, player_tt pid = player_tt(0)) const {
-            push_cache_message_to_back(easy_data_block_cache(std::forward<MSG>(msg), pid)) ;
+          void pushMessageToBack(MSG&& msg, player_tt pid = player_tt(0)) const {
+            pushCacheMessageToBack(easy_data_block_cache(std::forward<MSG>(msg), pid)) ;
           }
 
         const std::string& name() const { return m_registered_name ;}
@@ -159,7 +157,7 @@ namespace WebGame {
         typedef ZSlaveServerSocket<Message::DataCache::const_pointer, DataType, SocketDataVector> ZSocketType ; 
       protected:
         template<typename Action>
-          void add_delay_action(size_t position, Action&& act) {
+          void addDelayAction(size_t position, Action&& act) {
             m_delay_actor.addAction(position, std::forward<Action>(act)) ;
           }
       private:
@@ -182,40 +180,35 @@ namespace WebGame {
         boost::container::flat_set<int> m_normal_register_message ;
         void handle_client_heart_beat() ;
 
-        void deal_message_from_back_poster(std::shared_ptr<DataType> db) ;
-        void deal_message_from_back_radio(std::shared_ptr<DataType> db) ;
-        void handle_HeartBeat(MessageHandlerType param) ;
-        void connect_to_back() ;
-        void give_service_to_customers() ;
-        void deal_client_message(const DataType&, NetConnectionPointer)  ;
-        void register_stock_actions() ;
-        void handle_Back_InnerMessage(const DataType&) ;
-        void handle_Back_InnerPostMessage(const DataType&) ;
-        void init_other_service() { do_init_other_service() ;}
+        void dealBackMessage(std::shared_ptr<DataType> db) ;
+        void dealBackRadioMessage(std::shared_ptr<DataType> db) ;
+        void handleHeartBeat(MessageHandlerType param) ;
+        void connectBack() ;
+        void startReceiveConnection() ;
+        void dispatchConnectionMessage(const DataType&, NetConnectionPointer)  ;
+        void registerStockMessage() ;
+        void handleBackInnerMessage(const DataType&) ;
+        void handleBackInnerPostMessage(const DataType&) ;
+        void initOtherService() { doInitOtherService() ;}
 
 
         virtual void do_default_deal_back_message(const DataType&) const = 0;
         virtual void do_send_message_to_all_client(const DataType& db) const = 0 ; 
         virtual void do_handle_customer_leave(const NetErrorType&, NetConnectionPointer) = 0 ; 
-        virtual bool do_is_valid_message(const DataType& db, NetConnectionPointer nc) const = 0 ;
-        virtual bool do_is_register_client(NetConnectionPointer nc) const = 0 ;
-        virtual void do_register_actions() = 0 ;
+        virtual bool doIsValidMessage(const DataType& db, NetConnectionPointer nc) const = 0 ;
+        virtual bool doIsRegisterConnection(NetConnectionPointer nc) const = 0 ;
+        virtual void doRegisterActions() = 0 ;
         virtual void do_deal_back_post_message(const DataType& db, PlayerGroup const&) = 0 ;
         virtual void do_deal_back_post_message(const DataType& db, player_tt pid) = 0 ;
         virtual void do_deal_back_post_message(int, int, int,const DataType& db, PlayerGroup const&) = 0 ;
         virtual void do_deal_back_post_message(int, int, int,const DataType& db, player_tt pid) = 0 ;
         virtual void do_deal_back_post_message(int, int, int,const DataType& db) = 0 ;
         virtual void do_init_other_service() {} // do nothing default
-        virtual void do_bind_to_poll_manager(ZPollInManager* /*mgr*/) {} // normal we do nothing for bind poll mgr
+        virtual void doBindPollManager(ZPollInManager* /*mgr*/) {} // normal we do nothing for bind poll mgr
         second_tt m_max_answer_time ;
 
-        // about flow control 
-        // make some message delay to send client
-        //mutable std::unique_ptr<FlowControlerType> m_flow_controler ;
-        void send_delay_flow_message() ;
-        void set_delay_flags() ;
         bool m_has_back ;
-        bool has_back_server() const { return m_has_back ;}
+        bool isConnectedToBack() const { return m_has_back ;}
         int m_port ;
 
         enum BackServerMessageType {
@@ -233,7 +226,7 @@ namespace WebGame {
         NormalMessageGroup m_normal_post_message ;
         void send_ungent_message() ;
         size_t m_hard_system_prepared_message_limit ;
-        void absorb_delayed_system_message() ;
+        void absorbDelaySystemMessage() ;
         void make_message_to_named_dealer(const DataType&) ;
         void make_message_to_radio_dealer(const DataType&) ;
         size_t m_ungent_max_send_size ;

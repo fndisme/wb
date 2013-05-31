@@ -286,7 +286,7 @@ void THIS_CLASS::handle_client_heart_beat() {
 
 
 void
-THIS_CLASS::handle_customer_award_a_contract(THIS_CLASS::NetConnectionType::pointer nc) {
+THIS_CLASS::makeConnectionValid(THIS_CLASS::NetConnectionType::pointer nc) {
 
   pan::log_DEBUG("start reseive player data....") ;
 	nc->start() ;
@@ -299,11 +299,11 @@ void THIS_CLASS::bind_to_poll_manager(ZPollInManager* mgr) {
       boost::bind(&THIS_CLASS::deal_message_from_back_poster,
         this,
         _1),
-      boost::bind(&THIS_CLASS::deal_message_from_back_radio,
+      boost::bind(&THIS_CLASS::dealBackRadioMessage,
         this,
         _1)
       ) ;
-  mgr->registerWriteActor(std::bind(&THIS_CLASS::absorb_delayed_system_message,
+  mgr->registerWriteActor(std::bind(&THIS_CLASS::absorbDelaySystemMessage,
         this), ZPollInManager::OT_FRONT) ;
   }
 
@@ -333,7 +333,7 @@ size_t max_send_size = std::min(m_normal_max_send_size, m_normal_post_message.si
   m_normal_post_message.erase(iter, iter_end) ;
 }
 
-void THIS_CLASS::absorb_delayed_system_message() {
+void THIS_CLASS::absorbDelaySystemMessage() {
   if(m_ungent_message.empty() && m_sys_delayed_message.empty() && m_normal_post_message.empty()) return ; // many times it is TRUE
   if(!m_ungent_message.empty()) send_ungent_message() ;
   if(m_ungent_message.empty() && !m_normal_post_message.empty()) post_normal_message() ;
@@ -350,15 +350,6 @@ void THIS_CLASS::absorb_delayed_system_message() {
   }
 }
 
-void THIS_CLASS::send_delay_flow_message() {
-  //m_flow_controler->poll() ;
-}
-
-void THIS_CLASS::set_delay_flags() {
-  //m_flow_controler->net_loose() ;
-  //if(m_socket->is_busy()) m_flow_controler->net_busy() ;
-  //else m_flow_controler->net_loose() ;
-}
 
 void THIS_CLASS::handle_Back_InnerMessage(const DataType& db) {
   auto msg = db.constBody<game_connection::InnerMessage>() ;
@@ -428,13 +419,13 @@ bool THIS_CLASS::is_normal_post_message(int msg) const {
   return m_normal_register_message.count(msg) == 1 ;
 }
 
-bool THIS_CLASS::is_no_delayed_inner_post_message(const DataType& db) const {
+bool THIS_CLASS::isFasterPostMessage(const DataType& db) const {
   if(db.messageType() != game_connection::InnerPostMessage::value) return false ;
   auto msg = db.constBody<game_connection::InnerPostMessage>() ;
   return msg->no_delay() ;
 }
 
-bool THIS_CLASS::is_normal_message_need_delay() const {
+bool THIS_CLASS::isNormalMessageNeedDelay() const {
   return !m_ungent_message.empty() || // has ungent message
     !m_normal_post_message.empty() || // has not send normal post message
     // or has two many message in poll to send
@@ -442,14 +433,14 @@ bool THIS_CLASS::is_normal_message_need_delay() const {
 
 }
 
-void THIS_CLASS::deal_message_from_back_radio(std::shared_ptr<DataType> d) {
+void THIS_CLASS::dealBackRadioMessage(std::shared_ptr<DataType> d) {
   auto& db = *d;
   pantheios::log_DEBUG("dr: ", db) ;
-  auto normalNeedDelay = is_normal_message_need_delay() ;
+  auto normalNeedDelay = isNormalMessageNeedDelay() ;
   bool needdelay = normalNeedDelay || !m_sys_delayed_message.empty() ;
 
-  if(is_normal_post_message(db.messageType()) ||
-      is_no_delayed_inner_post_message(db)) {
+  if(isNormalPostMessage(db.messageType()) ||
+      isFasterPostMessage(db)) {
     if(normalNeedDelay) {
       pantheios::log_DEBUG("make the message delay", pan::i(db.messageType())) ;
       m_normal_post_message.push_back(db) ;
