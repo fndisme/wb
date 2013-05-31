@@ -20,8 +20,8 @@
 #include "webgame/shared/identity_type.h"
 #include "webgame/message/DataBlock.h"
 
-size_t message_body_size(const ::google::protobuf::Message* const msg) ;
-size_t message_body_size(const ::google::protobuf::Message& msg) ;
+size_t messageBodySize(const ::google::protobuf::Message* const msg) ;
+size_t messageBodySize(const ::google::protobuf::Message& msg) ;
 
 size_t total_message_size(const data_exchange::header& header,
 		const ::google::protobuf::Message* const msg) ;

@@ -182,8 +182,8 @@ namespace WebGame {
         boost::container::flat_set<int> m_normal_register_message ;
         void handle_client_heart_beat() ;
 
-        void deal_message_from_back_poster(const DataType& db) ;
-        void deal_message_from_back_radio(const DataType& db) ;
+        void deal_message_from_back_poster(std::shared_ptr<DataType> db) ;
+        void deal_message_from_back_radio(std::shared_ptr<DataType> db) ;
         void handle_HeartBeat(MessageHandlerType param) ;
         void connect_to_back() ;
         void give_service_to_customers() ;

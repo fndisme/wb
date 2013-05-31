@@ -52,7 +52,7 @@ namespace WebGame {
         }
 
         size_t front_value_size() const {
-          return binary_size(m_blocks.front()) ;
+          return binarySize(m_blocks.front()) ;
         }
 
         ForwardListBlocks() : m_is_sending(false) {

@@ -22,7 +22,7 @@ std::string WebGame::NetCore::Connection<ConnectionTraits>::describeRemoteConnec
 	std::string sink ;
   try {
 	if(nc.isOpen())
-		fastformat::fmt(sink, "{0}:{1}", nc.describeRemoteAddress(), nc.remote_port()) ;
+		fastformat::fmt(sink, "{0}:{1}", nc.describeRemoteAddress(), nc.remotePort()) ;
 	else sink = "connection is not valid" ;
   } catch (const boost::system::system_error& error) {
     sink = "Socket Error : " ;

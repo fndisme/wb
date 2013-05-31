@@ -18,9 +18,9 @@
 #ifndef FND_WEBGAME_ZPOOLINMANAGER_H
 #define FND_WEBGAME_ZPOOLINMANAGER_H
 #include <vector>
-#include <functional>
 #include <algorithm>
 #include <boost/noncopyable.hpp>
+#include <boost/function.hpp>
 #include <boost/thread.hpp>
 #include <pantheios/pantheios.hpp>
 #include <pantheios/assert.h>
@@ -30,7 +30,7 @@ namespace WebGame {
   namespace Server {
   class ZPollInManager : boost::noncopyable {
     public:
-      typedef std::function<void ()> ActionFunctionType ;
+      typedef boost::function<void ()> ActionFunctionType ;
       enum OrderType {
         OT_DELAYED,
         OT_FRONT

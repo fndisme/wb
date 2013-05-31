@@ -36,7 +36,11 @@ template<typename NetConnection>
 bool WebGame::NetCore::DataSender<NetConnection>::sop_block_without_reset_size() {
  auto optional_cache = m_blocks.pop_front() ;
 	if(optional_cache) {
+#ifndef WIN32
     auto cache = optional_cache.value() ;
+#else
+    auto cache = optional_cache.get();
+#endif
     auto msg_size = binarySize(cache) ;
     cache->packToArray(m_pool_buffer.appendDataAddress(), msg_size) ;
     m_pool_buffer.append(msg_size) ;
@@ -51,7 +55,11 @@ template<typename NetConnection>
 bool WebGame::NetCore::DataSender<NetConnection>::sop_block() {
  auto optional_cache = m_blocks.pop_front() ;
 	if(optional_cache) {
+#ifndef WIN32
     auto cache = optional_cache.value() ;
+#else
+    auto cache = optional_cache.get();
+#endif
     auto msg_size = binarySize(cache) ;
     m_pool_buffer.resetCapacity(msg_size) ;
     cache->packToArray(m_pool_buffer.appendDataAddress(), msg_size) ;

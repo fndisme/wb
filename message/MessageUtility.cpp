@@ -18,16 +18,16 @@
 
 #include	"webgame/message/MessageUtility.h"
 #include <pantheios/assert.h>
-size_t message_body_size(const ::google::protobuf::Message* const msg) {
+size_t messageBodySize(const ::google::protobuf::Message* const msg) {
 	return msg ? msg->ByteSize() : 0 ;
 }
-size_t message_body_size(const ::google::protobuf::Message& msg) {
+size_t messageBodySize(const ::google::protobuf::Message& msg) {
 	return  msg.ByteSize() ;
 }
 
 size_t total_message_size(const data_exchange::header& header,
 		const ::google::protobuf::Message* const msg) {
-	return header.ByteSize() + message_body_size(msg) ;
+	return header.ByteSize() + messageBodySize(msg) ;
 }
 
 void pack_cache_message(const data_exchange::header& header,

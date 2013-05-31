@@ -20,10 +20,10 @@
 #include <utility>
 #include <memory>
 #include <string>
-#include <functional>
 #include <iostream>
 #include <boost/asio.hpp>
 #include <boost/noncopyable.hpp>
+#include <boost/function.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/lock_guard.hpp>
 #include <pantheios/assert.h>
@@ -43,7 +43,7 @@ namespace WebGame {
             typedef ZSlaveServerSocket<SD, RD, C> class_type ;
             typedef std::unique_ptr<ZSlaveServerSocket<SD, RD, C> > pointer ;
 
-            typedef std::function<void (std::shared_ptr<RD>)> MessageDealerFunctionType ;
+            typedef boost::function<void (std::shared_ptr<RD>)> MessageDealerFunctionType ;
             ZSlaveServerSocket(
                 boost::asio::strand& strand,
                 QSocketTratis::context_t& ctx,

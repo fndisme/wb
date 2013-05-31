@@ -412,7 +412,8 @@ if(!m_back_subscriber_dealers.dispatch(db.messageType(), db))
     send_message_to_all_client(db) ;
 }
 
-void THIS_CLASS::deal_message_from_back_poster(const DataType& db) {
+void THIS_CLASS::deal_message_from_back_poster(std::shared_ptr<DataType> d) {
+  auto& db = *d;
   pantheios::log_DEBUG("dm: ", db) ;
   if(current_prepared_message_number_of_net_pool() > m_hard_system_prepared_message_limit ||
       !m_ungent_message.empty()) {
@@ -441,7 +442,8 @@ bool THIS_CLASS::is_normal_message_need_delay() const {
 
 }
 
-void THIS_CLASS::deal_message_from_back_radio(const DataType& db) {
+void THIS_CLASS::deal_message_from_back_radio(std::shared_ptr<DataType> d) {
+  auto& db = *d;
   pantheios::log_DEBUG("dr: ", db) ;
   auto normalNeedDelay = is_normal_message_need_delay() ;
   bool needdelay = normalNeedDelay || !m_sys_delayed_message.empty() ;
