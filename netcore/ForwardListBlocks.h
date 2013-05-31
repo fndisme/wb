@@ -18,15 +18,22 @@
 #ifndef FND_WEBGAME_NETCORE_FORWARDLISTBLOCKS_H
 #define FND_WEBGAME_NETCORE_FORWARDLISTBLOCKS_H
 #include <forward_list>
+#ifdef WIN32
+#include <boost/optional.hpp>
+#else
 #include <folly/Optional.h>
+#endif
 namespace WebGame {
   template<typename D>
     class ForwardListBlocks {
       public:
         typedef D data_type ;
         typedef std::forward_list<data_type> BlocksType;
+#ifdef WIN32
+        typedef boost::optional<data_type> OptionalValue;
+#else
         typedef folly::Optional<data_type> OptionalValue ;
-
+#endif
         bool has_data() const { return !m_blocks.empty() ;}
 
         void push(const data_type& db) {
@@ -48,7 +55,7 @@ namespace WebGame {
           return binary_size(m_blocks.front()) ;
         }
 
-        ForwardListBlocks() {
+        ForwardListBlocks() : m_is_sending(false) {
           m_pos = m_blocks.before_begin() ;
         }
 
@@ -64,7 +71,7 @@ namespace WebGame {
       private:
         BlocksType m_blocks ;
         typename BlocksType::iterator m_pos ;
-        bool m_is_sending = false ;
+        bool m_is_sending;
 
     } ;
 }

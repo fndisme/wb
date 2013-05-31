@@ -2,11 +2,12 @@
 #define FND_GAME_WEB_GAME_UTITILIT_PAGE_FILE_PARSER_H
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/noncopyable.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 namespace WebGame {
 namespace Utility {
-  class PageParser {
+  class PageParser : boost::noncopyable {
     public:
       explicit PageParser(const std::string& file_name) : m_tree() {
         using boost::property_tree::ptree ;
@@ -46,8 +47,8 @@ namespace Utility {
         }
     private:
       boost::property_tree::ptree m_tree ;
-      PageParser(const PageParser&) = delete ;
-      PageParser& operator = (const PageParser&) = delete ;
+      //PageParser(const PageParser&) = delete ;
+      //PageParser& operator = (const PageParser&) = delete ;
   } ;
 }
 }

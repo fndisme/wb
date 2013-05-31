@@ -21,7 +21,11 @@
 #include "webgame/server/ZDataQuery.h"
 #include "webgame/utility/MessageManager.h"
 #include "webgame/message/DataCache.h"
+#ifdef WIN32
+#include <vector>
+#else
 #include <folly/FBVector.h>
+#endif
 
 namespace WebGame
 {
@@ -69,12 +73,16 @@ namespace WebGame
           m_translaters.lock() ;
         }
         void init(const std::string&) ;
+#ifdef WIN32
+        typedef std::vector<Message::DataCache::const_pointer> MessageGroupType;
+#else
         typedef folly::fbvector<Message::DataCache::const_pointer> MessageGroupType ;
+#endif
         MessageGroupType m_send_messages ;
         ZSocketPointer m_socket;
         std::string m_name ;
-        Impl(Impl const&) = delete ;
-        Impl& operator = (Impl const&) = delete ;
+        //Impl(Impl const&) = delete ;
+        //Impl& operator = (Impl const&) = delete ;
     } ;
   }
 }

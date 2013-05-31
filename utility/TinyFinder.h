@@ -20,10 +20,11 @@
 #include <cassert>
 #include <algorithm>
 #include <unordered_map>
+#include <boost/noncopyable.hpp>
 namespace WebGame {
 namespace Utility {
 template<typename K, typename V>
-  class TinyFinder {
+  class TinyFinder : boost::noncopyable {
     public:
       typedef K key_type ;
       typedef V search_type ;
@@ -57,14 +58,14 @@ template<typename K, typename V>
       }
 
       TinyFinder() : 
-        m_values{},
+        m_values(),
         m_dirty(true){}
       bool isDirty() const { return m_dirty ;}
     private:
       container_type m_values ;
       bool m_dirty ;
-      TinyFinder(const class_type&) = delete ;
-      TinyFinder& operator = (const class_type&) = delete ;
+      //TinyFinder(const class_type&) = delete ;
+      //TinyFinder& operator = (const class_type&) = delete ;
   } ;
 }
 }

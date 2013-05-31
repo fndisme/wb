@@ -23,20 +23,19 @@
 #include <functional>
 #include <iostream>
 #include <boost/asio.hpp>
+#include <boost/noncopyable.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/lock_guard.hpp>
 #include <pantheios/assert.h>
 #include "webgame/server/ZSocketDef.h"
 #include "webgame/server/ZPollInManager.h"
-//#include "webgame/server/ZSocketUtility.h"
 
 namespace WebGame {
   namespace Server {
     template<typename SD,
       typename RD,
       typename C = std::vector<SD> >
-        class ZSlaveServerSocket
-        {
+        class ZSlaveServerSocket : boost::noncopyable {
           public:
             typedef SD send_data_type ;
             typedef RD read_data_type ;
@@ -45,10 +44,6 @@ namespace WebGame {
             typedef std::unique_ptr<ZSlaveServerSocket<SD, RD, C> > pointer ;
 
             typedef std::function<void (std::shared_ptr<RD>)> MessageDealerFunctionType ;
-
-            ZSlaveServerSocket(class_type const&) = delete ;
-            class_type& operator = (ZSlaveServerSocket const&) = delete ;
-
             ZSlaveServerSocket(
                 boost::asio::strand& strand,
                 QSocketTratis::context_t& ctx,
@@ -61,9 +56,9 @@ namespace WebGame {
               m_subscriber(new QSocketTratis::socket_t(ctx, QSocketTratis::typeSub())),
               m_socket(new QSocketTratis::socket_t(ctx, QSocketTratis::typeDealer())),
               m_name(name),
-              m_send_data {},
-              m_dealer_function {},
-              m_subscriber_function {},
+              m_send_data(),
+              m_dealer_function(),
+              m_subscriber_function(),
               m_HWM(1000) {
                 init(socketaddress, subaddress, nl == NEED_LINGER, default_filter) ;
               }
@@ -82,7 +77,7 @@ namespace WebGame {
                 init(socketaddress, std::string(), nl == NEED_LINGER, std::string()) ;
               }
 
-            ~ZSlaveServerSocket() = default ;
+            ~ZSlaveServerSocket() {} 
 
             void sendMessage(send_data_type d) const {
               boost::lock_guard<boost::mutex> lock(m_mutex);

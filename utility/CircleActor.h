@@ -21,6 +21,7 @@
 #include <pantheios/assert.h>
 #include <memory>
 #include <boost/circular_buffer.hpp>
+#include "webgame/shared/Platform.h"
 namespace WebGame {
   namespace Utility {
   template<typename T>
@@ -43,14 +44,15 @@ namespace WebGame {
         void lock() { m_can_add_action = false ;}
         void unlock() { m_can_add_action = true ;}
         void action() {
-          m_actions.emplace_back(new T) ;
+          m_actions.push_back(std::make_shared<T>()) ;
         }
         explicit CircleActor(size_t maxsize) :
-          m_actions(maxsize) {
+          m_actions(maxsize),
+          m_can_add_action(true){
             for(size_t i = 0 ; i < maxsize ; ++i)
-              m_actions.emplace_back(new T) ;
+              m_actions.push_back(std::make_shared<T>()) ;
           }
-        ~CircleActor() noexcept {
+        ~CircleActor() NOEXCEPT {
           m_can_add_action = false ;
         }
 
@@ -59,7 +61,7 @@ namespace WebGame {
         typedef std::shared_ptr<T> ValueType ;
         typedef boost::circular_buffer<ValueType> BufferType ;
         BufferType m_actions ; 
-        bool m_can_add_action = true ;
+        bool m_can_add_action;
     } ;
   }
 }

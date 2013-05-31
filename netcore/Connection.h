@@ -15,7 +15,7 @@
 #include <boost/asio.hpp>
 #include <boost/system/system_error.hpp>
 #include <boost/function.hpp>
-#include <boost/thread/mutex.hpp>
+#include <boost/noncopyable.hpp>
 #include <boost/signals2.hpp>
 #include <boost/random.hpp>
 #include <fastformat/fastformat.hpp>
@@ -24,17 +24,21 @@
 #include <pantheios/inserters.hpp>
 #include <pantheios/pan.hpp>
 #include <pantheios/inserters/i.hpp>
+#ifdef WIN32
+#include <boost/optional.hpp>
+#else
 #include <folly/Optional.h>
+#endif
 
 #include "webgame/netcore/DataGetter.h"
 #include "webgame/netcore/DataSender.h"
 
-#include "net_connection_storage.h"
 #include "webgame/message/DataBlock.h"
 #include "webgame/shared/identity_type.h"
 
 // create connection easy for async
-#include "net_connection_property.h"
+#include "webgame/netcore/NetConnectionStorage.h"
+#include "webgame/netcore/ConnectionProperty.h"
 
 
 namespace WebGame {
@@ -48,7 +52,8 @@ namespace WebGame {
     using namespace bs2::keywords;
     template<typename ConnectionTraits>
       class Connection : 
-        public std::enable_shared_from_this<Connection<ConnectionTraits> > {
+        public std::enable_shared_from_this<Connection<ConnectionTraits> >,
+        boost::noncopyable {
           public:
             typedef typename ConnectionTraits::DataType data_type ;
             typedef typename data_type::IdentityType IdentityType ;
@@ -68,12 +73,6 @@ namespace WebGame {
             enum MessageOption {
               huge_message_mini_size = 4096,
             } ;
-
-
-            Connection(class_type const&) = delete ;
-            class_type& operator = (class_type const&) = delete ;
-
-
             typedef typename bs2::signal_type<void (const boost::system::error_code&,
                 std::shared_ptr<class_type >), mutex_type<bs2::dummy_mutex> >::type 
               NetConnectSignalType ;
@@ -112,14 +111,14 @@ namespace WebGame {
               pointer createAsyncConnection(boost::asio::io_service& io_service,
                   boost::asio::strand& read,
                   boost::asio::strand& write,
-                  const NetConnectionOption& option,
-                  const NetConnectionProperty<class_type>& property) ;
+                  const ConnectionOption& option,
+                  const ConnectionProperty<class_type>& property) ;
             static
               pointer createSyncConnection(boost::asio::io_service& io_service,
                   boost::asio::strand& read,
                   boost::asio::strand& write,
-                  const NetConnectionOption& option,
-                  const NetConnectionProperty<class_type>& property) ;
+                  const ConnectionOption& option,
+                  const ConnectionProperty<class_type>& property) ;
             Connection(boost::asio::io_service& io_service,
                 boost::asio::strand& readStrand,
                 boost::asio::strand& writeStrand,
@@ -249,11 +248,19 @@ namespace WebGame {
             bool isHeartDead() const { return m_heart_state == HB_DEAD ;}
             void decreaseHeartLevel() { if(m_heart_state != HB_DEAD) m_heart_state ++ ;}
             void increaseHeartLevel() { if(m_heart_state != HB_STRONG) m_heart_state -- ;}
+#ifdef WIN32
+            typedef boost::optional<int64_t> Variant;
+            void variant(int64_t value) { m_value = value ; }
+            bool hasVariant() const { return m_value;}
+            const Variant& variant() const {  return m_value ;}
+            void eraseVariant() {m_value.reset() ;}
+#else
             typedef folly::Optional<int64_t> Variant ;
             void variant(int64_t value) { m_value = value ; }
             bool hasVariant() const { return m_value.hasValue() ;}
             const Variant& variant() const {  return m_value ;}
             void eraseVariant() {m_value.clear() ;}
+#endif
           private:
             boost::asio::io_service& m_io_service ;
             bool m_need_handle_error ;
@@ -263,7 +270,7 @@ namespace WebGame {
             data_getter_pointer m_getter ;
             SystemSocketType m_socket ;
             CloseOption m_close_option ;
-            handle_allocator m_send_allocator ;
+            HandleAllocator m_send_allocator ;
             void handleSendData(const boost::system::error_code& error) ;
             void handleAsyncConnect(const boost::system::error_code& error,
                 boost::asio::ip::tcp::resolver::iterator iterator) ;

@@ -23,8 +23,8 @@ template<typename NetConnection>
 void WebGame::NetCore::DataGetter<NetConnection>::start(SystemConnectionPointer conn) {
   pan::log_DEBUG("nc real start");
 	boost::asio::async_read(m_socket,
-			boost::asio::buffer(this->data(), this->header_size()),
-			make_custom_alloc_handler
+			boost::asio::buffer(this->data(), this->headerSize()),
+			makeCustomAllocHandler
 			(m_receive_allocator,
 			 m_strand.wrap(boost::bind(&class_type::handleReceiveDataHeader,
 					 this,
@@ -47,14 +47,14 @@ void WebGame::NetCore::DataGetter<NetConnection>::handleReceiveDataHeader(
 				pantheios::hex_ptr(conn.get())) ;
 		conn->onError(error) ;
 		} 
-	} else if(this->body_size() == 0) {
+	} else if(this->bodySize() == 0) {
     pantheios::log_DEBUG("now body size = 0") ;
 		this->handleReceiveDataHeader(conn, error) ;
 	} else {
     boost::asio::async_read
 			(m_socket,
-			 boost::asio::buffer(this->data(), this->body_size()),
-			 make_custom_alloc_handler(m_receive_allocator,
+			 boost::asio::buffer(this->data(), this->bodySize()),
+			 makeCustomAllocHandler(m_receive_allocator,
 				 m_strand.wrap
 				 (boost::bind(&class_type::handleReceiveDataBody,
 											this,
@@ -83,8 +83,8 @@ void WebGame::NetCore::DataGetter<NetConnection>::handleReceiveDataBody(
     dealMessage(conn) ;
     boost::asio::async_read(m_socket,
         boost::asio::buffer(this->data(),
-          this->header_size()),
-        make_custom_alloc_handler
+          this->headerSize()),
+        makeCustomAllocHandler
         (m_receive_allocator,
          m_strand.wrap(boost::bind(&class_type::handleReceiveDataHeader,
              this,
@@ -140,14 +140,13 @@ WebGame::NetCore::DataGetter<NetConnection>::DataGetter(
 		size_t buffer_size,
 		bool can_change_pool_size) :
   messageDealer(dummy<block_type, NetConnection>),
-	m_io_service(conn->get_io_service()),
 	m_socket(conn->socket()),
-	m_strand(conn->get_strand()),
+	m_strand(conn->readStrand()),
   m_can_change_pool_size(can_change_pool_size),
 	m_pool_buffer(buffer_size),
-  m_blocks{},
-  m_current_block{},
-  m_receive_allocator{} {}
+  m_blocks(),
+  m_current_block(),
+  m_receive_allocator() {}
 
 template<typename NetConnection>
 void WebGame::NetCore::DataGetter<NetConnection>::popHeadStockMessage()

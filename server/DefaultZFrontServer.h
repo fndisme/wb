@@ -22,7 +22,10 @@
 #include <vector>
 #include <boost/container/flat_set.hpp>
 #include <boost/container/deque.hpp>
+#include <boost/noncopyable.hpp>
+#ifndef WIN32
 #include <folly/FBVector.h>
+#endif
 #include "webgame/netcore/DefaultNetConnectionDef.h"
 #include "webgame/netcore/TimerEventFwd.h"
 #include "webgame/utility/MessageManager.h"
@@ -30,6 +33,7 @@
 #include "webgame/server/ZSlaveServerSocket.h"
 #include "webgame/message/MakeCacheMessage.h"
 #include "webgame/shared/identity_type.h"
+#include "webgame/shared/Platform.h"
 #include "webgame/utility/CircleActor.h"
 #include "webgame/utility/DelayMessageDealer.h"
 #include "webgame/server/ServerOption.h"
@@ -48,16 +52,13 @@ namespace WebGame {
   namespace Server {
     class ZPollInManager ;
 
-    //template<typename NetConnection> class FlowControler ;
-    class DefaultZFrontServer {
+    class DefaultZFrontServer : boost::noncopyable {
 
       protected:
 
-        virtual ~DefaultZFrontServer() noexcept ;
+        virtual ~DefaultZFrontServer() NOEXCEPT;
         void init() ;
         DefaultZFrontServer(const ServerOption& option) ;
-        DefaultZFrontServer(DefaultZFrontServer const&) = delete ;
-        DefaultZFrontServer& operator = (DefaultZFrontServer const&) = delete ;
 
       public:
         void bind_to_poll_manager(ZPollInManager* mgr) ;
@@ -119,7 +120,11 @@ namespace WebGame {
 
         typedef Utility::MessageManager<int, MessageHandlerType> MessageDealerType ;
         typedef Utility::MessageManager<int, DataType> BackMessageDealerType ;
+#ifdef WIN32
+        typedef std::vector<player_tt> PlayerGroup;
+#else
         typedef folly::fbvector<player_tt> PlayerGroup ;
+#endif
         void register_client_message_handler(int k, MessageDealerType::function_type const& func) {
           register_message_as_normal_client_message(k) ;
           m_client_handlers.add(k, func) ;
@@ -146,7 +151,11 @@ namespace WebGame {
 
         const std::string& name() const { return m_registered_name ;}
 
+#ifdef WIN32
+        typedef std::vector<Message::DataCache::const_pointer> SocketDataVector;
+#else
         typedef folly::fbvector<Message::DataCache::const_pointer> SocketDataVector ;
+#endif
         typedef ZSlaveServerSocket<Message::DataCache::const_pointer, DataType, SocketDataVector> ZSocketType ; 
       protected:
         template<typename Action>
@@ -156,6 +165,8 @@ namespace WebGame {
       private:
         boost::asio::io_service* m_io_service ;
         ContextType* m_zero_ctx ;
+        boost::asio::strand* m_readStrand;
+        boost::asio::strand* m_writeStrand;
         std::unique_ptr<ZSocketType> m_socket ;
         const std::string m_init_file ;
         // handle message from client....

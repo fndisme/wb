@@ -8,6 +8,7 @@
  */
 #ifndef FND_WEB_GAME_POOL_BUFFER_H
 #define FND_WEB_GAME_POOL_BUFFER_H
+#include <boost/noncopyable.hpp>
 #include <stlsoft/memory/auto_buffer.hpp>
 namespace WebGame {
   namespace NetCore {
@@ -15,7 +16,7 @@ namespace WebGame {
     // IT's NOT a safe class. just use in some class. should not use as single
     // part
   template<int N>
-    class PoolBuffer {
+    class PoolBuffer : boost::noncopyable {
       public:
         typedef PoolBuffer<N> class_type ;
         inline char* data() { return m_buffer.data();}
@@ -37,8 +38,6 @@ namespace WebGame {
         }
       private:
         typedef stlsoft::auto_buffer<char, N> buffer_t ;
-        PoolBuffer(class_type const&) = delete ;
-        PoolBuffer& operator = (class_type const&) = delete ;
         buffer_t m_buffer ;
         size_t m_used ;
     } ;

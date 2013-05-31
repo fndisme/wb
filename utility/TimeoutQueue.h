@@ -75,6 +75,7 @@
 
 #include <stdint.h>
 #include <functional>
+#include <boost/noncopyable.hpp>
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/indexed_by.hpp>
 #include <boost/multi_index/ordered_index.hpp>
@@ -82,14 +83,14 @@
 
 namespace Utility {
 
-class TimeoutQueue {
+class TimeoutQueue : boost::noncopyable {
  public:
   typedef int64_t Id;
   typedef std::function<void(Id, int64_t)> Callback;
 
-  TimeoutQueue() : timeouts_{}, nextId_(1) { }
-  TimeoutQueue& operator = (TimeoutQueue const& ) = delete ;
-  TimeoutQueue(const TimeoutQueue&) = delete ;
+  TimeoutQueue() : timeouts_(), nextId_(1) { }
+  //TimeoutQueue& operator = (TimeoutQueue const& ) = delete ;
+  //TimeoutQueue(const TimeoutQueue&) = delete ;
 
   /**
 * Add a one-time timeout event that will fire "delay" time units from "now"

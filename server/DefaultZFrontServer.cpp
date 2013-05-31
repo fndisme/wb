@@ -60,36 +60,36 @@ namespace {
 }
 
 
-void THIS_CLASS::handle_HeartBeat(WebGame::MessageHandlerType /*  param */) {
+void THIS_CLASS::handle_HeartBeat(MessageHandlerType /*  param */) {
 }
 
 
 
-THIS_CLASS::~DefaultZFrontServer() noexcept {}
+THIS_CLASS::~DefaultZFrontServer() NOEXCEPT {}
 
 void THIS_CLASS::stop() {
-  m_acceptor->stop_all() ;
+  m_acceptor->stopAll() ;
 }
 
 THIS_CLASS::DefaultZFrontServer(const ServerOption& option) :
   m_io_service(option.IoService),
   m_zero_ctx(option.ZeroContext),
-  m_socket{},
+  m_readStrand(option.ReadStrand),
+  m_writeStrand(option.WriteStrand),
+  m_socket(),
   m_init_file(option.PropertyFileName),
-  m_client_handlers{},
-  m_back_dealer_handlers{},
-  m_back_subscriber_dealers{},
-  m_acceptor{},
-  m_timers{},
+  m_client_handlers(),
+  m_back_dealer_handlers(),
+  m_back_subscriber_dealers(),
+  m_acceptor(),
+  m_timers(),
   m_registered_name(""),
-  m_normal_messages{},
+  m_normal_messages(),
   m_max_answer_time(0) ,
-  //m_flow_controler(new FlowControlerType),
   m_has_back(true),
   m_port(0),
   m_hard_system_prepared_message_limit(10000),
-  m_delay_actor(MaxDelayTime){
-    //init() ;
+  m_delay_actor(MaxDelayTime) {
   }
 
 void THIS_CLASS::init() {
@@ -123,7 +123,7 @@ void THIS_CLASS::register_stock_actions() {
 }
 
 void THIS_CLASS::connect_to_back() {
-	Utility::page_parser pp(m_init_file) ;
+	Utility::PageParser pp(m_init_file) ;
 
   m_has_back = pp.get(Net, IsHasBackServer, 1) > 0 ;
 
@@ -151,7 +151,11 @@ void THIS_CLASS::connect_to_back() {
 
   PANTHEIOS_ASSERT(m_zero_ctx) ;
 
-  m_socket.reset(new ZSocketType(*m_zero_ctx, m_registered_name, radio_address,
+  m_socket.reset(
+      new ZSocketType(
+        *m_readStrand,
+        *m_zero_ctx,
+        m_registered_name, radio_address,
         socket_address)) ;
   }
 }
@@ -162,19 +166,19 @@ void THIS_CLASS::receive_customer_message(const DataType& db,
 
   if(is_valid_message(db, nc)) {
     if(need_heart_beat()) {
-      nc->increase_heart_level() ;
+      nc->increaseHeartLevel() ;
     }
     deal_client_message(db, nc) ;
   } else {
     pantheios::log_WARNING("msg not valid ", db) ;
-    nc->on_error() ;
+    nc->onError() ;
   }
 }
 
 
 void THIS_CLASS::deal_client_message(const DataType& db,
 		THIS_CLASS::NetConnectionType::pointer nc) {
-	if(!m_client_handlers.deal_with_message(db.message_type(), std::make_tuple(std::cref(db),
+	if(!m_client_handlers.dispatch(db.messageType(), std::make_tuple(std::cref(db),
 					nc))) {
 		if(is_register_client(nc) && has_back_server())
 			push_message_to_back(db) ;
@@ -182,7 +186,7 @@ void THIS_CLASS::deal_client_message(const DataType& db,
 }
 
 void THIS_CLASS::push_message_to_back(const DataType& db) const {
-  push_cache_message_to_back(make_cached(db)) ;
+  push_cache_message_to_back(makeCached(db)) ;
 }
 
 WebGame::second_tt THIS_CLASS::max_answer_time() const {
@@ -190,7 +194,7 @@ WebGame::second_tt THIS_CLASS::max_answer_time() const {
 }
 
 void THIS_CLASS::give_service_to_customers() {
-  Utility::page_parser pp(m_init_file) ;
+  Utility::PageParser pp(m_init_file) ;
   // set accetpor for *NORMAL* player........
   m_port = pp.get(Net, ListenPort, 0);
   pantheios::log_DEBUG("we listen client port is ", pan::i(m_port)) ;
@@ -210,7 +214,8 @@ void THIS_CLASS::give_service_to_customers() {
       handle_error,
       handle_data) ;
   PANTHEIOS_MESSAGE_ASSERT(m_io_service, "we need io_service....") ;
-  m_acceptor = AcceptorType::create_net_acceptor(*m_io_service,
+  m_acceptor = AcceptorType::create(*m_readStrand,
+      *m_writeStrand,
       m_port, prop) ;
 
 
@@ -239,12 +244,12 @@ void THIS_CLASS::give_service_to_customers() {
       }) ;
 
   // start connect client
-  m_acceptor->async_connect_a_client();
+  m_acceptor->asyncConnect();
 }
 
 void THIS_CLASS::register_repeat_timer(second_tt inteval, 
-    const timer_event_function_type& func) {
-  m_timers.push_back(timer_event::create_timer_event(*m_io_service,
+    const NetCore::timer_event_function_type& func) {
+  m_timers.push_back(NetCore::TimerEvent::create(*m_readStrand,
           inteval,
           func
           )) ;
@@ -252,31 +257,31 @@ void THIS_CLASS::register_repeat_timer(second_tt inteval,
 
 void THIS_CLASS::handle_client_heart_beat() {
   auto declevel = [](NetConnectionType::pointer nc) {
-    nc->decrease_heart_level() ;
+    nc->decreaseHeartLevel() ;
   } ;
 
-  m_acceptor->process_inplace_event(std::move(declevel)) ;
+  m_acceptor->processInplaceAction(std::move(declevel)) ;
 
 	auto cond = [](NetConnectionType::pointer nc) -> bool {
-		return nc->is_heart_dead() ;
+		return nc->isHeartDead() ;
 	} ;
 
-	auto fun = [](NetConnectionType::pointer nc) { nc->on_error() ;} ;
-	m_acceptor->process_event_for_connections(std::move(cond), std::move(fun)) ;
+	auto fun = [](NetConnectionType::pointer nc) { nc->onError() ;} ;
+	m_acceptor->processAction(std::move(cond), std::move(fun)) ;
 
   auto needheart = [](NetConnectionType::pointer nc) -> bool {
-    return nc->is_need_send_heart_beat() ;
+    return nc->isNeedHeartBeat() ;
   } ;
 
   game_connection::HeartBeat heart ;
   heart.set_dummy(1) ;
-  auto cache = easy_data_block_cache(heart, player_tt(0)) ;
+  auto cache = Message::easyDataBlockCache(heart, player_tt(0)) ;
 
   auto sendnotify = [cache](NetConnectionType::pointer nc) {
-    nc->send_async_message(cache) ;
+    nc->sendAsyncMessage(cache) ;
   } ;
 
-  m_acceptor->process_event_for_connections(std::move(needheart), std::move(sendnotify)) ;
+  m_acceptor->processAction(std::move(needheart), std::move(sendnotify)) ;
 }
 
 
@@ -288,9 +293,9 @@ THIS_CLASS::handle_customer_award_a_contract(THIS_CLASS::NetConnectionType::poin
   pan::log_DEBUG("real start ok....") ;
 }
 
-void THIS_CLASS::bind_to_poll_manager(WebGame::ZPollInManager* mgr) {
+void THIS_CLASS::bind_to_poll_manager(ZPollInManager* mgr) {
   if(has_back_server()) {
-  m_socket->bind_to_poll_manager(mgr,
+  m_socket->bindPollManager(mgr,
       boost::bind(&THIS_CLASS::deal_message_from_back_poster,
         this,
         _1),
@@ -298,17 +303,10 @@ void THIS_CLASS::bind_to_poll_manager(WebGame::ZPollInManager* mgr) {
         this,
         _1)
       ) ;
-  mgr->register_absolute_actor(std::bind(&THIS_CLASS::absorb_delayed_system_message,
+  mgr->registerWriteActor(std::bind(&THIS_CLASS::absorb_delayed_system_message,
         this), ZPollInManager::OT_FRONT) ;
-//  mgr->register_absolute_actor(std::bind(&THIS_CLASS::set_delay_flags,
-//        this), ZPollInManager::OT_FRONT) ;
-//  mgr->register_absolute_actor(std::bind(&THIS_CLASS::absorb_delayed_system_message,
-//        this)) ;
   }
 
-//  mgr->register_absolute_actor(std::bind(&THIS_CLASS::send_delay_flow_message,
-//        this)) ;
-//
   do_bind_to_poll_manager(mgr) ;
 }
 
@@ -363,21 +361,21 @@ void THIS_CLASS::set_delay_flags() {
 }
 
 void THIS_CLASS::handle_Back_InnerMessage(const DataType& db) {
-  auto msg = db.const_body<game_connection::InnerMessage>() ;
+  auto msg = db.constBody<game_connection::InnerMessage>() ;
   PANTHEIOS_ASSERT(msg) ;
   DataType db2 ;
-  bool ok = db2.import_from_string(msg->information()) ;
+  bool ok = db2.importFromString(msg->information()) ;
   PANTHEIOS_ASSERT(ok) ;
-  PANTHEIOS_ASSERT(db2.message_type() != db.message_type()) ;
-  db2.set_header_id(db.header_id()) ;
+  PANTHEIOS_ASSERT(db2.messageType() != db.messageType()) ;
+  db2.setHeaderId(db.headerId()) ;
   make_message_to_named_dealer(db2) ;
 }
 
 void THIS_CLASS::handle_Back_InnerPostMessage(const DataType& db) {
-  auto msg = db.const_body<game_connection::InnerPostMessage>() ;
+  auto msg = db.constBody<game_connection::InnerPostMessage>() ;
   PANTHEIOS_ASSERT(msg) ;
   DataType db2 ;
-  bool ok = db2.import_from_string(msg->information()) ;
+  bool ok = db2.importFromString(msg->information()) ;
   PANTHEIOS_ASSERT(ok) ;
   PlayerGroup ids ;
   for(int i = 0, size = msg->omitted_id_size() ; i < size ; ++i)
@@ -404,13 +402,13 @@ void THIS_CLASS::handle_Back_InnerPostMessage(const DataType& db) {
 }
 
 void THIS_CLASS::make_message_to_named_dealer(const DataType& db) {
-if(!m_back_dealer_handlers.deal_with_message(db.message_type(), std::cref(db))) {
+if(!m_back_dealer_handlers.dispatch(db.messageType(), db)) {
     do_default_deal_back_message(db) ;
   }
 }
 
 void THIS_CLASS::make_message_to_radio_dealer(const DataType& db) {
-if(!m_back_subscriber_dealers.deal_with_message(db.message_type(), std::cref(db)))
+if(!m_back_subscriber_dealers.dispatch(db.messageType(), db))
     send_message_to_all_client(db) ;
 }
 
@@ -430,8 +428,8 @@ bool THIS_CLASS::is_normal_post_message(int msg) const {
 }
 
 bool THIS_CLASS::is_no_delayed_inner_post_message(const DataType& db) const {
-  if(db.message_type() != game_connection::InnerPostMessage::value) return false ;
-  auto msg = db.const_body<game_connection::InnerPostMessage>() ;
+  if(db.messageType() != game_connection::InnerPostMessage::value) return false ;
+  auto msg = db.constBody<game_connection::InnerPostMessage>() ;
   return msg->no_delay() ;
 }
 
@@ -448,15 +446,14 @@ void THIS_CLASS::deal_message_from_back_radio(const DataType& db) {
   auto normalNeedDelay = is_normal_message_need_delay() ;
   bool needdelay = normalNeedDelay || !m_sys_delayed_message.empty() ;
 
-  if(is_normal_post_message(db.message_type()) ||
+  if(is_normal_post_message(db.messageType()) ||
       is_no_delayed_inner_post_message(db)) {
     if(normalNeedDelay) {
-      pantheios::log_DEBUG("make the message delay", pan::i(db.message_type())) ;
+      pantheios::log_DEBUG("make the message delay", pan::i(db.messageType())) ;
       m_normal_post_message.push_back(db) ;
     } else make_message_to_radio_dealer(db) ;
   } else if(needdelay) m_sys_delayed_message.push_back(db) ;
   else make_message_to_radio_dealer(db) ;
-  pan::log_DEBUG("dro") ;
 }
 
 #undef THIS_CLASS

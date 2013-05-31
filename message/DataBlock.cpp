@@ -39,6 +39,7 @@ namespace WebGame {
 
   DataBlock::~DataBlock() {}
 
+#ifndef _WIN32
   DataBlock::StringBlob DataBlock::packToString() const {
     std::string sink ;
     if(!m_header.SerializeToString(&sink)) return StringBlob() ;
@@ -47,6 +48,7 @@ namespace WebGame {
     PANTHEIOS_ASSERT((sink.size() + sink2.size()) == totalSize()) ;
     return sink + sink2 ;
   }
+#endif
 
   bool DataBlock::packToString(std::string& sink) const {
     if(!m_header.SerializeToString(&sink)) return false ;

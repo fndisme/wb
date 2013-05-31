@@ -17,15 +17,15 @@
  */
 #ifndef FND_GAME_OT2_MESSAGEHANDLE_H_
 #define FND_GAME_OT2_MESSAGEHANDLE_H_
-#include	"webgame/utility/TinyFinder.h"
-
 #include <cassert>
 #include <stdexcept>
 #include <functional>
+#include <boost/noncopyable.hpp>
+#include	"webgame/utility/TinyFinder.h"
 namespace WebGame {
 namespace Utility {
   template<typename Key, typename FuncParam>
-  class MessageManager {
+  class MessageManager : boost::noncopyable {
   public:
     typedef MessageManager<Key, FuncParam>   class_type ;
     typedef Key                             key_type ;
@@ -38,9 +38,9 @@ namespace Utility {
     void add(const key_type& k, const function_type& func) {
       handleMap.insert(k, func) ;
     }
-		bool dispatch(const key_type& k, function_para_type&& param) const{
+		bool dispatch(const key_type& k, const function_para_type& param) const{
 			if(!isRegistered(k)) return false ;
-			(handleMap.value(k))(std::forward<function_para_type>(param)) ;
+			(handleMap.value(k))(param) ;
 			return true ;
     }
     bool isRegistered(const key_type& k) const {
@@ -51,8 +51,8 @@ namespace Utility {
 
   private:
     HandleMap handleMap ;
-    MessageManager(class_type const&) = delete ;
-    class_type& operator = (class_type const&) = delete ;
+    //MessageManager(class_type const&) = delete ;
+    //class_type& operator = (class_type const&) = delete ;
   } ;
 }
 }

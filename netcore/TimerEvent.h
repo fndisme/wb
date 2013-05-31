@@ -2,15 +2,16 @@
 #define FND_GAME_WEB_GAME_TIMER_EVENT_H
 #include <map>
 #include <memory>
-#include <boost/function.hpp>
+#include <boost/any.hpp>
 #include <boost/asio.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/any.hpp>
+#include <boost/function.hpp>
+#include <boost/noncopyable.hpp>
 #include "webgame/shared/identity_type.h"
 
 namespace WebGame {
   namespace NetCore {
-    class TimerEvent {
+    class TimerEvent : boost::noncopyable {
       public:
 
         typedef TimerEvent class_type;
@@ -54,8 +55,8 @@ namespace WebGame {
         void pause(second_tt seconds) ;
         ~TimerEvent() ;
 
-        TimerEvent(class_type const&) = delete ;
-        class_type& operator = (TimerEvent const&) = delete ;
+        //TimerEvent(class_type const&) = delete ;
+        //class_type& operator = (TimerEvent const&) = delete ;
 
       private:
         static times_tt loopForever() { return times_tt(-1) ;}

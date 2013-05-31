@@ -17,25 +17,23 @@
  */
 #ifndef FND_WEBGAME_DELAYMESSAGEDEALER_H
 #define FND_WEBGAME_DELAYMESSAGEDEALER_H
-//#include <algorithm>
-//#include <iostream>
 #include <functional>
 #include <vector>
+#include <boost/noncopyable.hpp>
+#include "webgame/shared/Platform.h"
 
 namespace WebGame {
   namespace Utility {
-  class DelayMessageDealer {
+  class DelayMessageDealer : boost::noncopyable {
     public:
     typedef std::function<void()> Function ;
-    ~DelayMessageDealer() noexcept {
+    ~DelayMessageDealer() NOEXCEPT {
       for(auto& f : m_dealers) f() ;
     }
     void addDealer(Function&& f) {
       m_dealers.emplace_back(std::move(f)) ;
     }
     DelayMessageDealer() {} 
-    DelayMessageDealer(const DelayMessageDealer& lhs) = delete ; 
-    DelayMessageDealer& operator = (const DelayMessageDealer&) = delete;
     DelayMessageDealer(DelayMessageDealer&& rhs) :
       m_dealers(std::move(rhs.m_dealers)) {}
     private:

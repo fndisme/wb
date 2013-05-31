@@ -20,14 +20,15 @@
 #include <vector>
 #include <functional>
 #include <algorithm>
-//#include <xs.hpp>
-#include "ZSocketDef.h"
+#include <boost/noncopyable.hpp>
 #include <boost/thread.hpp>
 #include <pantheios/pantheios.hpp>
 #include <pantheios/assert.h>
+
+#include "ZSocketDef.h"
 namespace WebGame {
   namespace Server {
-  class ZPollInManager {
+  class ZPollInManager : boost::noncopyable {
     public:
       typedef std::function<void ()> ActionFunctionType ;
       enum OrderType {
@@ -90,10 +91,11 @@ namespace WebGame {
         return events ;
       }
 
-      explicit ZPollInManager(const boost::thread::id& id) : m_pollers {},
-        m_functions {},
-        m_absolute_functions {},
-        m_fronter_functions {},
+      explicit ZPollInManager(const boost::thread::id& id) :
+        m_pollers(),
+        m_functions(),
+        m_absolute_functions(),
+        m_fronter_functions(),
         m_threadId(id)
       {}
     private:
@@ -105,8 +107,8 @@ namespace WebGame {
       ActorGroupType m_absolute_functions ;
       ActorGroupType m_fronter_functions ;
       boost::thread::id m_threadId;
-      ZPollInManager(const ZPollInManager&) = delete ;
-      ZPollInManager& operator = (ZPollInManager const&) = delete ;
+      //ZPollInManager(const ZPollInManager&) = delete ;
+      //ZPollInManager& operator = (ZPollInManager const&) = delete ;
   } ;
   }
 }

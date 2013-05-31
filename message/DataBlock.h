@@ -10,8 +10,11 @@
 #include <map>
 #include <queue>
 #include <memory>
+#ifndef _WIN32
 #include <folly/Optional.h>
+#endif
 #include "webgame/message/data_header.pb.h"
+#include "webgame/shared/Platform.h"
 #include "webgame/shared/identity_type.h"
 namespace WebGame {
   namespace Message {
@@ -89,13 +92,15 @@ namespace WebGame {
 				setBody(msg) ;
 			}
     size_t totalSize() const  ;
-    static constexpr size_t headerSize() {return 4+4+4+3 ; }//id(4) + type(4) + size(4) + 3
+    static CONSTEXPR size_t headerSize() {return 4+4+4+3 ; }//id(4) + type(4) + size(4) + 3
     size_t bodySize()const ;
     bool packToArray(void *buffer, size_t buffer_size) const ;
     bool packToVector(std::vector<char>&) const ;
     bool packHeaderToArray(void* buffer, size_t header_size) const ;
+#ifndef _WIN32
     typedef folly::Optional<std::string> StringBlob ;
     StringBlob packToString() const ;
+#endif
     bool packToString(std::string&) const ;
 
     bool importFromArray(const void* buffer, size_t buffer_size) ;

@@ -22,11 +22,11 @@
 #include <boost/system/system_error.hpp>
 namespace WebGame {
   namespace NetCore {
-	struct NetConnectionOption {
+	struct ConnectionOption {
 		std::string ServerAddress ;
 		std::string Port ;
 		size_t GetterBufferSize ;
-		NetConnectionOption(const std::string& server_address,
+		ConnectionOption(const std::string& server_address,
 				const std::string& port,
 				size_t buffer = 4096L) :
 			ServerAddress(server_address),
@@ -35,7 +35,7 @@ namespace WebGame {
 	} ;
 
 	template<typename NetConnection>
-		struct NetConnectionProperty {
+		struct ConnectionProperty {
 			typedef NetConnection net_connection_type ;
 			typedef typename net_connection_type::handle_error_function_type handle_error_function_type ;
 			typedef typename net_connection_type::handle_data_block_function_type handle_data_block_function_type ;
@@ -43,7 +43,7 @@ namespace WebGame {
 			handle_error_function_type HandleError ;
 			handle_data_block_function_type HandleData ;
 			handle_async_connect_function_type HandleOk ;
-			NetConnectionProperty(const handle_error_function_type& h_e,
+			ConnectionProperty(const handle_error_function_type& h_e,
 					const handle_data_block_function_type& h_d,
 					const handle_async_connect_function_type& h_o = handle_async_connect_function_type()) :
 				HandleError(h_e),

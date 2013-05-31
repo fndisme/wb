@@ -95,7 +95,7 @@ bool WebGame::NetCore::DataSender<NetConnection>::can_pack_data_to_pool() const 
 	template<typename NetConnection>
 WebGame::NetCore::DataSender<NetConnection>::DataSender(size_t pool_size, size_t huge_block_size) 
 	: m_pool_buffer(pool_size),
-  m_blocks{},
+  m_blocks(),
 	m_huge_block_size(huge_block_size) {
   }
 

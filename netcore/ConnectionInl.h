@@ -37,8 +37,8 @@ WebGame::NetCore::Connection<ConnectionTraits>::Connection(
     boost::asio::strand& readStrand,
     boost::asio::strand& writeStrand,
 		std::shared_ptr<data_getter_type> getter) :
-  asyncConnect{},
-  handleError{},
+  asyncConnect(),
+  handleError(),
 	m_io_service(io_service),
 	m_readStrand(readStrand),
   m_writeStrand(writeStrand),
@@ -47,7 +47,7 @@ WebGame::NetCore::Connection<ConnectionTraits>::Connection(
   m_getter(getter),
 	m_socket(io_service),
 	m_close_option(normal),
-  m_send_allocator{},
+  m_send_allocator(),
   m_heart_state(HB_STRONG) {
 }
 
@@ -57,13 +57,13 @@ WebGame::NetCore::Connection<ConnectionTraits>::createAsyncConnection(
 		boost::asio::io_service& io_service,
     boost::asio::strand& readStrand,
     boost::asio::strand& writeStrand,
-		const NetConnectionOption& option,
-		const NetConnectionProperty<class_type>& property) {
+		const ConnectionOption& option,
+		const ConnectionProperty<class_type>& property) {
 
 	pointer new_connect(new class_type(io_service, readStrand, writeStrand)) ; //, std::move(getter))) ;
 	data_getter_pointer getter(new data_getter_type(new_connect, option.GetterBufferSize)) ;
 	new_connect->resetGetter(std::move(getter)) ;
-	getter->message_dealer = property.HandleData ;
+	getter->messageDealer = property.HandleData ;
 	new_connect->handleError.connect(property.HandleError) ;
 	new_connect->asyncConnect = property.HandleOk ;
 	new_connect->startAsyncConnect(option.ServerAddress, option.Port) ;
@@ -76,8 +76,8 @@ WebGame::NetCore::Connection<ConnectionTraits>::createSyncConnection(
 		boost::asio::io_service& io_service,
     boost::asio::strand& readStrand,
     boost::asio::strand& writeStrand,
-		const NetConnectionOption& option,
-		const NetConnectionProperty<class_type>& property) {
+		const ConnectionOption& option,
+		const ConnectionProperty<class_type>& property) {
 
 	pointer new_connect(new class_type(io_service, readStrand, writeStrand)) ; //, std::move(getter))) ;
 	data_getter_pointer getter(new data_getter_type(new_connect, option.GetterBufferSize)) ;
@@ -132,7 +132,7 @@ void WebGame::NetCore::Connection<ConnectionTraits>::handleSendData(
 		boost::asio::async_write(m_socket,
 				boost::asio::buffer
 				(m_sender.data(), m_sender.size()),
-				make_custom_alloc_handler
+				makeCustomAllocHandler
 				(m_send_allocator,
 				 m_writeStrand.wrap(boost::bind(&class_type::handleSendData,
 						 this->shared_from_this(),
@@ -194,7 +194,7 @@ void WebGame::NetCore::Connection<ConnectionTraits>::realSendInformation() {
 	boost::asio::async_write
 		(m_socket,
 		 boost::asio::buffer(m_sender.data(), m_sender.size()),
-		 make_custom_alloc_handler
+		 makeCustomAllocHandler
 		 (m_send_allocator,
 			m_writeStrand.wrap
 			(boost::bind(&class_type::handleSendData,
@@ -244,7 +244,7 @@ template<typename ConnectionTraits>
 void WebGame::NetCore::Connection<ConnectionTraits>::flush() {
 	//m_io_service.post
   m_io_service.dispatch
-		(make_custom_alloc_handler(m_send_allocator,
+		(makeCustomAllocHandler(m_send_allocator,
                                m_writeStrand.wrap(
 															 boost::bind(&class_type::doFlush,
 																 this->shared_from_this())))) ;

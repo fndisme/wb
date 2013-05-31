@@ -68,7 +68,7 @@ THIS_CLASS::Impl(QSocketTratis::context_t& ctx,
     m_strand(strand),
     m_handlers(),
     m_translaters(),
-    m_send_messages {},
+    m_send_messages(),
     m_socket(new QSocketTratis::socket_t(ctx, QSocketTratis::typeDealer())),
     m_name() {
     init(info) ;
@@ -82,7 +82,7 @@ void THIS_CLASS::bindPollManager(ZPollInManager* mgr) {
 
 void THIS_CLASS::dealMessage() {
     auto deal_single_msg = [this](std::shared_ptr<data_type> db) {
-        m_handlers.dispatch(db->messageType(), std::cref(*db)) ;
+        m_handlers.dispatch(db->messageType(), *db) ;
     } ;
 
     QSocketTratis::absorbAndDispatchMessage<data_type>(*m_socket, deal_single_msg, m_strand) ;

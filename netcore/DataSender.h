@@ -18,7 +18,7 @@
 #ifndef FND_DATA_SENDER_H
 #define FND_DATA_SENDER_H
 #include <string>
-//#include <forward_list>
+#include <boost/noncopyable.hpp>
 #include	<boost/variant.hpp>
 #include	<pantheios/pantheios.hpp>
 #include <pantheios/inserters.hpp>
@@ -31,7 +31,7 @@
 namespace WebGame {
   namespace NetCore {
   template<typename NetConnection>
-    class DataSender {
+    class DataSender : boost::noncopyable {
       public:
         typedef typename NetConnection::data_type data_message_type ;
         typedef boost::variant<data_message_type, Message::DataCache::const_pointer> data_type ; 
@@ -41,7 +41,6 @@ namespace WebGame {
         typedef DataSender<NetConnection> class_type ;
 
       public:
-
         void pack_send_message(const data_message_type& db) { 
           pack_send_message(make_cached(db)) ;
         }
@@ -70,9 +69,6 @@ namespace WebGame {
         bool sop_block_without_reset_size() ;
         bool try_sop_front_to_pool() ;
         bool can_pack_data_to_pool() const ;
-      private: // not used
-        DataSender(const class_type&) = delete ;
-        class_type& operator = (const class_type&) = delete ;
     } ;
   }
 }

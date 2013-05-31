@@ -22,6 +22,7 @@
 #include <tuple>
 #include <type_traits>
 #include <functional>
+#include <boost/noncopyable.hpp>
 #include "webgame/message/DataCache.h"
 #include "webgame/message/DataBlock.h"
 #include "webgame/server/ZSocketDef.h"
@@ -30,7 +31,7 @@ namespace WebGame {
 namespace Server {
 
 class ZPollInManager ;
-class ZDataQuery {
+class ZDataQuery : boost::noncopyable {
 public:
     ZDataQuery(QSocketTratis::context_t&,
         boost::asio::strand&,
@@ -62,8 +63,8 @@ public:
 private:
     class Impl ;
     std::unique_ptr<Impl> m_impl ;
-    ZDataQuery(ZDataQuery const&) = delete ;
-    ZDataQuery& operator = (const ZDataQuery&) = delete ;
+    //ZDataQuery(ZDataQuery const&) = delete ;
+    //ZDataQuery& operator = (const ZDataQuery&) = delete ;
 
 } ;
 }

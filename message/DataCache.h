@@ -22,14 +22,15 @@
 #include	<memory>
 #include	<type_traits>
 #include <functional>
+#include <boost/noncopyable.hpp>
 #include <stlsoft/memory/auto_buffer.hpp>
 #include <pantheios/assert.h>
 #include "webgame/message/DataBlock.h"
-//#include "game_message_util.h"
+#include "webgame/message/MessageUtility.h"
 
 namespace WebGame{
   namespace Message {
-  class DataCache {
+  class DataCache : boost::noncopyable {
     typedef stlsoft::auto_buffer<char, 512> buffer_t ;
     public:
       class error : public std::runtime_error {
@@ -68,9 +69,9 @@ namespace WebGame{
 
 
     private:
-      DataCache() = delete ;
-      DataCache(const DataCache& cache) = delete ;
-      DataCache& operator = (const DataCache& cache) = delete ;
+      //DataCache() = delete ;
+      //DataCache(const DataCache& cache) = delete ;
+      //DataCache& operator = (const DataCache& cache) = delete ;
       DataCache(const char* cdata,
           size_t s) : m_buffer(s)
        {
@@ -100,7 +101,7 @@ namespace WebGame{
       template<typename T, typename Body>
         DataCache(const T& header, const Body* body) :
           m_buffer(totalMessageSize(header, body)) {
-            pack_cache_message(header, body, data(), totalSize()) ;
+            packCach(header, body, data(), totalSize()) ;
         }
 
       template<typename T, typename Identity>

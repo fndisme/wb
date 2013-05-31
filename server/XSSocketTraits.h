@@ -22,6 +22,7 @@
 #include <xs.hpp>
 #include <pantheios/pantheios.hpp>
 #include <pantheios/assert.h>
+#include "webgame/shared/Platform.h"
 namespace WebGame
 {
   namespace Server {
@@ -31,31 +32,31 @@ namespace WebGame
     typedef xs::context_t context_t ;
     typedef xs::message_t message_t ;
     typedef xs::pollitem_t pollitem_t ;
-    constexpr int eventPollIn() {
+    CONSTEXPR int eventPollIn() {
       return XS_POLLIN ;
     }
-    constexpr int optionIdentity() {
+    CONSTEXPR int optionIdentity() {
       return XS_IDENTITY ;
     }
-    constexpr int optionLinger() {
+    CONSTEXPR int optionLinger() {
       return XS_LINGER ;
     }
-    constexpr int typeDealer() {
+    CONSTEXPR int typeDealer() {
       return XS_DEALER ;
     }
-    constexpr int typeSub() {
+    CONSTEXPR int typeSub() {
       return XS_SUB ;
     }
-    constexpr int optionSubscribe() {
+    CONSTEXPR int optionSubscribe() {
       return XS_SUBSCRIBE ;
     }
-    constexpr int typePub() {
+    CONSTEXPR int typePub() {
       return XS_PUB ;
     }
-    constexpr int typeRouter() {
+    CONSTEXPR int typeRouter() {
       return XS_ROUTER ;
     }
-    constexpr int optionSetHighWaterMark() {
+    CONSTEXPR int optionSetHighWaterMark() {
       return XS_SNDHWM ;
     }
     template<typename C>

@@ -14,15 +14,18 @@
 #include <functional>
 #include <boost/asio.hpp>
 #include <boost/thread/mutex.hpp>
-#include	"net_acceptor_property.h"
+#include <boost/noncopyable.hpp>
+#include	"webgame/netcore/NetConnectionStorage.h"
 #include "webgame/message/DataCache.h"
+#include "webgame/shared/Platform.h"
+#include "webgame/netcore/AcceptorProperty.h"
 
 
 namespace WebGame {
   namespace NetCore {
 
   template<typename NetConnection>
-    class Acceptor {
+    class Acceptor : boost::noncopyable {
       public:
         typedef typename NetConnection::data_type data_type ;
         typedef typename NetConnection::NotLockType NotLockType ;
@@ -34,7 +37,7 @@ namespace WebGame {
         typedef std::function<void (nc_pointer_type)> net_acceptor_connect_successed_function_type ;
         typedef Acceptor<NetConnection> class_type ;
         typedef std::unique_ptr<class_type> pointer ;
-        typedef net_acceptor_property<NetConnection> NetAcceptorProperty ;
+        typedef AcceptorProperty<NetConnection> NetAcceptorProperty ;
         static pointer create(boost::asio::strand& readStrand,
             boost::asio::strand& writeStrand,
             int port,
@@ -48,10 +51,6 @@ namespace WebGame {
             postMessage(db) ;
           }
         typedef std::function<void (nc_pointer_type)> EventFunc ;
-
-        class_type& operator = (class_type const&) = delete ;
-        Acceptor(class_type const&) = delete ;
-
 
         void processInplaceAction(EventFunc func) {
           std::for_each(m_connections.begin(), m_connections.end(), func) ;

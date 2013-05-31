@@ -10,6 +10,7 @@
 #include <functional>
 #include <memory>
 #include <boost/functional/factory.hpp>
+#include <boost/noncopyable.hpp>
 #include <google/protobuf/stubs/common.h>
 #include <pantheios/assert.h>
 #include	"webgame/utility/TinyFinder.h"
@@ -21,11 +22,11 @@ namespace google {
 namespace WebGame {
   namespace Message {
   typedef std::function<std::shared_ptr< ::google::protobuf::Message> ( )> message_builder_type ;
-  class MessageBuilder {
+  class MessageBuilder : boost::noncopyable {
     typedef MessageBuilder class_type ;
     typedef Utility::TinyFinder<int, message_builder_type> finder_type ;
-    MessageBuilder(MessageBuilder const&) = delete ;
-    MessageBuilder& operator = (MessageBuilder const&) = delete ;
+    //MessageBuilder(MessageBuilder const&) = delete ;
+    //MessageBuilder& operator = (MessageBuilder const&) = delete ;
     public:
     template<typename T>
       void registerBuilder(T* /*p*/ = nullptr) {

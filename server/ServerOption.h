@@ -18,23 +18,27 @@
 #ifndef FND_WEBGAME_SERVEROPTION_H
 #define FND_WEBGAME_SERVEROPTION_H
 #include <string>
-#include "ZSocketDef.h"
-namespace WebGame
-{
+#include <boost/noncopyable.hpp>
+#include "webgame/server/ZSocketDef.h"
+namespace WebGame {
   namespace Server {
-    struct ServerOption {
+    struct ServerOption : boost::noncopyable {
       boost::asio::io_service* IoService ;
       QSocketTratis::context_t* ZeroContext ;
       const std::string PropertyFileName ;
+      boost::asio::strand* ReadStrand;
+      boost::asio::strand* WriteStrand;
       explicit ServerOption(
           const std::string& filename,
           boost::asio::io_service* service = nullptr,
-          QSocketTratis::context_t* context = nullptr) :
+          QSocketTratis::context_t* context = nullptr,
+          boost::asio::strand* readStrand = nullptr,
+          boost::asio::strand* writeStrand = nullptr) :
         IoService(service),
         ZeroContext(context),
-        PropertyFileName(filename) {}
-      ServerOption(ServerOption const&) = default ;
-      ServerOption& operator = (ServerOption const&) = default ;
+        PropertyFileName(filename),
+        ReadStrand(readStrand),
+        WriteStrand(writeStrand){}
     } ;
   }
 

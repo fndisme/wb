@@ -55,12 +55,12 @@ WebGame::NetCore::Acceptor<NetConnection>::Acceptor(boost::asio::strand& readStr
 		int port) :
 	m_readStrand(readStrand),
   m_writeStrand(writeStrand),
-  m_connections{},
-  m_current_conection{},
-  messageCallback{},
-  errorCallback{},
-  checkCallback{},
-  successedCallback{},
+  m_connections(),
+  m_current_conection(),
+  messageCallback(),
+  errorCallback(),
+  checkCallback(),
+  successedCallback(),
   m_port(port),
 	m_acceptor(readStrand.get_io_service()),
   m_data_getter_cache_size(0){ }
@@ -78,7 +78,7 @@ template<typename NetConnection>
 void WebGame::NetCore::Acceptor<NetConnection>::doPostMessageExcept(
 		const data_type& db,
 		nc_pointer_type nc) const {
-  Message::DataCache::const_pointer cache = make_cached(db) ;
+  Message::DataCache::const_pointer cache = makeCached(db) ;
 	doPostMessageExcept(cache) ;
 }
 
@@ -90,13 +90,12 @@ void WebGame::NetCore::Acceptor<NetConnection>::doPostMessageExcept(
 			m_connections.end(),
 			[&db, nc](nc_pointer_type n)
 			{if(n != nc) n->sendAsyncMessage(db) ;}) ;
-
 }
 
 template<typename NetConnection>
 void WebGame::NetCore::Acceptor<NetConnection>::doPostMessage(
 		const data_type& db) const {
-  Message::DataCache::const_pointer cache = make_cached(db) ;
+  Message::DataCache::const_pointer cache = makeCached(db) ;
 	doPostMessage(cache) ;
 }
 template<typename NetConnection>
@@ -113,7 +112,7 @@ void WebGame::NetCore::Acceptor<NetConnection>::handleNewConnection(
 		const boost::system::error_code& error) {
 	if(checkCallback(m_current_conection, error)) {
 		pantheios::log_DEBUG("socket connect successed:",
-				net_connection_type::describe_remote_connection(m_current_conection)) ;
+				net_connection_type::describeRemoteConnection(m_current_conection)) ;
 		m_current_conection->handleError.connect
 			(boost::bind(&class_type::removeConnection,
 									 this, _1, _2)) ;
@@ -121,7 +120,7 @@ void WebGame::NetCore::Acceptor<NetConnection>::handleNewConnection(
 		typename net_connection_type::data_getter_pointer
 			p(new typename net_connection_type::data_getter_type(m_current_conection, m_data_getter_cache_size)) ;
 
-		p->message_dealer = messageCallback;
+		p->messageDealer = messageCallback;
 		m_current_conection->handleError.connect(errorCallback) ;
 		m_current_conection->resetGetter(std::move(p)) ;
     pan::log_DEBUG("BF call connect successed") ;
@@ -132,7 +131,7 @@ void WebGame::NetCore::Acceptor<NetConnection>::handleNewConnection(
 	} else {
 		m_current_conection->onError(error) ;
 		pantheios::log_ERROR("new client socket error: ",
-				net_connection_type::describe_remote_connection(m_current_conection)) ;
+				net_connection_type::describeRemoteConnection(m_current_conection)) ;
 	}
 }
 
