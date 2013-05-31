@@ -60,11 +60,6 @@ namespace {
 }
 
 
-void THIS_CLASS::handle_HeartBeat(MessageHandlerType /*  param */) {
-}
-
-
-
 THIS_CLASS::~DefaultZFrontServer() NOEXCEPT {}
 
 void THIS_CLASS::stop() {
@@ -93,36 +88,36 @@ THIS_CLASS::DefaultZFrontServer(const ServerOption& option) :
   }
 
 void THIS_CLASS::init() {
-  connect_to_back() ;
-  give_service_to_customers() ;
+  connectBack() ;
+  startReceiveConnection() ;
 
-  init_other_service() ;
+  initOtherService() ;
 
-  register_stock_actions() ;
-  register_actions() ;
+  registerStockMessage() ;
+  registerActions() ;
 
 
-  make_message_dealers_final() ;
+  makeMessageDealersFinal() ;
   
 }
 
-void THIS_CLASS::register_stock_actions() {
+void THIS_CLASS::registerStockMessage() {
   if(m_has_back) {
     m_back_dealer_handlers.add(game_connection::InnerMessage::value,
-        boost::bind(&THIS_CLASS::handle_Back_InnerMessage,
+        boost::bind(&THIS_CLASS::handleBackInnerMessage,
           this,
           _1)) ;
 
     m_back_subscriber_dealers.add(game_connection::InnerPostMessage::value,
-        boost::bind(&THIS_CLASS::handle_Back_InnerPostMessage,
+        boost::bind(&THIS_CLASS::handleBackInnerPostMessage,
           this,
           _1)) ;
   }
 
-  if(need_heart_beat()) m_normal_messages.insert(game_connection::HeartBeat::value) ;
+  if(needHeartBeat()) m_normal_messages.insert(game_connection::HeartBeat::value) ;
 }
 
-void THIS_CLASS::connect_to_back() {
+void THIS_CLASS::connectBack() {
 	Utility::PageParser pp(m_init_file) ;
 
   m_has_back = pp.get(Net, IsHasBackServer, 1) > 0 ;
@@ -160,15 +155,15 @@ void THIS_CLASS::connect_to_back() {
   }
 }
 
-void THIS_CLASS::receive_customer_message(const DataType& db,
+void THIS_CLASS::onReceiveConncetionMessage(const DataType& db,
     THIS_CLASS::NetConnectionType::pointer nc) {
   if(!nc) return ;
 
-  if(is_valid_message(db, nc)) {
-    if(need_heart_beat()) {
+  if(isValidMessage(db, nc)) {
+    if(needHeartBeat()) {
       nc->increaseHeartLevel() ;
     }
-    deal_client_message(db, nc) ;
+    dispatchConnectionMessage(db, nc) ;
   } else {
     pantheios::log_WARNING("msg not valid ", db) ;
     nc->onError() ;
@@ -176,24 +171,20 @@ void THIS_CLASS::receive_customer_message(const DataType& db,
 }
 
 
-void THIS_CLASS::deal_client_message(const DataType& db,
+void THIS_CLASS::dispatchConnectionMessage(const DataType& db,
 		THIS_CLASS::NetConnectionType::pointer nc) {
 	if(!m_client_handlers.dispatch(db.messageType(), std::make_tuple(std::cref(db),
 					nc))) {
-		if(is_register_client(nc) && has_back_server())
-			push_message_to_back(db) ;
+		if(isRegisterConnection(nc) && isConnectedToBack())
+			pushMessageToBack(db) ;
 	}
 }
 
-void THIS_CLASS::push_message_to_back(const DataType& db) const {
-  push_cache_message_to_back(makeCached(db)) ;
+void THIS_CLASS::pushMessageToBack(const DataType& db) const {
+  pushCacheMessageToBack(makeCached(db)) ;
 }
 
-WebGame::second_tt THIS_CLASS::max_answer_time() const {
-  return m_max_answer_time ;
-}
-
-void THIS_CLASS::give_service_to_customers() {
+void THIS_CLASS::startReceiveConnection() {
   Utility::PageParser pp(m_init_file) ;
   // set accetpor for *NORMAL* player........
   m_port = pp.get(Net, ListenPort, 0);
@@ -205,10 +196,10 @@ void THIS_CLASS::give_service_to_customers() {
   m_ungent_max_send_size = pp.get(Net, MaxSendUngentMessageSize, 100) ;
   m_normal_max_send_size = pp.get(Net, MaxSendNormalMessageSize, m_ungent_max_send_size) ;
 
-  auto handle_connect = boost::bind(&THIS_CLASS::handle_customer_enter, this, _1, _2) ;
-  auto handle_connect_success = boost::bind(&THIS_CLASS::handle_customer_award_a_contract, this, _1) ;
-  auto handle_error = boost::bind(&THIS_CLASS::handle_customer_leave, this, _1, _2);
-  auto handle_data = boost::bind(&THIS_CLASS::receive_customer_message, this, _1, _2) ;
+  auto handle_connect = boost::bind(&THIS_CLASS::onNewConnection, this, _1, _2) ;
+  auto handle_connect_success = boost::bind(&THIS_CLASS::makeConnectionValid, this, _1) ;
+  auto handle_error = boost::bind(&THIS_CLASS::onConnectionLeave, this, _1, _2);
+  auto handle_data = boost::bind(&THIS_CLASS::onReceiveConncetionMessage, this, _1, _2) ;
   AcceptorType::NetAcceptorProperty prop(handle_connect,
       handle_connect_success,
       handle_error,
@@ -229,15 +220,13 @@ void THIS_CLASS::give_service_to_customers() {
     PANTHEIOS_MESSAGE_ASSERT(m_max_answer_time > rate,
         "we need right MaxAnswerTime") ;
 
-    register_repeat_timer(rate, boost::bind(&THIS_CLASS::handle_client_heart_beat, this)) ;
+    registerRepeatTimer(rate, boost::bind(&THIS_CLASS::dealHeartBeat, this)) ;
 
     m_client_handlers.add(game_connection::HeartBeat::value,
-        boost::bind(&THIS_CLASS::handle_HeartBeat,
-          this,
-          _1)) ;
+        [](MessageHandlerType){}) ;
   }
   
-  register_repeat_timer(second_tt(1), [this]() {
+  registerRepeatTimer(second_tt(1), [this]() {
       m_delay_actor.lock() ;
       m_delay_actor.action() ;
       m_delay_actor.unlock() ;
@@ -247,7 +236,7 @@ void THIS_CLASS::give_service_to_customers() {
   m_acceptor->asyncConnect();
 }
 
-void THIS_CLASS::register_repeat_timer(second_tt inteval, 
+void THIS_CLASS::registerRepeatTimer(second_tt inteval, 
     const NetCore::timer_event_function_type& func) {
   m_timers.push_back(NetCore::TimerEvent::create(*m_readStrand,
           inteval,
@@ -255,7 +244,7 @@ void THIS_CLASS::register_repeat_timer(second_tt inteval,
           )) ;
 }
 
-void THIS_CLASS::handle_client_heart_beat() {
+void THIS_CLASS::dealHeartBeat() {
   auto declevel = [](NetConnectionType::pointer nc) {
     nc->decreaseHeartLevel() ;
   } ;
@@ -293,10 +282,10 @@ THIS_CLASS::makeConnectionValid(THIS_CLASS::NetConnectionType::pointer nc) {
   pan::log_DEBUG("real start ok....") ;
 }
 
-void THIS_CLASS::bind_to_poll_manager(ZPollInManager* mgr) {
-  if(has_back_server()) {
+void THIS_CLASS::bindPollManager(ZPollInManager* mgr) {
+  if(isConnectedToBack()) {
   m_socket->bindPollManager(mgr,
-      boost::bind(&THIS_CLASS::deal_message_from_back_poster,
+      boost::bind(&THIS_CLASS::dealBackMessage,
         this,
         _1),
       boost::bind(&THIS_CLASS::dealBackRadioMessage,
@@ -307,10 +296,10 @@ void THIS_CLASS::bind_to_poll_manager(ZPollInManager* mgr) {
         this), ZPollInManager::OT_FRONT) ;
   }
 
-  do_bind_to_poll_manager(mgr) ;
+  doBindPollManager(mgr) ;
 }
 
-void THIS_CLASS::send_ungent_message() {
+void THIS_CLASS::sendFastMessage() {
   size_t max_send_size = std::min(m_ungent_max_send_size, m_ungent_message.size()) ;
   pan::log_DEBUG("send ungent msg ", pan::i(max_send_size), " ",
       pan::i(m_ungent_message.size())) ;
@@ -323,7 +312,7 @@ void THIS_CLASS::send_ungent_message() {
 
 }
 
-void THIS_CLASS::post_normal_message() {
+void THIS_CLASS::postNormalMessage() {
   pantheios::log_DEBUG("Post Normal Message ", pan::i(m_normal_post_message.size())) ;
 size_t max_send_size = std::min(m_normal_max_send_size, m_normal_post_message.size()) ;
   auto iter = m_normal_post_message.begin(), iter_end = m_normal_post_message.begin() + max_send_size ;
@@ -335,8 +324,8 @@ size_t max_send_size = std::min(m_normal_max_send_size, m_normal_post_message.si
 
 void THIS_CLASS::absorbDelaySystemMessage() {
   if(m_ungent_message.empty() && m_sys_delayed_message.empty() && m_normal_post_message.empty()) return ; // many times it is TRUE
-  if(!m_ungent_message.empty()) send_ungent_message() ;
-  if(m_ungent_message.empty() && !m_normal_post_message.empty()) post_normal_message() ;
+  if(!m_ungent_message.empty()) sendFastMessage() ;
+  if(m_ungent_message.empty() && !m_normal_post_message.empty()) postNormalMessage() ;
   if(m_hard_system_prepared_message_limit < current_prepared_message_number_of_net_pool()) {
   } else if(m_ungent_message.empty() && m_normal_post_message.empty()) {
     while(!m_sys_delayed_message.empty()) {
@@ -351,7 +340,7 @@ void THIS_CLASS::absorbDelaySystemMessage() {
 }
 
 
-void THIS_CLASS::handle_Back_InnerMessage(const DataType& db) {
+void THIS_CLASS::handleBackInnerMessage(const DataType& db) {
   auto msg = db.constBody<game_connection::InnerMessage>() ;
   PANTHEIOS_ASSERT(msg) ;
   DataType db2 ;
@@ -362,7 +351,7 @@ void THIS_CLASS::handle_Back_InnerMessage(const DataType& db) {
   make_message_to_named_dealer(db2) ;
 }
 
-void THIS_CLASS::handle_Back_InnerPostMessage(const DataType& db) {
+void THIS_CLASS::handleBackInnerPostMessage(const DataType& db) {
   auto msg = db.constBody<game_connection::InnerPostMessage>() ;
   PANTHEIOS_ASSERT(msg) ;
   DataType db2 ;
@@ -385,7 +374,7 @@ void THIS_CLASS::handle_Back_InnerPostMessage(const DataType& db) {
                               msg->group().group_property(), db2, ids) ;
     }
   } else {
-    if(ids.empty()) send_message_to_all_client(db2) ;
+    if(ids.empty()) sendMessageToAllConnection(db2) ;
     else if(ids.size() == 1)
       do_deal_back_post_message(db2, ids[0]) ;
     else do_deal_back_post_message(db2, ids) ;
@@ -394,29 +383,23 @@ void THIS_CLASS::handle_Back_InnerPostMessage(const DataType& db) {
 
 void THIS_CLASS::make_message_to_named_dealer(const DataType& db) {
 if(!m_back_dealer_handlers.dispatch(db.messageType(), db)) {
-    do_default_deal_back_message(db) ;
+    doDefaultBackMessageCallback(db) ;
   }
 }
 
 void THIS_CLASS::make_message_to_radio_dealer(const DataType& db) {
 if(!m_back_subscriber_dealers.dispatch(db.messageType(), db))
-    send_message_to_all_client(db) ;
+    sendMessageToAllConnection(db) ;
 }
 
-void THIS_CLASS::deal_message_from_back_poster(std::shared_ptr<DataType> d) {
+void THIS_CLASS::dealBackMessage(std::shared_ptr<DataType> d) {
   auto& db = *d;
-  pantheios::log_DEBUG("dm: ", db) ;
   if(current_prepared_message_number_of_net_pool() > m_hard_system_prepared_message_limit ||
       !m_ungent_message.empty()) {
     m_ungent_message.push_back(db) ;
   } else {
     make_message_to_named_dealer(db) ;
   }
-  pantheios::log_DEBUG("dok") ;
-}
-
-bool THIS_CLASS::is_normal_post_message(int msg) const {
-  return m_normal_register_message.count(msg) == 1 ;
 }
 
 bool THIS_CLASS::isFasterPostMessage(const DataType& db) const {

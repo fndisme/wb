@@ -3,7 +3,7 @@
  *
  *       Filename:  DefaultZFrontServer.h
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2012年03月06日 14时47分07秒
@@ -11,7 +11,7 @@
  *       Compiler:  gcc
  *
  *         Author:  Fang Dongheng (fndisme), fndisme@163.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
@@ -70,18 +70,18 @@ namespace WebGame {
         typedef std::shared_ptr<const NetConnectionType> ConstNetConnectionPointer ;
         typedef NetCore::Acceptor<NetConnectionType> AcceptorType ;
         typedef boost::system::error_code NetErrorType ;
-        // typedef FlowControler<NetConnectionType> FlowControlerType ;
-        // interface
         bool onNewConnection(NetConnectionPointer, const NetErrorType&) {return true ;}
-        bool needHeartBeat() const { return max_answer_time() != 0;}
-        second_tt maxAnswerTime() const ;
+        bool needHeartBeat() const { return maxAnswerTime() != 0;}
+        second_tt maxAnswerTime() const { return m_max_answer_time;}
         inline bool isRegisterConnection(NetConnectionPointer nc) const {
           return doIsRegisterConnection(nc) ;
         }
         inline bool isNormalMessage(int msg) const {
           return m_normal_messages.find(msg) != m_normal_messages.end() ;
         }
-        bool isNormalPostMessage(int msg) const ;
+        bool isNormalPostMessage(int msg) const {
+          return m_normal_register_message.count(msg) == 1 ;
+        }
         void registerNormalMessage(int msg) {
           m_normal_messages.insert(msg) ;
         }
@@ -90,6 +90,7 @@ namespace WebGame {
         }
 
         bool isNormalMessageNeedDelay() const ;
+
         bool isFasterPostMessage(const DataType&) const ;
         inline bool isValidMessage(DataType const& db, NetConnectionPointer nc) const {
           return doIsValidMessage(db, nc) ;
@@ -154,7 +155,7 @@ namespace WebGame {
 #else
         typedef folly::fbvector<Message::DataCache::const_pointer> SocketDataVector ;
 #endif
-        typedef ZSlaveServerSocket<Message::DataCache::const_pointer, DataType, SocketDataVector> ZSocketType ; 
+        typedef ZSlaveServerSocket<Message::DataCache::const_pointer, DataType, SocketDataVector> ZSocketType ;
       protected:
         template<typename Action>
           void addDelayAction(size_t position, Action&& act) {
@@ -178,11 +179,10 @@ namespace WebGame {
         std::string m_registered_name ;
         boost::container::flat_set<int> m_normal_messages ;
         boost::container::flat_set<int> m_normal_register_message ;
-        void handle_client_heart_beat() ;
+        void dealHeartBeat() ;
 
         void dealBackMessage(std::shared_ptr<DataType> db) ;
         void dealBackRadioMessage(std::shared_ptr<DataType> db) ;
-        void handleHeartBeat(MessageHandlerType param) ;
         void connectBack() ;
         void startReceiveConnection() ;
         void dispatchConnectionMessage(const DataType&, NetConnectionPointer)  ;
@@ -191,10 +191,9 @@ namespace WebGame {
         void handleBackInnerPostMessage(const DataType&) ;
         void initOtherService() { doInitOtherService() ;}
 
-
-        virtual void do_default_deal_back_message(const DataType&) const = 0;
-        virtual void do_send_message_to_all_client(const DataType& db) const = 0 ; 
-        virtual void do_handle_customer_leave(const NetErrorType&, NetConnectionPointer) = 0 ; 
+        virtual void doDefaultBackMessageCallback(const DataType&) const = 0;
+        virtual void doSendMessageToAllConnection(const DataType& db) const = 0 ;
+        virtual void doOnConnectionLeave(const NetErrorType&, NetConnectionPointer) = 0 ;
         virtual bool doIsValidMessage(const DataType& db, NetConnectionPointer nc) const = 0 ;
         virtual bool doIsRegisterConnection(NetConnectionPointer nc) const = 0 ;
         virtual void doRegisterActions() = 0 ;
@@ -203,7 +202,7 @@ namespace WebGame {
         virtual void do_deal_back_post_message(int, int, int,const DataType& db, PlayerGroup const&) = 0 ;
         virtual void do_deal_back_post_message(int, int, int,const DataType& db, player_tt pid) = 0 ;
         virtual void do_deal_back_post_message(int, int, int,const DataType& db) = 0 ;
-        virtual void do_init_other_service() {} // do nothing default
+        virtual void doInitOtherService() {} // do nothing default
         virtual void doBindPollManager(ZPollInManager* /*mgr*/) {} // normal we do nothing for bind poll mgr
         second_tt m_max_answer_time ;
 
@@ -224,13 +223,13 @@ namespace WebGame {
         UngentMessageGroup m_ungent_message ;
         typedef UngentMessageGroup NormalMessageGroup ;
         NormalMessageGroup m_normal_post_message ;
-        void send_ungent_message() ;
+        void sendFastMessage() ;
         size_t m_hard_system_prepared_message_limit ;
         void absorbDelaySystemMessage() ;
         void make_message_to_named_dealer(const DataType&) ;
         void make_message_to_radio_dealer(const DataType&) ;
         size_t m_ungent_max_send_size ;
-        void post_normal_message() ;
+        void postNormalMessage() ;
         size_t m_normal_max_send_size ;
 
         typedef Utility::CircleActor<Utility::DelayMessageDealer> DelayMessageActor ;

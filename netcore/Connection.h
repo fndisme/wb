@@ -263,9 +263,9 @@ namespace WebGame {
 #endif
           private:
             boost::asio::io_service& m_io_service ;
-            bool m_need_handle_error ;
             boost::asio::strand& m_readStrand;
             boost::asio::strand& m_writeStrand;
+            bool m_need_handle_error ;
             DataSender<class_type>  m_sender ;
             data_getter_pointer m_getter ;
             SystemSocketType m_socket ;
