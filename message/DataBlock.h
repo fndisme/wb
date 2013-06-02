@@ -53,7 +53,9 @@ namespace WebGame {
           setHeaderId(pid) ;
           setBody(std::move(msg)) ;
         }
-    DataBlock(int type, const void* body_data, size_t body_size,
+    DataBlock(int type,
+            DecoderType const& builder,
+            const void* body_data, size_t body_size,
         WebGame::player_tt = WebGame::player_tt(0)) ;
 
     static std::string describeHeaderInformation(const DataBlock& db) ;
@@ -103,17 +105,15 @@ namespace WebGame {
 #endif
     bool packToString(std::string&) const ;
 
-    bool importFromArray(const void* buffer, size_t buffer_size) ;
-    bool importFromArray(const void* buffer, size_t buffer_size, MessageBuilder const&) ;
-    bool importFromString(const std::string&) ;
-    bool importBodyFromString(int id, const std::string&) ;
-    bool importBodyFromString(const std::string&) ;
+    bool importFromArray(const void* buffer, size_t buffer_size, DecoderType const&) ;
+    bool importFromString(const std::string&, DecoderType const&) ;
+    bool importBodyFromString(int id, const std::string&, DecoderType const&) ;
+    bool importBodyFromString(const std::string&, DecoderType const&) ;
     bool importHeaderFromArray(const void* buffer, size_t buffer_size) ;
-    bool importBodyFromArray(const void* buffer, size_t buffer_size) ;
     bool importBodyFromArray(const void* buffer,
-        size_t buffer_size, MessageBuilder const&) ;
+        size_t buffer_size, DecoderType const&) ;
     bool importHeaderFromArray(const std::vector<char>& vec) ;
-    bool importBodyFromArray(const std::vector<char>& vec) ;
+    bool importBodyFromArray(const std::vector<char>& vec, DecoderType const&) ;
     bool importHeaderFromString(const std::string&) ;
     DataBlock& operator = (const DataBlock& db) ;
     DataBlock& operator = (DataBlock&& db) ;
@@ -129,11 +129,9 @@ namespace WebGame {
     header_type m_header ;
     std::shared_ptr< ::google::protobuf::Message> m_body ;
     void setBody(int type, body_type new_body) ;
-    bool safeBuildBody(int, const std::string&) ;
-    bool safeBuildBody(const void*, size_t) ;
     bool safeBuildBody(const void*, size_t, DecoderType const&) ;
-    bool safeBuildBody(int, const void*, size_t) ;
     bool safeBuildBody(int, const void*, size_t, DecoderType const&) ;
+    bool safeBuildBody(int, const std::string& data, DecoderType const&);
 		template<typename T>
     std::shared_ptr<T> body() const {
       return std::static_pointer_cast<T>(m_body) ;

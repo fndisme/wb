@@ -22,23 +22,28 @@
 #include "webgame/server/ZSocketDef.h"
 namespace WebGame {
   namespace Server {
+
+      template<typename MessageDecoder>
     struct ServerOption : boost::noncopyable {
       boost::asio::io_service* IoService ;
       QSocketTratis::context_t* ZeroContext ;
       const std::string PropertyFileName ;
       boost::asio::strand* ReadStrand;
       boost::asio::strand* WriteStrand;
+      MessageDecoder* Decoder;
       explicit ServerOption(
           const std::string& filename,
           boost::asio::io_service* service = nullptr,
           QSocketTratis::context_t* context = nullptr,
+          MessageDecoder* decoder= nullptr,
           boost::asio::strand* readStrand = nullptr,
           boost::asio::strand* writeStrand = nullptr) :
         IoService(service),
         ZeroContext(context),
         PropertyFileName(filename),
         ReadStrand(readStrand),
-        WriteStrand(writeStrand){}
+        WriteStrand(writeStrand),
+        Decoder(decoder){}
     } ;
   }
 

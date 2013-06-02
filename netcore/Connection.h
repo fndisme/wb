@@ -56,6 +56,7 @@ namespace WebGame {
         boost::noncopyable {
           public:
             typedef typename ConnectionTraits::DataType data_type ;
+            typedef typename data_type::DecoderType DecoderType;
             typedef typename data_type::IdentityType IdentityType ;
             typedef typename ConnectionTraits::NotLockType NotLockType;
             typedef typename ConnectionTraits::ActiveManageMessageType ActiveManageMessageType ;
@@ -111,17 +112,20 @@ namespace WebGame {
               pointer createAsyncConnection(boost::asio::io_service& io_service,
                   boost::asio::strand& read,
                   boost::asio::strand& write,
+                  const DecoderType& decoder,
                   const ConnectionOption& option,
                   const ConnectionProperty<class_type>& property) ;
             static
               pointer createSyncConnection(boost::asio::io_service& io_service,
                   boost::asio::strand& read,
                   boost::asio::strand& write,
+                  const DecoderType& decoder,
                   const ConnectionOption& option,
                   const ConnectionProperty<class_type>& property) ;
             Connection(boost::asio::io_service& io_service,
                 boost::asio::strand& readStrand,
                 boost::asio::strand& writeStrand,
+                const DecoderType& decoder,
                 data_getter_pointer  getter = data_getter_pointer()) ;
             boost::asio::io_service& ioService() { return m_io_service ;}
 
@@ -248,6 +252,7 @@ namespace WebGame {
             bool isHeartDead() const { return m_heart_state == HB_DEAD ;}
             void decreaseHeartLevel() { if(m_heart_state != HB_DEAD) m_heart_state ++ ;}
             void increaseHeartLevel() { if(m_heart_state != HB_STRONG) m_heart_state -- ;}
+            const DecoderType& decoder() const { return m_decoder;}
 #ifdef WIN32
             typedef boost::optional<int64_t> Variant;
             void variant(int64_t value) { m_value = value ; }
@@ -265,6 +270,7 @@ namespace WebGame {
             boost::asio::io_service& m_io_service ;
             boost::asio::strand& m_readStrand;
             boost::asio::strand& m_writeStrand;
+            const DecoderType& m_decoder;
             bool m_need_handle_error ;
             DataSender<class_type>  m_sender ;
             data_getter_pointer m_getter ;

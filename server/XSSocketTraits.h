@@ -98,7 +98,11 @@ namespace WebGame
       }
 
     template<typename D, typename Fun, typename Strand>
-      void absorbHeaderDispatchMesage(socket_t& socket, const Fun& fun, Strand& s) {
+      void absorbHeaderDispatchMesage(
+              socket_t& socket,
+              const Fun& fun,
+              Strand& s,
+              typename D::DecoderType const& decoder) {
         message_t headermsg ;
         bool status = socket.recv(&headermsg) ;
         if(!status)  {
@@ -117,7 +121,7 @@ namespace WebGame
           PANTHEIOS_ASSERT(status) ;
 
           auto db = std::make_shared<D>();
-          bool ok = db->importFromArray(static_cast<const void*>(msg.data()), msg.size()) ;
+          bool ok = db->importFromArray(static_cast<const void*>(msg.data()), msg.size(), decoder) ;
           if(ok)
             s.dispatch(boost::bind(fun, header, db));
           else {
@@ -130,7 +134,8 @@ namespace WebGame
       }
 
     template<typename D, typename Fun, typename Strand>
-      void absorbAndDispatchMessage(socket_t& socket, Fun fun, Strand& strand) {
+      void absorbAndDispatchMessage(socket_t& socket, Fun fun, Strand& strand,
+              typename D::DecoderType const& decoder) {
         while(true) {
           message_t msg ;
           bool status = socket.recv(&msg);
@@ -138,7 +143,7 @@ namespace WebGame
           if(!status) break ; // because bolock
 
           std::shared_ptr<D> db = std::make_shared<D>();
-          bool ok = db->importFromArray(static_cast<const void*>(msg.data()), msg.size()) ;
+          bool ok = db->importFromArray(static_cast<const void*>(msg.data()), msg.size(), decoder) ;
 
           if(ok) {
             strand.dispatch([fun,db](){fun(db);});

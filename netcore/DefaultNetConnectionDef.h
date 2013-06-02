@@ -3,7 +3,7 @@
  *
  *       Filename:  DefaultNetConnectionDef.h
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2012-1-30 13:25:45
@@ -22,6 +22,7 @@
 namespace WebGame {
   namespace Message {
     class DataBlock;
+    class MessageBuilder;
   }
   namespace NetCore {
     struct DefaultConnectionTraits {
@@ -38,9 +39,9 @@ namespace WebGame {
     typedef std::shared_ptr<DefaultNetConnectType> DefaultNetConnectPointer ;
     typedef std::weak_ptr<DefaultNetConnectType> DefaultNetConnectWeakPointer ;
     typedef std::shared_ptr<const DefaultNetConnectType> DefaultNetConnectConstPointer;
-    typedef std::tuple<const Message::DataBlock&, 
+    typedef std::tuple<const Message::DataBlock&,
             DefaultNetConnectPointer> InnerMessageHandlerType ;
-    typedef const InnerMessageHandlerType& MessageHandlerType ;
+  typedef const InnerMessageHandlerType& MessageHandlerType ;
   }
 }
 #endif

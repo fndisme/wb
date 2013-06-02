@@ -3,7 +3,7 @@
  *
  *       Filename:  NetDataRecord.cpp
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2012年08月10日 10时05分42秒
@@ -11,11 +11,12 @@
  *       Compiler:  gcc
  *
  *         Author:  Fang Dongheng (fndisme), fndisme@163.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
 #include "NetDataRecord.h"
+
 namespace {
   static size_t gCurrentPreparedMessageSize = 0 ;
   static size_t gTotalPreparedMessageSize = 0 ;

@@ -33,18 +33,20 @@ std::string WebGame::NetCore::Connection<ConnectionTraits>::describeRemoteConnec
 
 template<typename ConnectionTraits>
 WebGame::NetCore::Connection<ConnectionTraits>::Connection(
-		boost::asio::io_service& io_service,
-    boost::asio::strand& readStrand,
-    boost::asio::strand& writeStrand,
-		std::shared_ptr<data_getter_type> getter) :
-  asyncConnect(),
-  handleError(),
-	m_io_service(io_service),
-	m_readStrand(readStrand),
-  m_writeStrand(writeStrand),
-	m_need_handle_error(true),
-  m_sender(huge_message_mini_size, huge_message_mini_size),
-  m_getter(getter),
+        boost::asio::io_service& io_service,
+        boost::asio::strand& readStrand,
+        boost::asio::strand& writeStrand,
+        DecoderType const& decoder,
+        std::shared_ptr<data_getter_type> getter) :
+    asyncConnect(),
+    handleError(),
+    m_io_service(io_service),
+    m_readStrand(readStrand),
+    m_writeStrand(writeStrand),
+    m_decoder(decoder),
+    m_need_handle_error(true),
+    m_sender(huge_message_mini_size, huge_message_mini_size),
+    m_getter(getter),
 	m_socket(io_service),
 	m_close_option(normal),
   m_send_allocator(),
@@ -55,12 +57,13 @@ template<typename ConnectionTraits>
 typename WebGame::NetCore::Connection<ConnectionTraits>::pointer
 WebGame::NetCore::Connection<ConnectionTraits>::createAsyncConnection(
 		boost::asio::io_service& io_service,
-    boost::asio::strand& readStrand,
-    boost::asio::strand& writeStrand,
-		const ConnectionOption& option,
+        boost::asio::strand& readStrand,
+        boost::asio::strand& writeStrand,
+        const DecoderType& decoder,
+        const ConnectionOption& option,
 		const ConnectionProperty<class_type>& property) {
 
-	pointer new_connect(new class_type(io_service, readStrand, writeStrand)) ; //, std::move(getter))) ;
+	pointer new_connect(new class_type(io_service, readStrand, writeStrand, decoder)) ; //, std::move(getter))) ;
 	data_getter_pointer getter(new data_getter_type(new_connect, option.GetterBufferSize)) ;
 	new_connect->resetGetter(std::move(getter)) ;
 	getter->messageDealer = property.HandleData ;
@@ -74,12 +77,13 @@ template<typename ConnectionTraits>
 typename WebGame::NetCore::Connection<ConnectionTraits>::pointer
 WebGame::NetCore::Connection<ConnectionTraits>::createSyncConnection(
 		boost::asio::io_service& io_service,
-    boost::asio::strand& readStrand,
-    boost::asio::strand& writeStrand,
+        boost::asio::strand& readStrand,
+        boost::asio::strand& writeStrand,
+        const DecoderType& decoder,
 		const ConnectionOption& option,
 		const ConnectionProperty<class_type>& property) {
 
-	pointer new_connect(new class_type(io_service, readStrand, writeStrand)) ; //, std::move(getter))) ;
+	pointer new_connect(new class_type(io_service, readStrand, writeStrand, decoder)) ; //, std::move(getter))) ;
 	data_getter_pointer getter(new data_getter_type(new_connect, option.GetterBufferSize)) ;
 	new_connect->resetGetter(std::move(getter)) ;
 	getter->message_dealer = property.HandleData ;
@@ -124,7 +128,9 @@ template<typename ConnectionTraits>
 void WebGame::NetCore::Connection<ConnectionTraits>::handleSendData(
 		const boost::system::error_code& error) {
 	if (error) {
-		onError(error) ;
+        auto e = error;
+        auto v = this->shared_from_this();
+		m_readStrand.dispatch([v, e](){ v->onError(e);});
 		return ;
 	} 
 	typedef std::is_void<ActiveSendHugeData> SendHugeOption ;
@@ -138,7 +144,9 @@ void WebGame::NetCore::Connection<ConnectionTraits>::handleSendData(
 						 this->shared_from_this(),
 						 boost::asio::placeholders::error)))) ;
 	} else if(m_close_option == send_all_message_and_quit) {
-		onError() ;
+        auto e = error;
+        auto v = this->shared_from_this();
+		m_readStrand.dispatch([v, e](){ v->onError(e);});
 	} else {
 		m_sender.unset_traced() ;
 	}
@@ -244,10 +252,9 @@ template<typename ConnectionTraits>
 void WebGame::NetCore::Connection<ConnectionTraits>::flush() {
 	//m_io_service.post
   m_io_service.dispatch
-		(makeCustomAllocHandler(m_send_allocator,
-                               m_writeStrand.wrap(
-															 boost::bind(&class_type::doFlush,
-																 this->shared_from_this())))) ;
+      (makeCustomAllocHandler(m_send_allocator,
+                              m_writeStrand.wrap( boost::bind(&class_type::doFlush,
+                                      this->shared_from_this())))) ;
 
 }
 

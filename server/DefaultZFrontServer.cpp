@@ -25,13 +25,14 @@
 #include "webgame/netcore/Connection.h"
 #include "webgame/netcore/TimerEvent.h"
 #include "webgame/message/shims/DataBlock.h"
+#include "webgame/message/MessageBuilder.h"
 #include "webgame/server/ZPollInManager.h"
 #include "webgame/utility/PageParser.h"
 
 // base message
-#include "webgame/message/HeartBeat.pb.h"
-#include "webgame/message/InnerMessage.pb.h"
-#include "webgame/message/InnerPostMessage.pb.h"
+#include "webgame/server/stock/HeartBeat.pb.h"
+#include "webgame/server/stock/InnerMessage.pb.h"
+#include "webgame/server/stock/InnerPostMessage.pb.h"
 
 #ifdef THIS_CLASS
 #undef THIS_CLASS
@@ -66,11 +67,12 @@ void THIS_CLASS::stop() {
   m_acceptor->stopAll() ;
 }
 
-THIS_CLASS::DefaultZFrontServer(const ServerOption& option) :
+THIS_CLASS::DefaultZFrontServer(const OptionType& option) :
   m_io_service(option.IoService),
   m_zero_ctx(option.ZeroContext),
   m_readStrand(option.ReadStrand),
   m_writeStrand(option.WriteStrand),
+  m_decoder(option.Decoder),
   m_socket(),
   m_init_file(option.PropertyFileName),
   m_client_handlers(),
@@ -88,11 +90,10 @@ THIS_CLASS::DefaultZFrontServer(const ServerOption& option) :
   }
 
 void THIS_CLASS::init() {
+  initDecoder();
   connectBack() ;
   startReceiveConnection() ;
-
   initOtherService() ;
-
   registerStockMessage() ;
   registerActions() ;
 
@@ -103,18 +104,18 @@ void THIS_CLASS::init() {
 
 void THIS_CLASS::registerStockMessage() {
   if(m_has_back) {
-    m_back_dealer_handlers.add(game_connection::InnerMessage::value,
+    m_back_dealer_handlers.add(Stock::InnerMessage::value,
         boost::bind(&THIS_CLASS::handleBackInnerMessage,
           this,
           _1)) ;
 
-    m_back_subscriber_dealers.add(game_connection::InnerPostMessage::value,
+    m_back_subscriber_dealers.add(Stock::InnerPostMessage::value,
         boost::bind(&THIS_CLASS::handleBackInnerPostMessage,
           this,
           _1)) ;
   }
 
-  if(needHeartBeat()) m_normal_messages.insert(game_connection::HeartBeat::value) ;
+  if(needHeartBeat()) m_normal_messages.insert(Server::Stock::HeartBeat::value) ;
 }
 
 void THIS_CLASS::connectBack() {
@@ -150,7 +151,9 @@ void THIS_CLASS::connectBack() {
       new ZSocketType(
         *m_readStrand,
         *m_zero_ctx,
-        m_registered_name, radio_address,
+        *m_decoder,
+        m_registered_name,
+        radio_address,
         socket_address)) ;
   }
 }
@@ -205,27 +208,28 @@ void THIS_CLASS::startReceiveConnection() {
       handle_error,
       handle_data) ;
   PANTHEIOS_MESSAGE_ASSERT(m_io_service, "we need io_service....") ;
-  m_acceptor = AcceptorType::create(*m_readStrand,
+  m_acceptor = AcceptorType::create(
+      *m_readStrand,
       *m_writeStrand,
+      *m_decoder,
       m_port, prop) ;
 
 
   second_tt rate = second_tt(pp.get(ClientOption, HeartBeatRate, 0)) ;
-    if(rate > 0) {
+  if(rate > 0) {
+    PANTHEIOS_ASSERT(m_decoder);
+    m_decoder->registerBuilder<Server::Stock::HeartBeat>();
     m_max_answer_time =
       second_tt(pp.get(ClientOption, MaxAnswerTime, 0)) ;
     pan::log_DEBUG("heart beat rate : ", pan::i(rate.base_type_value()),
-      " answer time is : ", pan::i(m_max_answer_time.base_type_value())) ;
-
+        " answer time is : ", pan::i(m_max_answer_time.base_type_value())) ;
     PANTHEIOS_MESSAGE_ASSERT(m_max_answer_time > rate,
         "we need right MaxAnswerTime") ;
-
     registerRepeatTimer(rate, boost::bind(&THIS_CLASS::dealHeartBeat, this)) ;
-
-    m_client_handlers.add(game_connection::HeartBeat::value,
+    m_client_handlers.add(Server::Stock::HeartBeat::value,
         [](MessageHandlerType){}) ;
   }
-  
+
   registerRepeatTimer(second_tt(1), [this]() {
       m_delay_actor.lock() ;
       m_delay_actor.action() ;
@@ -234,6 +238,11 @@ void THIS_CLASS::startReceiveConnection() {
 
   // start connect client
   m_acceptor->asyncConnect();
+}
+
+void THIS_CLASS::makeDecorderLocked() {
+  if (m_decoder)
+    m_decoder->makeFinal();
 }
 
 void THIS_CLASS::registerRepeatTimer(second_tt inteval, 
@@ -262,8 +271,7 @@ void THIS_CLASS::dealHeartBeat() {
     return nc->isNeedHeartBeat() ;
   } ;
 
-  game_connection::HeartBeat heart ;
-  heart.set_dummy(1) ;
+  Stock::HeartBeat heart ;
   auto cache = Message::easyDataBlockCache(heart, player_tt(0)) ;
 
   auto sendnotify = [cache](NetConnectionType::pointer nc) {
@@ -341,10 +349,10 @@ void THIS_CLASS::absorbDelaySystemMessage() {
 
 
 void THIS_CLASS::handleBackInnerMessage(const DataType& db) {
-  auto msg = db.constBody<game_connection::InnerMessage>() ;
+  auto msg = db.constBody<Stock::InnerMessage>() ;
   PANTHEIOS_ASSERT(msg) ;
   DataType db2 ;
-  bool ok = db2.importFromString(msg->information()) ;
+  bool ok = db2.importFromString(msg->information(), *m_decoder) ;
   PANTHEIOS_ASSERT(ok) ;
   PANTHEIOS_ASSERT(db2.messageType() != db.messageType()) ;
   db2.setHeaderId(db.headerId()) ;
@@ -352,10 +360,10 @@ void THIS_CLASS::handleBackInnerMessage(const DataType& db) {
 }
 
 void THIS_CLASS::handleBackInnerPostMessage(const DataType& db) {
-  auto msg = db.constBody<game_connection::InnerPostMessage>() ;
+  auto msg = db.constBody<Stock::InnerPostMessage>() ;
   PANTHEIOS_ASSERT(msg) ;
   DataType db2 ;
-  bool ok = db2.importFromString(msg->information()) ;
+  bool ok = db2.importFromString(msg->information(), *m_decoder) ;
   PANTHEIOS_ASSERT(ok) ;
   PlayerGroup ids ;
   for(int i = 0, size = msg->omitted_id_size() ; i < size ; ++i)
@@ -363,15 +371,15 @@ void THIS_CLASS::handleBackInnerPostMessage(const DataType& db) {
   if(msg->has_group()) {
     if(ids.empty()) {
       do_deal_back_post_message(msg->group().type(),
-                                msg->group().group_id(),msg->group().group_property(), db2) ;
+                                msg->group().id(),msg->group().property(), db2) ;
     } else if(ids.size() == 1) {
       do_deal_back_post_message(msg->group().type(),
-                                msg->group().group_id(),
-                                msg->group().group_property(), db2, ids[0]) ;
+                                msg->group().id(),
+                                msg->group().property(), db2, ids[0]) ;
     } else {
     do_deal_back_post_message(msg->group().type(),
-                              msg->group().group_id(),
-                              msg->group().group_property(), db2, ids) ;
+                              msg->group().id(),
+                              msg->group().property(), db2, ids) ;
     }
   } else {
     if(ids.empty()) sendMessageToAllConnection(db2) ;
@@ -403,8 +411,8 @@ void THIS_CLASS::dealBackMessage(std::shared_ptr<DataType> d) {
 }
 
 bool THIS_CLASS::isFasterPostMessage(const DataType& db) const {
-  if(db.messageType() != game_connection::InnerPostMessage::value) return false ;
-  auto msg = db.constBody<game_connection::InnerPostMessage>() ;
+  if(db.messageType() != Stock::InnerPostMessage::value) return false ;
+  auto msg = db.constBody<Stock::InnerPostMessage>() ;
   return msg->no_delay() ;
 }
 

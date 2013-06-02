@@ -2,7 +2,7 @@
 #include <boost/bind.hpp>
 #include <pantheios/pantheios.hpp>
 #include <pantheios/inserters.hpp>
-#include	<pantheios/assert.h>
+#include <pantheios/assert.h>
 
 
 #ifdef THIS_CLASS

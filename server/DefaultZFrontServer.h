@@ -53,16 +53,19 @@ namespace WebGame {
     class ZPollInManager ;
 
     class DefaultZFrontServer : boost::noncopyable {
+    public:
+      typedef Message::DataBlock::DecoderType DecoderType;
+      typedef ServerOption<Message::DataBlock::DecoderType> OptionType;
+        void bindPollManager(ZPollInManager* mgr) ;
+        void stop() ;
+        void start() {
+          doStart();
+          makeDecorderLocked();
+        }
       protected:
         virtual ~DefaultZFrontServer() NOEXCEPT;
         void init() ;
-        DefaultZFrontServer(const ServerOption& option) ;
-
-      public:
-        void bindPollManager(ZPollInManager* mgr) ;
-        void stop() ;
-
-      protected:
+        DefaultZFrontServer(const OptionType& option) ;
         typedef Message::DataBlock DataType ;
         typedef NetCore::DefaultNetConnectType NetConnectionType ;
         typedef NetCore::MessageHandlerType MessageHandlerType;
@@ -76,6 +79,7 @@ namespace WebGame {
         inline bool isRegisterConnection(NetConnectionPointer nc) const {
           return doIsRegisterConnection(nc) ;
         }
+        DecoderType* decoder() { return m_decoder;}
         inline bool isNormalMessage(int msg) const {
           return m_normal_messages.find(msg) != m_normal_messages.end() ;
         }
@@ -90,12 +94,11 @@ namespace WebGame {
         }
 
         bool isNormalMessageNeedDelay() const ;
-
         bool isFasterPostMessage(const DataType&) const ;
         inline bool isValidMessage(DataType const& db, NetConnectionPointer nc) const {
           return doIsValidMessage(db, nc) ;
         }
-        virtual void makeConnectionValid(NetConnectionPointer)  ;
+        virtual void makeConnectionValid(NetConnectionPointer);
         void onReceiveConncetionMessage(const DataType&, NetConnectionPointer)  ;
         inline void onConnectionLeave(const NetErrorType& error, NetConnectionPointer nc) {
           doOnConnectionLeave(error, nc) ;
@@ -166,6 +169,7 @@ namespace WebGame {
         ContextType* m_zero_ctx ;
         boost::asio::strand* m_readStrand;
         boost::asio::strand* m_writeStrand;
+        DecoderType* m_decoder;
         std::unique_ptr<ZSocketType> m_socket ;
         const std::string m_init_file ;
         // handle message from client....
@@ -180,10 +184,11 @@ namespace WebGame {
         boost::container::flat_set<int> m_normal_messages ;
         boost::container::flat_set<int> m_normal_register_message ;
         void dealHeartBeat() ;
-
+        void makeDecorderLocked();
         void dealBackMessage(std::shared_ptr<DataType> db) ;
         void dealBackRadioMessage(std::shared_ptr<DataType> db) ;
         void connectBack() ;
+        void initDecoder() { doInitDecoder();}
         void startReceiveConnection() ;
         void dispatchConnectionMessage(const DataType&, NetConnectionPointer)  ;
         void registerStockMessage() ;
@@ -204,6 +209,8 @@ namespace WebGame {
         virtual void do_deal_back_post_message(int, int, int,const DataType& db) = 0 ;
         virtual void doInitOtherService() {} // do nothing default
         virtual void doBindPollManager(ZPollInManager* /*mgr*/) {} // normal we do nothing for bind poll mgr
+        virtual void doStart() { init();}
+        virtual void doInitDecoder() = 0;
         second_tt m_max_answer_time ;
 
         bool m_has_back ;

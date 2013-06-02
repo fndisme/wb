@@ -40,6 +40,7 @@ namespace WebGame {
             typedef SD send_data_type ;
             typedef RD read_data_type ;
             typedef C container_type ;
+            typedef typename RD::DecoderType DecoderType;
             typedef ZSlaveServerSocket<SD, RD, C> class_type ;
             typedef std::unique_ptr<ZSlaveServerSocket<SD, RD, C> > pointer ;
 
@@ -47,12 +48,14 @@ namespace WebGame {
             ZSlaveServerSocket(
                 boost::asio::strand& strand,
                 QSocketTratis::context_t& ctx,
+                const DecoderType& decoder,
                 std::string const& name,
                 std::string const& subaddress,
                 std::string const& socketaddress,
                 NeedLingerOption nl = NEED_LINGER,
                 std::string const& default_filter = "") :
               m_strand(strand),
+                m_decoder(decoder),
               m_subscriber(new QSocketTratis::socket_t(ctx, QSocketTratis::typeSub())),
               m_socket(new QSocketTratis::socket_t(ctx, QSocketTratis::typeDealer())),
               m_name(name),
@@ -66,10 +69,12 @@ namespace WebGame {
             ZSlaveServerSocket(
                 boost::asio::strand& strand,
                 QSocketTratis::context_t& ctx,
+                const DecoderType& decoder,
                 std::string const& name,
                 std::string const& socketaddress,
                 NeedLingerOption nl = NEED_LINGER) :
               m_strand(strand),
+              m_decoder(decoder),
               m_socket(new QSocketTratis::socket_t(ctx, QSocketTratis::typeDealer())),
               //m_socket(new socket_t(ctx, XS_DEALER)),
               m_name(name),
@@ -120,6 +125,7 @@ namespace WebGame {
 
           private:
             boost::asio::strand& m_strand;
+            const DecoderType& m_decoder;
             ZSocketPointer m_subscriber ;
             ZSocketPointer m_socket;
             const std::string m_name ;
@@ -142,13 +148,13 @@ namespace WebGame {
 
             void recv() {
               QSocketTratis::absorbAndDispatchMessage<read_data_type>(
-                  *m_socket, m_dealer_function, m_strand) ;
+                  *m_socket, m_dealer_function, m_strand, m_decoder) ;
             }
 
             void recvSubscribeMessage() {
               PANTHEIOS_ASSERT(m_subscriber) ;
               QSocketTratis::absorbAndDispatchMessage<read_data_type>(
-                  *m_subscriber, m_subscriber_function, m_strand) ;
+                  *m_subscriber, m_subscriber_function, m_strand, m_decoder) ;
             }
 
             void init(const std::string& socketaddress,

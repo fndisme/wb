@@ -28,7 +28,8 @@ namespace WebGame {
     class Acceptor : boost::noncopyable {
       public:
         typedef typename NetConnection::data_type data_type ;
-        typedef typename NetConnection::NotLockType NotLockType ;
+        typedef typename NetConnection::NotLockType NotLockType;
+        typedef typename NetConnection::DecoderType DecoderType;
         typedef NetConnection net_connection_type ;
         typedef std::shared_ptr<net_connection_type > nc_pointer_type ;
         typedef nc_pointer_type value_type ;
@@ -40,6 +41,7 @@ namespace WebGame {
         typedef AcceptorProperty<NetConnection> NetAcceptorProperty ;
         static pointer create(boost::asio::strand& readStrand,
             boost::asio::strand& writeStrand,
+            const DecoderType& decoder,
             int port,
             const NetAcceptorProperty& p,
             const NetAcceptorOption& option = NetAcceptorOption()) ;
@@ -87,6 +89,7 @@ namespace WebGame {
         // timer event
         boost::asio::strand& m_readStrand;
         boost::asio::strand& m_writeStrand;
+        const DecoderType& m_decoder;
         typedef boost::container::set<nc_pointer_type> connection_container_type ;
         connection_container_type m_connections ;
         nc_pointer_type m_current_conection ;
@@ -109,7 +112,9 @@ namespace WebGame {
 
         void start(const NetAcceptorProperty& prop, const NetAcceptorOption& option) ;
         Acceptor(boost::asio::strand& readStrand, 
-            boost::asio::strand& writeStrand, int port) ;
+            boost::asio::strand& writeStrand,
+            const DecoderType& decoder,
+            int port) ;
         int m_data_getter_cache_size ;
         void stopAccpetNewConnection() ;
     } ;

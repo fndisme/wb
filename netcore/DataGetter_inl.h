@@ -119,7 +119,8 @@ void WebGame::NetCore::DataGetter<NetConnection>::dealMessage(net_connection_poi
 template<typename NetConnection>
 bool WebGame::NetCore::DataGetter<NetConnection>::importBody() {
   return m_current_block.importBodyFromArray(m_pool_buffer.data(),
-			bodySize()) ;
+			bodySize(),
+            m_decoder) ;
 }
 
 template<typename NetConnection>
@@ -139,14 +140,15 @@ WebGame::NetCore::DataGetter<NetConnection>::DataGetter(
 		std::shared_ptr<NetConnection> conn,
 		size_t buffer_size,
 		bool can_change_pool_size) :
-  messageDealer(dummy<block_type, NetConnection>),
+    messageDealer(dummy<block_type, NetConnection>),
 	m_socket(conn->socket()),
 	m_strand(conn->readStrand()),
-  m_can_change_pool_size(can_change_pool_size),
+    m_decoder(conn->decoder()),
+    m_can_change_pool_size(can_change_pool_size),
 	m_pool_buffer(buffer_size),
-  m_blocks(),
-  m_current_block(),
-  m_receive_allocator() {}
+    m_blocks(),
+    m_current_block(),
+    m_receive_allocator() {}
 
 template<typename NetConnection>
 void WebGame::NetCore::DataGetter<NetConnection>::popHeadStockMessage()

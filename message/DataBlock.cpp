@@ -89,12 +89,14 @@ namespace WebGame {
         
   }
 
-  DataBlock::DataBlock(int body_type, const void* buffer_data,
+  DataBlock::DataBlock(int body_type,
+          DecoderType const& builder,
+          const void* buffer_data,
       size_t buffer_size, WebGame::player_tt pid) {
     m_header.set_type(body_type) ;
     m_header.set_id(pid.base_type_value()) ;
 
-    bool ok = safeBuildBody(body_type, buffer_data, buffer_size) ;
+    bool ok = safeBuildBody(body_type, buffer_data, buffer_size, builder) ;
     if(!ok) {
       throw Error("Create DataBlock failed.... ", Error::PROTOBUFFER_IMPORT_ERROR) ;
     }
@@ -141,7 +143,7 @@ namespace WebGame {
   }
     
     bool DataBlock::importFromArray(const void* b, size_t buffer_size,
-      MessageBuilder const& builder) {
+      DecoderType const& builder) {
     if(buffer_size < headerSize()) return false ;
     if(!importHeaderFromArray(b, headerSize())) return false ;
     return importBodyFromArray((const void*)((const char*)b + headerSize()),
@@ -149,10 +151,7 @@ namespace WebGame {
                                   builder) ;
   }
 
-  bool DataBlock::importFromArray(const void* b, size_t buffer_size) {
-    return importFromArray(b, buffer_size, MessageBuilder::instance()) ;
-  }
- 
+
   bool DataBlock::importHeaderFromArray(const void* buffer, size_t buffer_size) {
 	
     if(!buffer || buffer_size < headerSize()) return false ;
@@ -161,8 +160,9 @@ namespace WebGame {
 	
   }
 
-  bool DataBlock::importBodyFromString(int type, const std::string& buffer) {
-    if(!safeBuildBody(type, buffer)) return false ;
+  bool DataBlock::importBodyFromString(int type, const std::string& buffer,
+          DecoderType const& builder) {
+    if(!safeBuildBody(type, buffer, builder)) return false ;
     m_header.set_type(type) ;
     m_header.set_size(m_body->GetCachedSize()) ;
     return true ;
@@ -172,42 +172,30 @@ namespace WebGame {
     return m_header.ParseFromString(header) ;
   }
     
-  bool DataBlock::importBodyFromString(const std::string& buffer) {
+  bool DataBlock::importBodyFromString(const std::string& buffer, 
+          DecoderType const& builder) {
     PANTHEIOS_ASSERT(m_header.type() != 0) ;
-    return importBodyFromString(m_header.type(), buffer) ;
+    return importBodyFromString(m_header.type(), buffer, builder) ;
   }
 
-  bool DataBlock::importFromString(const std::string& buffer) {
+  bool DataBlock::importFromString(const std::string& buffer,
+          const DecoderType& builder) {
     // I know this is a bug. Just try.........
-    return importFromArray(buffer.data(), buffer.size()) ;
+    return importFromArray(buffer.data(), buffer.size(), builder) ;
   }
 
-
-  bool DataBlock::safeBuildBody(const void* buffer, size_t buffer_size) {
-    return safeBuildBody(m_header.type(), buffer, buffer_size) ;
-  }
 
   bool DataBlock::safeBuildBody(const void* buffer, size_t buffer_size,
       DataBlock::DecoderType const& builder) {
     return safeBuildBody(m_header.type(), buffer, buffer_size, builder) ;
   }
 
-  bool DataBlock::safeBuildBody(int type, const std::string& buffer) {
-    PANTHEIOS_ASSERT(type != 0) ;
-    bool ok = false ;
-    try {
-      auto newblock = MessageBuilder::instance().buildMessage(type) ;
-      ok = newblock->ParseFromString(buffer) &&
-        static_cast<size_t>(newblock->ByteSize()) == buffer.size() ;
-      if(ok) m_body = std::move(newblock) ;
-    } catch(...) {
-      pantheios::log_ERROR("Safe build body failed....", pantheios::integer(type)) ;
-      return false ;
-    }
-
-    return ok ;
-
+  bool DataBlock::safeBuildBody(int type, const std::string& v, 
+      DataBlock::DecoderType const& builder) {
+    return safeBuildBody(type, v.data(), v.size(), builder) ;
   }
+
+
 
 
   bool DataBlock::safeBuildBody(int type, const void* buffer, size_t buffer_size,
@@ -232,39 +220,30 @@ namespace WebGame {
   }
 
 
-  bool DataBlock::safeBuildBody(int type, const void* buffer, size_t buffer_size) {
-    return safeBuildBody(type, buffer, buffer_size, MessageBuilder::instance()) ;
+  std::string DataBlock::debugString() const {
+      if(m_body) {
+          std::string sink ;
+          fastformat::fmt(sink, "H:\t{0}\nbody:\t{1}",
+                  m_header.ShortDebugString(),
+                  m_body->ShortDebugString()) ;
+          return sink ;
+      } else {
+          return std::string("[not valid DataBlock....]") ; 
+      }
   }
 
-	std::string DataBlock::debugString() const {
-		if(m_body) {
-			std::string sink ;
-			fastformat::fmt(sink, "H:\t{0}\nbody:\t{1}",
-					m_header.ShortDebugString(),
-					m_body->ShortDebugString()) ;
-			return sink ;
-		} else {
-			return std::string("[not valid DataBlock....]") ; 
-		}
-	}
-
-  bool DataBlock::importBodyFromArray(const std::vector<char>& vec) {
+  bool DataBlock::importBodyFromArray(const std::vector<char>& vec,
+          DecoderType const& builder) {
     size_t bs = m_header.size() ;
+    return vec.size() >= bs && safeBuildBody(vec.data(), bs, builder) ;
 
-    if(vec.size() !=  bs) return false ;
-    bool ok = safeBuildBody( bs ? (const void*) &vec[0] : (const void*) &vec , bs) ;
-    return ok ;
   }
   bool DataBlock::importBodyFromArray(const void* b,
       size_t buffer_size,
-      MessageBuilder const& builder) {
+      DecoderType const& builder) {
     size_t bs = m_header.size() ;
     return buffer_size >= bs && safeBuildBody(b, bs, builder) ;
   }
 
-  bool DataBlock::importBodyFromArray(const void* b, size_t buffer_size) {
-    size_t bs = m_header.size() ;
-    return buffer_size >= bs && safeBuildBody(b, bs) ;
-  }
   }
 }

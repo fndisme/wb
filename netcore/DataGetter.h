@@ -35,6 +35,7 @@ namespace WebGame {
           typedef typename NetConnection::data_type block_type ;
           typedef typename NetConnection::NotLockType NotLockType ;
           typedef typename NetConnection::ActiveManageMessageType ActiveManageMessageType ;
+          typedef typename block_type::DecoderType DecoderType;
           typedef std::deque<block_type> nc_data_block_deque_type ;
           typedef typename NetConnection::pointer net_connection_pointer ;
           typedef DataGetter<NetConnection> class_type ;
@@ -51,8 +52,9 @@ namespace WebGame {
           bool receiveAsyncMessage(block_type& type) ;
 
         private:
-          boost::asio::ip::tcp::socket& m_socket ;
-          boost::asio::strand& m_strand ;
+          boost::asio::ip::tcp::socket& m_socket;
+          boost::asio::strand& m_strand;
+          const DecoderType& m_decoder;
           bool m_can_change_pool_size ;
           PoolBuffer<4098> m_pool_buffer ;
           nc_data_block_deque_type m_blocks ;
@@ -71,7 +73,6 @@ namespace WebGame {
           void setMaxBodySize(size_t size) ; 
           void initOrUninitDealMessage(const std::true_type&, net_connection_pointer nc) ; 
           void initOrUninitDealMessage(const std::false_type&, net_connection_pointer nc) ; 
-          //void handle_receive_data_header(SystemConnectionPointer, const boost::system::error_code& error) ;
           void handleReceiveDataHeader(SystemConnectionPointer, const boost::system::error_code& error) ;
           void handleReceiveDataBody(SystemConnectionPointer, const boost::system::error_code& error) ;
       } ;

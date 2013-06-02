@@ -47,11 +47,15 @@ bool WebGame::Utility::writeToFile(const std::string& info, std::ostream& os) {
 
 bool WebGame::Utility::writeToFile(const Utility::StringGroupType& infos,
     const std::string& file_name,
-    const std::string& locinfo) {
+    const std::string&
+#ifdef WIN32
+
+     locinfo
+#endif
+     ) {
 #ifdef WIN32
   std::locale loc = std::locale::global(std::locale(locinfo.c_str())) ;
 #endif
-  locinfo;
   std::ofstream outstream(file_name.c_str(), std::ios_base::out |
       std::ios_base::trunc) ;
   if(!outstream.is_open()) {

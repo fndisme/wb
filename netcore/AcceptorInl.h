@@ -20,7 +20,11 @@
 template<typename NetConnection>
 void WebGame::NetCore::Acceptor<NetConnection>::asyncConnect() {
 	m_current_conection.reset(
-      new net_connection_type(m_readStrand.get_io_service(), m_readStrand, m_writeStrand)) ;
+      new net_connection_type(
+          m_readStrand.get_io_service(),
+          m_readStrand,
+          m_writeStrand, 
+          m_decoder)) ;
 	m_acceptor.async_accept(m_current_conection->socket(),
 			m_readStrand.wrap(
 				boost::bind(&class_type::handleNewConnection,
@@ -50,20 +54,23 @@ void WebGame::NetCore::Acceptor<NetConnection>::start(
 }
 
 template<typename NetConnection>
-WebGame::NetCore::Acceptor<NetConnection>::Acceptor(boost::asio::strand& readStrand,
-    boost::asio::strand& writeStrand,
-		int port) :
-	m_readStrand(readStrand),
-  m_writeStrand(writeStrand),
-  m_connections(),
-  m_current_conection(),
-  messageCallback(),
-  errorCallback(),
-  checkCallback(),
-  successedCallback(),
-  m_port(port),
-	m_acceptor(readStrand.get_io_service()),
-  m_data_getter_cache_size(0){ }
+WebGame::NetCore::Acceptor<NetConnection>::Acceptor(
+        boost::asio::strand& readStrand,
+        boost::asio::strand& writeStrand,
+        const DecoderType& decoder,
+        int port) :
+    m_readStrand(readStrand),
+    m_writeStrand(writeStrand),
+    m_decoder(decoder),
+    m_connections(),
+    m_current_conection(),
+    messageCallback(),
+    errorCallback(),
+    checkCallback(),
+    successedCallback(),
+    m_port(port),
+    m_acceptor(readStrand.get_io_service()),
+    m_data_getter_cache_size(0){ }
 
 template<typename NetConnection>
 void WebGame::NetCore::Acceptor<NetConnection>::removeConnection(const boost::system::error_code& e,
@@ -138,11 +145,13 @@ void WebGame::NetCore::Acceptor<NetConnection>::handleNewConnection(
 /* static */
 template<typename NetConnection>
 typename WebGame::NetCore::Acceptor<NetConnection>::pointer
-WebGame::NetCore::Acceptor<NetConnection>::create(boost::asio::strand& readStrand,
+WebGame::NetCore::Acceptor<NetConnection>::create(
+        boost::asio::strand& readStrand,
     boost::asio::strand& writeStrand,
+    DecoderType const& decoder,
 		int port, const NetAcceptorProperty& p,
 		const NetAcceptorOption& option) {
-	pointer acceptor(new class_type(readStrand, writeStrand, port)) ;
+	pointer acceptor(new class_type(readStrand, writeStrand, decoder, port)) ;
 	acceptor->start(p, option) ;
 	return acceptor ;
 }

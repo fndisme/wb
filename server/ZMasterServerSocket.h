@@ -41,6 +41,7 @@ public:
     typedef SD send_data_type ;
     typedef send_data_type CacheDataType ;
     typedef RD read_data_type ;
+    typedef typename read_data_type::DecoderType DecoderType;
     typedef C container_type ;
     typedef ZMasterServerSocket<SD, RD, C> class_type ;
     typedef std::unique_ptr<ZMasterServerSocket<SD, RD, C> > pointer ;
@@ -60,10 +61,12 @@ public:
     ZMasterServerSocket(
         boost::asio::strand& strand,
         QSocketTratis::context_t& ctx,
+        const DecoderType& decoder,
         std::string const& publishaddress,
         std::string const& socketaddress,
         const ZSockOption& option = ZSockOption()) :
       m_strand(strand),
+      m_decoder(decoder),
       m_publisher(new QSocketTratis::socket_t(ctx, QSocketTratis::typePub())),
       m_socket(new QSocketTratis::socket_t(ctx, QSocketTratis::typeRouter())),
       m_messages {},
@@ -76,9 +79,11 @@ public:
     ZMasterServerSocket(
         boost::asio::strand& strand,
         QSocketTratis::context_t& ctx,
+        const DecoderType& decoder,
         std::string const& socketaddress,
         const ZSockOption& option = ZSockOption()) :
         m_strand(strand),
+        m_decoder(decoder),
         m_socket(new QSocketTratis::socket_t(ctx, QSocketTratis::type_router())),
         m_HWM(option.HWM != 0 ? option.HWM : 1000) {
         init(std::string(), socketaddress, option.LingerOption == NEED_LINGER) ;
@@ -145,7 +150,10 @@ private:
     mutable boost::mutex m_mutex;
 
     void recv() {
-        QSocketTratis::absorbHeaderDispatchMesage<read_data_type>(*m_socket, m_dealer_function, m_strand) ;
+        QSocketTratis::absorbHeaderDispatchMesage<read_data_type>(*m_socket,
+                m_dealer_function,
+                m_strand,
+                m_decoder) ;
     }
 
     void sendPublishMessage() {

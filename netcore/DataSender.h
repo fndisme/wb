@@ -42,7 +42,7 @@ namespace WebGame {
 
       public:
         void pack_send_message(const data_message_type& db) { 
-          pack_send_message(make_cached(db)) ;
+          pack_send_message(makeCached(db)) ;
         }
         void pack_send_message(cached_data_type cache) {
           m_blocks.push(cache) ;

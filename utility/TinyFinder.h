@@ -17,10 +17,10 @@
  */
 #ifndef UTILITY_FND_TINY_FINDER_H
 #define UTILITY_FND_TINY_FINDER_H
-#include <cassert>
 #include <algorithm>
 #include <unordered_map>
 #include <boost/noncopyable.hpp>
+#include <pantheios/assert.h>
 namespace WebGame {
 namespace Utility {
 template<typename K, typename V>
@@ -32,29 +32,29 @@ template<typename K, typename V>
       typedef typename container_type::mapped_type mapped_type ;
       typedef TinyFinder<K, V> class_type ;
       void insert(K k, const V& v) {
-        assert(isDirty()) ;
+        PANTHEIOS_ASSERT(isDirty()) ;
         m_values[k] = v ;
       }
 
       void insert(K k, V&& v) {
-        assert(isDirty()) ;
+        PANTHEIOS_ASSERT(isDirty()) ;
         m_values[k] = std::move(v) ;
       }
 
       void makeFinal() {
-        assert(isDirty()) ;
+        PANTHEIOS_ASSERT(isDirty()) ;
         m_values.rehash(static_cast<size_t>(m_values.size() / 1.1f)) ;
         m_dirty = false ;
       }
 
       const mapped_type& value(K key) const {
-        assert(!isDirty()) ;
+        PANTHEIOS_ASSERT(!isDirty()) ;
         return m_values.at(key) ;
       }
 
       bool hasValue(K key) const {
-        assert(!isDirty()) ;
-        return m_values.count(key) == 1 ;
+        PANTHEIOS_ASSERT(!isDirty()) ;
+        return m_values.count(key);
       }
 
       TinyFinder() : 
