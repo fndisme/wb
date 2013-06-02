@@ -2,4 +2,9 @@
 *.swp
 *.a
 *.o
+*.depend
+*.layout
+obj
+bin
+tags
 

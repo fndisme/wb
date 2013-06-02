@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="testClient" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/testClient" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option external_deps="../utility/libutilityd.a;../server/libserverd.a;../netcore/libnetcored.a;../mock/libmockd.a;../message/libmessaged.a;" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/testClient" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-std=c++11" />
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+			<Add option="-DBOOST_ASIO_SEPARATE_COMPILATION" />
+			<Add directory="/home/fndisme/work/github" />
+		</Compiler>
+		<Linker>
+			<Add option="-lmockd" />
+			<Add option="-lserverd" />
+			<Add option="-lxs" />
+			<Add option="-lnetcored" />
+			<Add option="-lutilityd" />
+			<Add option="-lmessaged" />
+			<Add option="-lpthread" />
+			<Add option="-lprotobuf" />
+			<Add option="-lpantheios.1.core.gcc47.file64bit.mt.debug" />
+			<Add option="-lpantheios.1.be.file.gcc47.file64bit.mt.debug" />
+			<Add option="-lpantheios.1.bec.file.gcc47.file64bit.mt.debug" />
+			<Add option="-lpantheios.1.fe.simple.gcc47.file64bit.mt.debug" />
+			<Add option="-lpantheios.1.appl.gcc47.file64bit.mt.debug" />
+			<Add option="-lpantheios.1.util.gcc47.file64bit.mt.debug" />
+			<Add option="-lfastformat.0.core.gcc47.mt.debug" />
+			<Add option="-lboost_system" />
+			<Add option="-lboost_date_time" />
+			<Add option="-lboost_thread" />
+			<Add directory="/home/fndisme/work/github/webgame/server" />
+			<Add directory="/home/fndisme/work/github/webgame/utility" />
+			<Add directory="/home/fndisme/work/github/webgame/message" />
+			<Add directory="/home/fndisme/work/github/webgame/netcore" />
+			<Add directory="/home/fndisme/work/github/webgame/mock" />
+			<Add directory="/home/fndisme/lib/pantheios/pantheios-1.0.1-beta214/lib" />
+			<Add directory="/home/fndisme/lib/fastformat/fastformat-0.7.1-alpha-9/lib" />
+		</Linker>
+		<Unit filename="TestClient.cpp" />
+		<Unit filename="TestClient.h" />
+		<Unit filename="main.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

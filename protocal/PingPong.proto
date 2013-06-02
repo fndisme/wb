@@ -1,0 +1,7 @@
+package WebGame.Protocal;
+message PingPong {
+  enum traits {
+    value = 1000;
+  }
+  required bytes information = 1;
+}
