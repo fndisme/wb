@@ -63,6 +63,18 @@ namespace WebGame {
           return nodes;
         }
 
+        void debugPrint() const {
+          for(int i = 0 ; i < m_graph.height(); ++i) {
+            for(int j = 0 ; j < m_graph.width() ; ++j) {
+              if(m_parant[i * m_graph.width() + j] != -1)
+                std::cout << " . " ;
+              else
+                std::cout << " * " ;
+            }
+            std::cout << std::endl;
+          }
+        }
+
         typedef std::queue< std::pair<const EdgeType*, int>> Queue;
         typedef std::pair<bool, int> Result;
 

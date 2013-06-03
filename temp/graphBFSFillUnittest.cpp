@@ -25,12 +25,7 @@ TEST(GraphBFSFill, init) {
   SparseGraph::pointer p = SparseGraph::createTileGraph(5,5);
   typedef GraphBFSFill<SparseGraph> Fill;
   Fill s(*p, 0, 4);
-
-  auto nodes = s.canMoveToNode();
-  for(auto node : nodes) {
-    std::cout << node << " " ;
-  }
-  std::cout << std::endl;
+  s.debugPrint();
 }
 
 

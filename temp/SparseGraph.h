@@ -46,6 +46,8 @@ namespace WebGame {
       const Edges& edges(int from) const;
       int nodeSize() const { return m_realNodeSize;}
       int totalSize() const { return m_nodes.size();}
+      int width() const { return m_x;}
+      int height() const { return m_y;}
 
       void debugPrint() const;
       static pointer
