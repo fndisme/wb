@@ -30,18 +30,19 @@ namespace WebGame {
   };
   class TileWindowPosition {
     public:
-      update(int windowx, int windowy) {
+      void update(int windowx, int windowy) {
         int x = windowx - m_windowSize.Width / 2;
         int y = windowy - m_windowSize.Height / 2;
         Position absolutePos(m_position.X + x, m_position.Y + y);
         setAbsoluteCenter(absolutePos);
       }
 
-      moveDelta(int deltaX, int deltaY) {
+      void moveDelta(int deltaX, int deltaY) {
         Position pos(m_position.X + deltaX, m_position.Y + deltaY);
         setAbsoluteCenter(pos);
       }
 
+      /*  
       Position tilePosition(Position const& tile) const {
         int x = tile.X * m_tileSize.Width + m_tileSize.Width / 2;
         int y = tile.Y * m_tileSize.Height + m_tileSize.Width / 2;
@@ -49,14 +50,15 @@ namespace WebGame {
         y -= m_position.Y;
 
       }
+      */
 
-      setAbsoluteCenter(const Position& mapTile) {
+      void setAbsoluteCenter(const Position& mapTile) {
         int x = mapTile.X;
         int y = mapTile.Y;
         if(x < leftTileInPixel())
           x = leftTileInPixel();
         else if(x > rightTileInPixel())
-          x = rightTileInPixel;
+          x = rightTileInPixel();
         if(y < bottomTileInPixel())
           y = bottomTileInPixel();
         else if(y > topTileInPixel())
@@ -65,6 +67,9 @@ namespace WebGame {
         m_position.X = x;
         m_position.Y = y;
       }
+
+      int x() const { return m_position.X;}
+      int y() const { return m_position.Y;}
 
       int leftTileInPixel() const
       { return 0;}
