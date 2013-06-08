@@ -2,6 +2,7 @@
 #include "SparseGraph.h"
 #include "TileWindowPosition.h"
 #include "SpritePool.h"
+#include "TileMask.h"
 
 using namespace cocos2d;
 
@@ -118,11 +119,13 @@ bool HelloWorld::init()
     m_tileMoveBackgroud = CCSprite::createWithTexture(tex);
     addChild(m_tileMoveBackgroud, 4);
     m_tileMoveBackgroud->setPosition(CCPoint(100, 100));
-    m_tileBackPool.reset(new WebGame::SpritePool());
-    for(int i = 0 ; i < 100 ; ++i) {
-      CCSprite* tileSprite = CCSprite::create("move_background.png");
-      m_tileBackPool->addSprite(tileSprite);
-    }
+
+    std::vector<CCPoint> tilePos;
+    tilePos.push_back(ccp(0, 0));
+    tilePos.push_back(ccp(0, 1));
+    tilePos.push_back(ccp(1, 0));
+    m_tileMask = WebGame::TileMask::create(tex, ccp(48 * 2, 48 * 2), CCPointZero, TileSize, tilePos);
+    addChild(m_tileMask);
 
     tex =  CCTextureCache::sharedTextureCache()->addImage("aa.png");
     tex = CCTextureCache::sharedTextureCache()->addImage("DQV (1).png");
@@ -141,6 +144,8 @@ bool HelloWorld::init()
     infos.push_back(MoveInfo(MoveInfo::DOWN, 2));
     CCActionInterval* action = moveAction("DQV (1).png", infos);
     sp->runAction(action);
+
+
     } while (0);
 
     return bRet;
@@ -155,6 +160,9 @@ void HelloWorld::updateAllPosition() {
 
   CCPoint pos = m_tileMoveBackgroud->getPosition();
   m_tileMoveBackgroud->setPosition(ccp(pos.x - deltaX, pos.y - deltaY));
+
+  pos = m_tileMask->getPosition();
+  m_tileMask->setPosition(ccp(pos.x - deltaX, pos.y - deltaY));
 }
 
 void HelloWorld::ccTouchMoved(cocos2d::CCTouch* pTouch,

@@ -9,6 +9,7 @@ namespace WebGame {
   class SparseGraph;
   class TileWindowPosition;
   class SpritePool;
+  class TileMask;
 }
 
 class HelloWorld : public cocos2d::CCLayer
@@ -46,7 +47,6 @@ private:
     cocos2d::CCSprite* m_tileMoveBackgroud;
     std::shared_ptr<WebGame::SparseGraph> m_graph;
     std::shared_ptr<WebGame::TileWindowPosition> m_tileWindowPosition;
-    std::shared_ptr<WebGame::SpritePool> m_tileBackPool;
 
     cocos2d::CCActionInterval* createRFAnimFormPng(
         cocos2d::CCTexture2D* pTexture,
@@ -80,6 +80,7 @@ private:
     cocos2d::CCActionInterval* createMoveStep(
         const MoveInfo& info);
     void updateAllPosition();
+    WebGame::TileMask* m_tileMask;
 };
 
 #endif  // __HELLOWORLD_SCENE_H__
