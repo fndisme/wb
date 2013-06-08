@@ -15,11 +15,11 @@ class HelloWorld : public cocos2d::CCLayer
 {
 public:
     // Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
-    virtual bool init();  
+    virtual bool init();
 
     // there's no 'id' in cpp, so we recommand to return the exactly class pointer
     static cocos2d::CCScene* scene();
-    
+
     // a selector callback
     void menuCloseCallback(CCObject* pSender);
 
@@ -53,6 +53,33 @@ private:
         const cocos2d::CCSize& frameSize,
         int frames,
         float frameTime);
+
+    struct MoveInfo {
+      enum {
+        DOWN = 0,
+        LEFT = 1,
+        UP = 2,
+        RIGHT = 3,
+      };
+      int Direction;
+      int Step;
+      MoveInfo(int dir, int step) :
+        Direction(dir),
+        Step(step) {}
+    };
+  cocos2d::CCActionInterval* createRFAnimFormTexture(
+        cocos2d::CCTexture2D* pTexture,
+        const MoveInfo& moveInfo,
+        const cocos2d::CCSize& frameSize,
+        int frames,
+        float frameTime);
+    cocos2d::CCActionInterval* moveAction(
+        const char* baseName,
+        const std::vector<MoveInfo>& moveInfo);
+
+    cocos2d::CCActionInterval* createMoveStep(
+        const MoveInfo& info);
+    void updateAllPosition();
 };
 
 #endif  // __HELLOWORLD_SCENE_H__

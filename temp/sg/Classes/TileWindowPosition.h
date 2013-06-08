@@ -3,7 +3,7 @@
  *
  *       Filename:  TileWindowPosition.h
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2013/6/5 18:04:42
@@ -11,7 +11,7 @@
  *       Compiler:  gcc
  *
  *         Author:  YOUR NAME (fndisme), fndisme@163.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
@@ -21,7 +21,7 @@ namespace WebGame {
   struct Size {
     int Width;
     int Height;
-    explicit Size(int w = 0, int h = 0) : Width(w), Height(h) {} 
+    explicit Size(int w = 0, int h = 0) : Width(w), Height(h) {}
   };
   struct Position {
     int X;
@@ -42,7 +42,7 @@ namespace WebGame {
         setAbsoluteCenter(pos);
       }
 
-      /*  
+      /*
       Position tilePosition(Position const& tile) const {
         int x = tile.X * m_tileSize.Width + m_tileSize.Width / 2;
         int y = tile.Y * m_tileSize.Height + m_tileSize.Width / 2;
@@ -63,13 +63,16 @@ namespace WebGame {
           y = bottomTileInPixel();
         else if(y > topTileInPixel())
           y = topTileInPixel();
-        
+        m_delta.X = x - m_position.X;
+        m_delta.Y = y - m_position.Y;
         m_position.X = x;
         m_position.Y = y;
       }
 
       int x() const { return m_position.X;}
       int y() const { return m_position.Y;}
+      int deltaX() const { return m_delta.X;}
+      int deltaY() const { return m_delta.Y;}
 
       int leftTileInPixel() const
       { return 0;}
@@ -101,7 +104,8 @@ namespace WebGame {
       const Size m_windowSize;
       Size m_mapSizeInPixel;
       Position m_position;
-  
+      Position m_delta;
+
   };
 }
 #endif
