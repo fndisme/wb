@@ -3,7 +3,7 @@
  *
  *       Filename:  SparseGraph.cpp
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2013/5/26 19:11:30
@@ -11,7 +11,7 @@
  *       Compiler:  gcc
  *
  *         Author:  Fang Dongheng (fndisme), fndisme@163.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
@@ -24,17 +24,23 @@
 
 #define THIS_CLASS WebGame::SparseGraph
 
-THIS_CLASS::SparseGraph(int maxX, int maxY) :
+THIS_CLASS::SparseGraph(int maxX, int maxY, GraphProperty const& p) :
   m_x(maxX),
   m_y(maxY),
   m_nodes(maxX * maxY, GraphNode::pointer()),
   m_edges(maxX * maxY),
-  m_realNodeSize(0){
+  m_property(p){
     assert(maxX * maxY> 0);
   }
 
 bool THIS_CLASS::hasNode(int index) const {
   return index < static_cast<int>(m_nodes.size()) && m_nodes[index];
+}
+
+bool THIS_CLASS::hasNode(int x, int y) const {
+  if(x < 0 || x >= m_x) return false;
+  if(y < 0 || y >= m_y) return false;
+  return hasNode(x + y * m_x);
 }
 
 WebGame::GraphNode::pointer THIS_CLASS::node(int index) {
@@ -79,7 +85,7 @@ WebGame::GraphEdge::pointer THIS_CLASS::nodeEdge(int from, int to) {
   assert(hasNode(from));
   assert(hasNode(to));
 
-  for (auto& e : m_edges[from]) 
+  for (auto& e : m_edges[from])
     if (e->to() == to) return e;
   return GraphEdge::pointer();
 }
@@ -88,7 +94,7 @@ WebGame::GraphEdge::const_pointer THIS_CLASS::nodeEdge(int from, int to) const {
   assert(hasNode(from));
   assert(hasNode(to));
 
-  for(auto& e : m_edges[from]) 
+  for(auto& e : m_edges[from])
     if (e->to() == to) return e;
   return GraphEdge::const_pointer();
 }
@@ -127,8 +133,6 @@ bool THIS_CLASS::addNode(GraphNode::pointer n) {
   if (n->index() < 0 || n->index() >= static_cast<int>(m_nodes.size())) return false;
   if (m_nodes[n->index()]) return false;
   m_nodes[n->index()] = n;
-  ++m_realNodeSize;
-  assert(m_realNodeSize <= static_cast<int>(m_nodes.size()));
   return true;
 }
 
@@ -137,8 +141,16 @@ WebGame::GraphNode::const_pointer THIS_CLASS::node(int index) const {
   return m_nodes[index];
 }
 
-THIS_CLASS::pointer THIS_CLASS::createTileGraph(int x, int y) {
-  THIS_CLASS::pointer graph(new THIS_CLASS(x,y));
+WebGame::GraphNode::const_pointer THIS_CLASS::node(int x, int y) const {
+  return node(x + y * m_x);
+}
+
+WebGame::GraphNode::pointer THIS_CLASS::node(int x, int y) {
+  return node(x + y * m_x);
+}
+THIS_CLASS::pointer THIS_CLASS::createTileGraph(int x, int y,
+    GraphProperty const& p) {
+  THIS_CLASS::pointer graph(new THIS_CLASS(x,y, p));
   for(int i = 0 ; i < y ; ++i)
     for(int j = 0 ; j < x ; ++j) {
       NodeType::pointer node(NodeType::create(i * x + j, j, i, 0));

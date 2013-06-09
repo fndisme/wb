@@ -45,6 +45,7 @@ private:
     cocos2d::CCTMXTiledMap* m_tileMap;
     cocos2d::CCTMXLayer* m_background;
     cocos2d::CCSprite* m_tileMoveBackgroud;
+    cocos2d::CCSprite* m_oldman;
     std::shared_ptr<WebGame::SparseGraph> m_graph;
     std::shared_ptr<WebGame::TileWindowPosition> m_tileWindowPosition;
 
@@ -81,6 +82,10 @@ private:
         const MoveInfo& info);
     void updateAllPosition();
     WebGame::TileMask* m_tileMask;
+    WebGame::TileMask* m_attackMask;
+    bool m_isMoveScreen;
+    void createMask(int x, int y);
+    void initImages();
 };
 
 #endif  // __HELLOWORLD_SCENE_H__

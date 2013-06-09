@@ -3,7 +3,7 @@
  *
  *       Filename:  GraphBFSFill.h
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2013/6/3 16:22:13
@@ -11,7 +11,7 @@
  *       Compiler:  gcc
  *
  *         Author:  YOUR NAME (fndisme), fndisme@163.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
@@ -37,6 +37,9 @@ namespace WebGame {
         int m_source;
         int m_power;
       public:
+
+        typedef std::pair<int, bool> InfluencePoint;
+
         GraphBFSFill(const Graph& g,
             int source,
             int power) :
@@ -46,6 +49,7 @@ namespace WebGame {
           m_source(source),
           m_power(power) {
             fill();
+            caculateCanMoveNodes();
           }
 
         bool hasRoute() const { return m_hasRoute;}
@@ -55,12 +59,8 @@ namespace WebGame {
           return path;
         }
 
-        std::vector<int> canMoveToNode() const {
-          std::vector<int> nodes;
-          for(int i = 0, size = static_cast<int>(m_parant.size()) ; i < size ; ++i) {
-            if(m_parant[i] != -1) nodes.push_back(i);
-          }
-          return nodes;
+        const std::set<int>& canMoveToNode() const {
+          return m_canMoveNodes;
         }
 
         void debugPrint() const {
@@ -77,8 +77,52 @@ namespace WebGame {
 
         typedef std::queue< std::pair<const EdgeType*, int>> Queue;
         typedef std::pair<bool, int> Result;
+        void caculateCanInfluenceNodes(int type) {
+          // just think up down left right
+          for(MoveNodesType::const_iterator iter = m_canMoveNodes.begin(),
+              iter_end = m_canMoveNodes.end() ; iter != iter_end; ++iter) {
+            std::map<int, bool> singleInfluence = singleInfluenced(*iter, type);
+            m_canInfluenceNodes.insert(singleInfluence.begin(), singleInfluence.end());
+          }
+        }
+
+        const std::map<int, bool>& influencedNodes() const {
+          return m_canInfluenceNodes;
+        }
 
       private:
+        void caculateCanMoveNodes() {
+          for(int i = 0, size = static_cast<int>(m_parant.size()) ; i < size ; ++i) {
+            if(m_parant[i] != -1) m_canMoveNodes.insert(i);
+          }
+        }
+
+        std::map<int, bool> singleInfluenced(int nodeIndex, int type) {
+          std::map<int, bool> nodes;
+          typedef typename Graph::PropertyType PropertyType;
+          const PropertyType& graphProperty = m_graph.property();
+          if(!graphProperty.hasAttackType(type)) return nodes;
+
+          int x = m_graph.node(nodeIndex)->x();
+          int y = m_graph.node(nodeIndex)->y();
+          typedef typename PropertyType::AttackNeighbourType NeightBourType;
+          const NeightBourType& moveIndexs = graphProperty.attackType(type);
+          for(NeightBourType::const_iterator iter = moveIndexs.begin(),
+              iter_end = moveIndexs.end() ;
+              iter != iter_end ;
+              ++iter) {
+            int attackDeltaX = (*iter).first;
+            int attackDeltaY = (*iter).second;
+
+            if(m_graph.hasNode(x + 1, y)) {
+              auto node = m_graph.node(x + attackDeltaX, y + attackDeltaY);
+              nodes.insert(std::make_pair(node->index(),
+                    m_canMoveNodes.count(node->index()) == 0));
+            }
+          }
+          return nodes;
+        }
+
         void fill() {
           Queue queue;
           EdgeType dummy(m_source, m_source);
@@ -119,7 +163,11 @@ namespace WebGame {
         int movePowerByType(int type) const {
           return 1;
         }
+
+
+        typedef std::set<int> MoveNodesType;
+        MoveNodesType m_canMoveNodes;
+        std::map<int, bool> m_canInfluenceNodes;
     };
 }
 #endif
-

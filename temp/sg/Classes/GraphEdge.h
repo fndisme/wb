@@ -3,7 +3,7 @@
  *
  *       Filename:  GraphEdge.h
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2013/5/26 18:48:29
@@ -11,15 +11,16 @@
  *       Compiler:  gcc
  *
  *         Author:  Fang Dongheng (fndisme), fndisme@163.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
 #ifndef FND_WEBGAME_GRAPHEDGE_H
 #define FND_WEBGAME_GRAPHEDGE_H
 #include <memory>
+#include <boost/noncopyable.hpp>
 namespace WebGame {
-  class GraphEdge {
+  class GraphEdge : boost::noncopyable {
     public:
       typedef std::shared_ptr<GraphEdge> pointer;
       typedef std::shared_ptr<const GraphEdge> const_pointer;

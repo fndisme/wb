@@ -97,6 +97,15 @@ namespace WebGame {
           m_windowSize(windowSize),
           m_mapSizeInPixel(mapSize.Width * tileSize.Width,
               mapSize.Height * tileSize.Height) {}
+      Size getTilePositon(int posX, int posY) {
+        assert(posX >= 0);
+        assert(posY >= 0);
+        assert(posX < m_windowSize.Width);
+        assert(posY < m_windowSize.Width);
+        int realX = (posX + m_position.X) / m_tileSize.Width;
+        int realY = (posY + m_position.Y) / m_tileSize.Height;
+        return Size(realX, realY);
+      }
 
     private:
       const Size m_mapSize;
@@ -105,6 +114,8 @@ namespace WebGame {
       Size m_mapSizeInPixel;
       Position m_position;
       Position m_delta;
+      int mapXInPixel() const { return m_mapSize.Width * m_tileSize.Width;}
+      int mapYInPixel() const { return m_mapSize.Width * m_tileSize.Width;}
 
   };
 }
