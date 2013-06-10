@@ -103,13 +103,14 @@ bool HelloWorld::init()
 //
 //
         initImages();
+        m_isMoveScreen = false;
 
         m_tileMap = CCTMXTiledMap::create("1-1.tmx");
         m_background = m_tileMap->layerNamed("Ground");
         addChild(m_tileMap, -1);
         CCSize mapSize = m_tileMap->getMapSize();
         CCSize tileSize = m_tileMap->getTileSize();
-        WebGame::GraphProperty property;
+        WebGame::GraphProperty property = WebGame::GraphProperty::buildDefault();
         m_graph = WebGame::SparseGraph::createTileGraph(mapSize.width,
             mapSize.height, property);
         m_tileWindowPosition.reset(new WebGame::TileWindowPosition(
@@ -173,7 +174,7 @@ void HelloWorld::createMask(int x, int y) {
     auto node = m_graph->node(v);
     tilePos.push_back(ccp(node->x() - x, node->y() - y));
   }
-  f.caculateCanInfluenceNodes(0);
+  f.caculateCanInfluenceNodes(WebGame::GraphProperty::SENIOR_ARROWMAN);
   std::vector<CCPoint> infPos;
   const auto& influenceNodes = f.influencedNodes();
   for(auto v : influenceNodes) {

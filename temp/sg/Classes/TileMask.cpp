@@ -29,12 +29,10 @@ namespace WebGame {
       mask->autorelease();
       mask->setPosition(pos);
 
-      int deltaX = pos.x - mapPos.x;
-      int deltaY = pos.y - mapPos.y;
       for(int i = 0 ; i < tilepos.size() ; ++i) {
         CCSprite* s = CCSprite::createWithTexture(tex);
-        s->setPosition(ccp(tilepos[i].x * tileSize.width - mapPos.x,
-              tilepos[i].y * tileSize.height - mapPos.y));
+        s->setPosition(ccp(tilepos[i].x * tileSize.width,
+              tilepos[i].y * tileSize.height));
         s->setAnchorPoint(ccp(0,0));
         mask->addChild(s);
       }

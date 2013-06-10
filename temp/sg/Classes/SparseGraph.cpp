@@ -34,7 +34,7 @@ THIS_CLASS::SparseGraph(int maxX, int maxY, GraphProperty const& p) :
   }
 
 bool THIS_CLASS::hasNode(int index) const {
-  return index < static_cast<int>(m_nodes.size()) && m_nodes[index];
+  return index >= 0 && index < static_cast<int>(m_nodes.size()) && m_nodes[index];
 }
 
 bool THIS_CLASS::hasNode(int x, int y) const {

@@ -48,7 +48,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;..\Classes;$(COCOS2DX_ROOT)\cocos2dx;$(COCOS2DX_ROOT)\cocos2dx\include;$(COCOS2DX_ROOT)\cocos2dx\kazmath\include;$(COCOS2DX_ROOT)\cocos2dx\platform\win32;$(COCOS2DX_ROOT)\cocos2dx\platform\third_party\win32;$(COCOS2DX_ROOT)\cocos2dx\platform\third_party\win32\OGLES;$(COCOS2DX_ROOT)\CocosDenshion\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\Classes;$(COCOS2DX_ROOT)\cocos2dx;$(COCOS2DX_ROOT)\cocos2dx\include;$(COCOS2DX_ROOT)\cocos2dx\kazmath\include;$(COCOS2DX_ROOT)\cocos2dx\platform\win32;$(COCOS2DX_ROOT)\cocos2dx\platform\third_party\win32;$(COCOS2DX_ROOT)\cocos2dx\platform\third_party\win32\OGLES;$(COCOS2DX_ROOT)\CocosDenshion\include;$(BOOST_ROOT);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -132,17 +132,25 @@
     <ClInclude Include="..\Classes\GraphDFSSearch.h" />
     <ClInclude Include="..\Classes\GraphEdge.h" />
     <ClInclude Include="..\Classes\GraphNode.h" />
+    <ClInclude Include="..\Classes\GraphProperty.h" />
     <ClInclude Include="..\Classes\HelloWorldScene.h" />
+    <ClInclude Include="..\Classes\Player.h" />
     <ClInclude Include="..\Classes\SparseGraph.h" />
     <ClInclude Include="..\Classes\SpritePool.h" />
+    <ClInclude Include="..\Classes\TileMask.h" />
     <ClInclude Include="..\Classes\TileWindowPosition.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Classes\AppDelegate.cpp" />
+    <ClCompile Include="..\Classes\GraphNode.cpp" />
+    <ClCompile Include="..\Classes\GraphProperty.cpp" />
     <ClCompile Include="..\Classes\HelloWorldScene.cpp" />
+    <ClCompile Include="..\Classes\Player.cpp" />
     <ClCompile Include="..\Classes\SparseGraph.cpp" />
+    <ClCompile Include="..\Classes\TileMask.cpp" />
+    <ClCompile Include="..\Classes\TileWindowPosition.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

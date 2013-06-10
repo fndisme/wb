@@ -67,6 +67,15 @@
     <ClInclude Include="..\Classes\SpritePool.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\Classes\TileMask.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\GraphProperty.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\Player.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -79,6 +88,21 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\Classes\SparseGraph.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\TileMask.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\GraphNode.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\GraphProperty.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Player.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\TileWindowPosition.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>

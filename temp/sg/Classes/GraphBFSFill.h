@@ -114,7 +114,7 @@ namespace WebGame {
             int attackDeltaX = (*iter).first;
             int attackDeltaY = (*iter).second;
 
-            if(m_graph.hasNode(x + 1, y)) {
+            if(m_graph.hasNode(x + attackDeltaX, y + attackDeltaY)) {
               auto node = m_graph.node(x + attackDeltaX, y + attackDeltaY);
               nodes.insert(std::make_pair(node->index(),
                     m_canMoveNodes.count(node->index()) == 0));

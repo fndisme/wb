@@ -18,13 +18,20 @@
 #ifndef FND_WEBGAME_GRAPHPROPERTY_H
 #define FND_WEBGAME_GRAPHPROPERTY_H
 #include <map>
+#include <vector>
 namespace WebGame {
   class GraphProperty {
     public:
       enum {
-        FOOT_SOLDIER,
-        DRAGOON,
-        ARROW_MAN,
+        JUNIOR_LORD,
+        JUNIOR_DRAGOON,
+        SENIOR_DRAGOON,
+        SENIOR_LOARD,
+        JUNIOR_FOOT_SOLDIER,
+        SENIOR_FOOT_SOLDIER,
+        JUNIOR_ARROWMAN,
+        SENIOR_ARROWMAN,
+        
       };
       typedef std::vector<std::pair<int, int> > AttackNeighbourType;
       void addAttackType(int type, AttackNeighbourType const& info) {
