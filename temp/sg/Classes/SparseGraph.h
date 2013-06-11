@@ -23,7 +23,6 @@
 #include <memory>
 #include <utility>
 #include <vector>
-#include <boost/noncopyable.hpp>
 
 //#include "GraphNode.h"
 #include "GraphEdge.h"
@@ -31,7 +30,7 @@
 namespace WebGame {
   class GraphNode;
   class GraphEdge;
-  class SparseGraph : boost::noncopyable {
+  class SparseGraph {
     public:
       typedef GraphProperty PropertyType;
       typedef std::list<std::shared_ptr<GraphEdge> > Edges;

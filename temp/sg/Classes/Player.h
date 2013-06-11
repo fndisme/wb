@@ -21,11 +21,9 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <boost/noncopyable.hpp>
 namespace WebGame {
   class GraphNode;
-  class Player : public std::enable_shared_from_this<Player>,
-  boost::noncopyable {
+  class Player : public std::enable_shared_from_this<Player> {
     public:
       typedef std::shared_ptr<Player> pointer;
       typedef std::shared_ptr<const Player> const_pointer;

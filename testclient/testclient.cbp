@@ -46,8 +46,8 @@
 			<Add option="-lpthread" />
 			<Add option="-lprotobuf" />
 			<Add option="-lpantheios.1.core.gcc47.file64bit.mt.debug" />
-			<Add option="-lpantheios.1.be.file.gcc47.file64bit.mt.debug" />
-			<Add option="-lpantheios.1.bec.file.gcc47.file64bit.mt.debug" />
+			<Add option="-lpantheios.1.be.fprintf.gcc47.file64bit.mt.debug" />
+			<Add option="-lpantheios.1.bec.fprintf.gcc47.file64bit.mt.debug" />
 			<Add option="-lpantheios.1.fe.simple.gcc47.file64bit.mt.debug" />
 			<Add option="-lpantheios.1.appl.gcc47.file64bit.mt.debug" />
 			<Add option="-lpantheios.1.util.gcc47.file64bit.mt.debug" />
@@ -63,6 +63,8 @@
 			<Add directory="/home/fndisme/lib/pantheios/pantheios-1.0.1-beta214/lib" />
 			<Add directory="/home/fndisme/lib/fastformat/fastformat-0.7.1-alpha-9/lib" />
 		</Linker>
+		<Unit filename="../protocal/PingPong.pb.cc" />
+		<Unit filename="../protocal/PingPong.pb.h" />
 		<Unit filename="TestClient.cpp" />
 		<Unit filename="TestClient.h" />
 		<Unit filename="main.cpp" />

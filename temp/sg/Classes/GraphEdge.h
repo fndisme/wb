@@ -18,9 +18,8 @@
 #ifndef FND_WEBGAME_GRAPHEDGE_H
 #define FND_WEBGAME_GRAPHEDGE_H
 #include <memory>
-#include <boost/noncopyable.hpp>
 namespace WebGame {
-  class GraphEdge : boost::noncopyable {
+  class GraphEdge {
     public:
       typedef std::shared_ptr<GraphEdge> pointer;
       typedef std::shared_ptr<const GraphEdge> const_pointer;

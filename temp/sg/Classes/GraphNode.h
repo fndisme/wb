@@ -19,12 +19,11 @@
 #define FND_WEBGAME_GRAPHNODE_H
 #include <cassert>
 #include <memory>
-#include <boost/noncopyable.hpp>
 
 namespace WebGame {
   //const int invalidGraphIndex = -1;
   class Player ;
-  class GraphNode : boost::noncopyable {
+  class GraphNode {
     public:
       typedef std::shared_ptr<GraphNode> pointer;
       typedef std::shared_ptr<const GraphNode> const_pointer;

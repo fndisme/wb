@@ -52,7 +52,7 @@ namespace WebGame {
             caculateCanMoveNodes();
           }
 
-        bool hasRoute() const { return m_hasRoute;}
+        //bool hasRoute() const { return m_hasRoute;}
 
         std::list<int> pathToTarget()  const {
           std::list<int> path;
@@ -107,7 +107,7 @@ namespace WebGame {
           int y = m_graph.node(nodeIndex)->y();
           typedef typename PropertyType::AttackNeighbourType NeightBourType;
           const NeightBourType& moveIndexs = graphProperty.attackType(type);
-          for(NeightBourType::const_iterator iter = moveIndexs.begin(),
+          for(typename NeightBourType::const_iterator iter = moveIndexs.begin(),
               iter_end = moveIndexs.end() ;
               iter != iter_end ;
               ++iter) {
