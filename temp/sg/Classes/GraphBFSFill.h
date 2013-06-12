@@ -34,6 +34,7 @@ namespace WebGame {
         const Graph& m_graph;
         std::vector<int> m_visited;
         std::vector<int> m_parant;
+        std::vector<int> m_moveLeftPower;
         int m_source;
         int m_power;
       public:
@@ -46,6 +47,7 @@ namespace WebGame {
           m_graph(g),
           m_visited(g.totalSize(), unvisited),
           m_parant(g.totalSize(), -1),
+          m_moveLeftPower(g.totalSize(), 0),
           m_source(source),
           m_power(power) {
             fill();
@@ -139,12 +141,18 @@ namespace WebGame {
               std::cout << " from " << next->from() << " to " << next->to() << std::endl;
               m_parant[next->to()] = next->from();
               m_visited[next->to()] = visited;
+              m_moveLeftPower[next->to()] = result.second;
 
               auto& edges = m_graph.edges(next->to());
 
               for (auto edge : edges) {
                 if (m_visited[edge->to()] == unvisited)
                   queue.push(std::make_pair(edge.get(), result.second));
+                else if(m_visited[edge->to()] == visited &&
+                    m_moveLeftPower[edge->to()] < result.second) {
+                  m_moveLeftPower[edge->to()] = result.second;
+                  queue.push(std::make_pair(edge.get(), result.second));
+                }
               }
             }
           }

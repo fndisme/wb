@@ -24,16 +24,19 @@ namespace WebGame {
         const cocos2d::CCPoint& pos,
         const cocos2d::CCPoint& mapPos,
         const cocos2d::CCSize& tileSize,
+        float scale,
         const std::vector<cocos2d::CCPoint>& tilepos) {
       TileMask* mask = new TileMask();
       mask->autorelease();
       mask->setPosition(pos);
+      mask->setAnchorPoint(ccp(0.0,0.0));
 
       for(int i = 0 ; i < tilepos.size() ; ++i) {
         CCSprite* s = CCSprite::createWithTexture(tex);
         s->setPosition(ccp(tilepos[i].x * tileSize.width,
               tilepos[i].y * tileSize.height));
-        s->setAnchorPoint(ccp(0,0));
+        s->setAnchorPoint(ccp(0.0,0.0));
+        s->setScale(scale);
         mask->addChild(s);
       }
       return mask;

@@ -9,7 +9,6 @@
 
 using namespace cocos2d;
 
-static const CCSize TileSize(48, 48);
 static const float MoveSpeed(0.8f);
 
 HelloWorld::HelloWorld() : m_tileMap(0),
@@ -51,7 +50,6 @@ bool HelloWorld::init()
 
         CC_BREAK_IF(! CCLayer::init());
 
-        setScale(1.5);
 
         //////////////////////////////////////////////////////////////////////////
         // add your codes below...
@@ -107,18 +105,25 @@ bool HelloWorld::init()
         initImages();
         m_isMoveScreen = false;
 
-        m_tileMap = CCTMXTiledMap::create("1-1.tmx");
-        m_background = m_tileMap->layerNamed("Ground");
-        addChild(m_tileMap, -1);
+        initTileSystem("1-1.tmx");
+
         CCSize mapSize = m_tileMap->getMapSize();
         CCSize tileSize = m_tileMap->getTileSize();
+        m_tileSize = CCSize(tileSize.width * m_tileMap->getScale(), tileSize.height * m_tileMap->getScale());
         WebGame::GraphProperty property = WebGame::GraphProperty::buildDefault();
         m_graph = WebGame::SparseGraph::createTileGraph(mapSize.width,
             mapSize.height, property);
+        CCSize showSize(mapSize.width * m_tileSize.width, mapSize.height * m_tileSize.height);
+        if(showSize.width > windowSize.width) showSize.width = windowSize.width;
+        if(showSize.height > windowSize.height) showSize.height = windowSize.height;
+        m_showMapRect.setRect((windowSize.width - showSize.width)/2, (windowSize.height - showSize.height)/2,
+            showSize.width, showSize.height);
         m_tileWindowPosition.reset(new WebGame::TileWindowPosition(
-              WebGame::Size(mapSize.width, mapSize.height),
-              WebGame::Size(tileSize.width, tileSize.height),
-              WebGame::Size(windowSize.width, windowSize.height)));
+              mapSize,
+              m_tileSize,
+              showSize,
+              windowSize,
+              ccp(windowSize.width/2, windowSize.height/2)));
 		this->setTouchEnabled(true);
 		CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, 0, true);
 
@@ -135,11 +140,6 @@ bool HelloWorld::init()
     tex = CCTextureCache::sharedTextureCache()->textureForKey("DQV (1).png");
     m_oldman = CCSprite::createWithTexture(tex, CCRect(0, 0, 48, 48));
     addChild(m_oldman);
-//    CCActionInterval* moveInterval = createRFAnimFormPng(tex, CCSize(72, 72), 8,
-//        0.08f);
-//    CCMoveBy* moveby = CCMoveBy::create(2, ccp(100, 0));
-//    CCSpawn* spawn = CCSpawn::create(moveby, moveInterval, 0);
-//    sp->runAction(spawn);
     m_oldman->setPosition(ccp(100, 150));
     std::vector<MoveInfo> infos;
     infos.push_back(MoveInfo(MoveInfo::RIGHT, 2));
@@ -149,10 +149,23 @@ bool HelloWorld::init()
     CCActionInterval* action = moveAction("DQV (1).png", infos);
     m_oldman->runAction(CCRepeatForever::create(action));
 
-
     } while (0);
 
     return bRet;
+}
+
+void HelloWorld::initTileSystem(const char* tileMapName) {
+  CCSize windowSize = CCDirector::sharedDirector()->getWinSize();
+  m_tileMap = CCTMXTiledMap::create(tileMapName);
+  assert(m_tileMap);
+  m_tileMap->setAnchorPoint(ccp(0.5f, 0.5f));
+  m_scale = windowSize.width / 640.0f;
+  m_tileMap->setScale(m_scale);
+  m_tileMap->setPosition(ccp(windowSize.width/2, windowSize.height/2));
+  m_background = m_tileMap->layerNamed("Ground");
+  addChild(m_tileMap, -1);
+  CCSize tileSize = m_tileMap->getTileSize();
+  m_tileSize = CCSize(tileSize.width * m_tileMap->getScale(), tileSize.height * m_tileMap->getScale());
 }
 
 void HelloWorld::initImages() {
@@ -169,7 +182,8 @@ void HelloWorld::createMask(int x, int y) {
   CCTexture2D* tex =  CCTextureCache::sharedTextureCache()->textureForKey("move_background.png");
   CCTexture2D* texAttack = CCTextureCache::sharedTextureCache()->textureForKey("attack_mask.png");
   assert(tex);
-  WebGame::GraphBFSFill<WebGame::SparseGraph> f(*m_graph, m_graph->node(x,y)->index(), 3);
+  WebGame::GraphBFSFill<WebGame::SparseGraph> f(*m_graph, m_graph->node(x,y)->index(), 0);
+  CCLog("create mask %d %d", x, y);
   auto nodes = f.canMoveToNode();
   std::vector<CCPoint> tilePos;
   for(auto v : nodes) {
@@ -187,19 +201,23 @@ void HelloWorld::createMask(int x, int y) {
   }
   int mapX = m_tileWindowPosition->x();
   int mapY = m_tileWindowPosition->y();
+  int minX = m_showMapRect.getMinX();
+  int minY = m_showMapRect.getMinY();
   m_tileMask = WebGame::TileMask::create(
       tex, // mask
-      ccp(48 * x - mapX, 48 * y - mapY),
+      ccp(m_tileSize.width * x - m_tileWindowPosition->realDeltaX(), m_tileSize.height * y - m_tileWindowPosition->realDeltaY()),
       ccp(x,y),
-      TileSize,
+      m_tileSize,
+      m_scale,
       tilePos);
   addChild(m_tileMask);
 
   m_attackMask = WebGame::TileMask::create(
       texAttack, // mask
-      ccp(48 * x - mapX, 48 * y - mapY),
+      ccp(m_tileSize.width * x - m_tileWindowPosition->realDeltaX(), m_tileSize.height * y - m_tileWindowPosition->realDeltaY()),
       ccp(x,y),
-      TileSize,
+      m_tileSize,
+      m_scale,
       infPos);
   addChild(m_attackMask);
 }
@@ -209,7 +227,7 @@ void HelloWorld::updateAllPosition() {
   int y = -m_tileWindowPosition->y();
   int deltaX = m_tileWindowPosition->deltaX();
   int deltaY = m_tileWindowPosition->deltaY();
-  m_tileMap->setPosition(x, y);
+  m_tileMap->setPosition(x + m_tileWindowPosition->initX(), y + m_tileWindowPosition->initY());
 
   CCPoint pos = m_tileMoveBackgroud->getPosition();
   m_tileMoveBackgroud->setPosition(ccp(pos.x - deltaX, pos.y - deltaY));
@@ -233,7 +251,10 @@ void HelloWorld::ccTouchMoved(cocos2d::CCTouch* pTouch,
   CCPoint delta = pTouch->getDelta();
   m_tileWindowPosition->moveDelta(-delta.x, -delta.y);
   updateAllPosition();
-  m_tileMap->setPosition(-m_tileWindowPosition->x(), -m_tileWindowPosition->y());
+  const CCPoint& pos = m_tileMap->getPosition();
+  m_tileMap->setPosition(-m_tileWindowPosition->x() +
+      m_tileWindowPosition->initX(), -m_tileWindowPosition->y() +
+      m_tileWindowPosition->initY());
 
 }
 
@@ -282,7 +303,7 @@ cocos2d::CCActionInterval* HelloWorld::moveAction(
   for(int i = 0 ; i < moveInfo.size() ; ++i) {
     CCActionInterval* act = createRFAnimFormTexture(
         tex, moveInfo[i],
-        TileSize,
+        m_tileSize,
         4,
         0.04f);
     assert(act);
@@ -301,22 +322,22 @@ cocos2d::CCActionInterval* HelloWorld::createMoveStep(
   switch (info.Direction) {
     case MoveInfo::LEFT :
       {
-        moved.x = -TileSize.width * info.Step;
+        moved.x = -m_tileSize.width * info.Step;
         break;
       }
     case MoveInfo::RIGHT :
       {
-        moved.x = TileSize.width * info.Step;
+        moved.x = m_tileSize.width * info.Step;
         break;
       }
     case MoveInfo::UP:
       {
-        moved.y = TileSize.height * info.Step;
+        moved.y = m_tileSize.height * info.Step;
         break;
       }
     case MoveInfo::DOWN:
       {
-        moved.y = -TileSize.height * info.Step;
+        moved.y = -m_tileSize.height * info.Step;
         break;
       }
     default:
@@ -330,11 +351,13 @@ cocos2d::CCActionInterval* HelloWorld::createMoveStep(
 void HelloWorld::ccTouchEnded(cocos2d::CCTouch* touch,
 		    cocos2d::CCEvent* pEvent) {
   if(!m_isMoveScreen) {
-  CCPoint location = touch->getLocationInView();
-  CCSize winSize = CCDirector::sharedDirector()->getWinSize();
-  WebGame::Size size =
-    m_tileWindowPosition->getTilePositon(location.x, winSize.height - location.y);
-  createMask(size.Width, size.Height);
+    CCPoint location = touch->getLocationInView();
+    CCSize winSize = CCDirector::sharedDirector()->getWinSize();
+    if(m_showMapRect.containsPoint(location)) {
+      CCPoint pos =
+        m_tileWindowPosition->getTilePositon(location.x, winSize.height - location.y);
+      createMask(pos.x, pos.y);
+    }
   } else {
     m_isMoveScreen = false;
   }

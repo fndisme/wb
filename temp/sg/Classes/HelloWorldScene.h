@@ -86,6 +86,10 @@ private:
     bool m_isMoveScreen;
     void createMask(int x, int y);
     void initImages();
+    cocos2d::CCRect m_showMapRect;
+    float m_scale;
+    cocos2d::CCSize m_tileSize;
+    void initTileSystem(const char*);
 };
 
 #endif  // __HELLOWORLD_SCENE_H__
