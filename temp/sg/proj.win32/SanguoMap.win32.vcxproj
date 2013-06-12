@@ -48,7 +48,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;..\Classes;$(COCOS2DX_ROOT)\cocos2dx;$(COCOS2DX_ROOT)\cocos2dx\include;$(COCOS2DX_ROOT)\cocos2dx\kazmath\include;$(COCOS2DX_ROOT)\cocos2dx\platform\win32;$(COCOS2DX_ROOT)\cocos2dx\platform\third_party\win32;$(COCOS2DX_ROOT)\cocos2dx\platform\third_party\win32\OGLES;$(COCOS2DX_ROOT)\CocosDenshion\include;$(BOOST_ROOT);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\Classes;$(COCOS2DX_ROOT)\cocos2dx;$(COCOS2DX_ROOT)\cocos2dx\include;$(COCOS2DX_ROOT)\cocos2dx\kazmath\include;$(COCOS2DX_ROOT)\cocos2dx\platform\win32;$(COCOS2DX_ROOT)\cocos2dx\platform\third_party\win32;$(COCOS2DX_ROOT)\cocos2dx\platform\third_party\win32\OGLES;$(COCOS2DX_ROOT)\CocosDenshion\include;$(COCOS2DX_ROOT)\extensions\;$(COCOS2DX_ROOT)\extensions\GUI;$(COCOS2DX_ROOT)\extensions\GUI\CCControlExtension;$(BOOST_ROOT);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -64,7 +64,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(OutDir);$(COCOS2DX_ROOT)\Debug.win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcocos2d.lib;opengl32.lib;glew32.lib;libCocosDenshion.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcocos2d.lib;opengl32.lib;glew32.lib;libCocosDenshion.lib;libExtensions.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -133,6 +133,7 @@
     <ClInclude Include="..\Classes\GraphEdge.h" />
     <ClInclude Include="..\Classes\GraphNode.h" />
     <ClInclude Include="..\Classes\GraphProperty.h" />
+    <ClInclude Include="..\Classes\GUI\ShowDialog.h" />
     <ClInclude Include="..\Classes\HelloWorldScene.h" />
     <ClInclude Include="..\Classes\Player.h" />
     <ClInclude Include="..\Classes\SparseGraph.h" />
@@ -146,6 +147,7 @@
     <ClCompile Include="..\Classes\AppDelegate.cpp" />
     <ClCompile Include="..\Classes\GraphNode.cpp" />
     <ClCompile Include="..\Classes\GraphProperty.cpp" />
+    <ClCompile Include="..\Classes\GUI\ShowDialog.cpp" />
     <ClCompile Include="..\Classes\HelloWorldScene.cpp" />
     <ClCompile Include="..\Classes\Player.cpp" />
     <ClCompile Include="..\Classes\SparseGraph.cpp" />

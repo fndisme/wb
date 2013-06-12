@@ -1,0 +1,20 @@
+{
+  "scale" : 1,
+  "font" : {
+    "name" : "Arial",
+    "size" : 20 
+  },
+  "dialog" : "我试试看中文行不行啊！",
+  "label" : {
+    "width" : 80,
+    "height" : 80
+    },
+    "sprite" : {
+    "name" : "move_background.png",
+    "x" : 20,
+    "y" : -30,
+    "scale" : 0.2,
+    "anchor_x" : 0.5,
+    "anchor_y" : 0.5
+    }
+}

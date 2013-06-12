@@ -6,9 +6,9 @@
 #include "GraphBFSFill.h"
 #include "GraphNode.h"
 #include "GraphProperty.h"
+#include "GUI/ShowDialog.h"
 
 using namespace cocos2d;
-
 static const float MoveSpeed(0.8f);
 
 HelloWorld::HelloWorld() : m_tileMap(0),
@@ -103,6 +103,19 @@ bool HelloWorld::init()
 //
 //
         initImages();
+
+//        CCScale9Sprite* tes = CCScale9Sprite::create("attack_mask.png", CCRect(0, 0, 200, 200), CCRect(10, 10, 10, 10));
+//        tes->setPosition(ccp(150, 150));
+//        addChild(tes);
+        //WebGame::GUI::ShowDialog* showDialog = 
+        //  WebGame::GUI::ShowDialog::create("这是一个历史悠久的故事", "attack_mask.png", 
+         //     "move_background.png", 0);
+        
+        WebGame::GUI::ShowDialog* showDialog = 
+          WebGame::GUI::ShowDialog::create("aa.json");
+        showDialog->setPosition(200, 200);
+        addChild(showDialog);
+  
         m_isMoveScreen = false;
 
         initTileSystem("1-1.tmx");
@@ -159,7 +172,7 @@ void HelloWorld::initTileSystem(const char* tileMapName) {
   m_tileMap = CCTMXTiledMap::create(tileMapName);
   assert(m_tileMap);
   m_tileMap->setAnchorPoint(ccp(0.5f, 0.5f));
-  m_scale = windowSize.width / 640.0f;
+  m_scale =  windowSize.width / 640.0f;
   m_tileMap->setScale(m_scale);
   m_tileMap->setPosition(ccp(windowSize.width/2, windowSize.height/2));
   m_background = m_tileMap->layerNamed("Ground");
