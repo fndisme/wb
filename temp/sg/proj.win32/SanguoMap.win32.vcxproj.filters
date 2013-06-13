@@ -79,6 +79,9 @@
     <ClInclude Include="..\Classes\GUI\ShowDialog.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\Classes\utility\MakeAnimation.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -109,6 +112,9 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\Classes\GUI\ShowDialog.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\utility\MakeAnimation.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>

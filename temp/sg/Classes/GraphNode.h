@@ -39,9 +39,9 @@ namespace WebGame {
       void setProperty(int p) { m_property = p;}
       static
       pointer create(int index, int x, int y, int type);
-      void attachPlayer(std::shared_ptr<Player> p);
+      void attachPlayer(Player* p);
       void detachPlayer() {
-        if(hasAttachedPlayer()) m_player.reset();
+        if(hasAttachedPlayer()) m_player = 0;
       }
     private:
       int m_index;
@@ -49,7 +49,7 @@ namespace WebGame {
       int m_y;
       int m_type;
       int m_property;
-      std::weak_ptr<Player> m_player;
+      Player* m_player;
       bool hasAttachedPlayer() const;
 
       explicit GraphNode(int index, int x, int y, int type) : m_index(index),

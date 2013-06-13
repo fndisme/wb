@@ -23,12 +23,12 @@ namespace WebGame {
     return pointer(new GraphNode(index, x, y, type));
   }
 
-  void GraphNode::attachPlayer(Player::pointer p) {
+  void GraphNode::attachPlayer(Player* p) {
     assert(!hasAttachedPlayer());
     m_player = p;
   }
 
   bool GraphNode::hasAttachedPlayer() const {
-    return !m_player.expired();
+    return m_player;
   }
 }

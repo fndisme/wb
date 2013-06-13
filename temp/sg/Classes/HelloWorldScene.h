@@ -10,6 +10,7 @@ namespace WebGame {
   class TileWindowPosition;
   class SpritePool;
   class TileMask;
+  class Player;
 }
 
 class HelloWorld : public cocos2d::CCLayer
@@ -55,31 +56,6 @@ private:
         int frames,
         float frameTime);
 
-    struct MoveInfo {
-      enum {
-        DOWN = 0,
-        LEFT = 1,
-        UP = 2,
-        RIGHT = 3,
-      };
-      int Direction;
-      int Step;
-      MoveInfo(int dir, int step) :
-        Direction(dir),
-        Step(step) {}
-    };
-  cocos2d::CCActionInterval* createRFAnimFormTexture(
-        cocos2d::CCTexture2D* pTexture,
-        const MoveInfo& moveInfo,
-        const cocos2d::CCSize& frameSize,
-        int frames,
-        float frameTime);
-    cocos2d::CCActionInterval* moveAction(
-        const char* baseName,
-        const std::vector<MoveInfo>& moveInfo);
-
-    cocos2d::CCActionInterval* createMoveStep(
-        const MoveInfo& info);
     void updateAllPosition();
     WebGame::TileMask* m_tileMask;
     WebGame::TileMask* m_attackMask;
@@ -90,6 +66,8 @@ private:
     float m_scale;
     cocos2d::CCSize m_tileSize;
     void initTileSystem(const char*);
+    std::map<int,WebGame::Player*> m_players;
+    void generateRandomPlayers();
 };
 
 #endif  // __HELLOWORLD_SCENE_H__

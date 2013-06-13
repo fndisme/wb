@@ -17,8 +17,10 @@
  */
 #ifndef FND_WEBGAME_GRAPHPROPERTY_H
 #define FND_WEBGAME_GRAPHPROPERTY_H
+#include <string>
 #include <map>
 #include <vector>
+#include "Terrain.h"
 namespace WebGame {
   class GraphProperty {
     public:
@@ -31,7 +33,6 @@ namespace WebGame {
         SENIOR_FOOT_SOLDIER,
         JUNIOR_ARROWMAN,
         SENIOR_ARROWMAN,
-        
       };
       typedef std::vector<std::pair<int, int> > AttackNeighbourType;
       void addAttackType(int type, AttackNeighbourType const& info) {
@@ -42,10 +43,13 @@ namespace WebGame {
         std::map<int,AttackNeighbourType>::const_iterator iter = m_attackRange.find(type);
         return (*iter).second;
       }
+      bool hasTerrain(int type) const { return m_terrainMeta.count(type);}
       static
         GraphProperty buildDefault();
+      static GraphProperty buildFromFile(const std::string& fileName);
     private:
       std::map<int, AttackNeighbourType> m_attackRange;
+      std::map<int, Terrain> m_terrainMeta;
 
   };
 }

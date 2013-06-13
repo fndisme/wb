@@ -7,6 +7,8 @@
 #include "GraphNode.h"
 #include "GraphProperty.h"
 #include "GUI/ShowDialog.h"
+#include "utility/MakeAnimation.h"
+#include "Player.h"
 
 using namespace cocos2d;
 static const float MoveSpeed(0.8f);
@@ -104,18 +106,19 @@ bool HelloWorld::init()
 //
         initImages();
 
+
 //        CCScale9Sprite* tes = CCScale9Sprite::create("attack_mask.png", CCRect(0, 0, 200, 200), CCRect(10, 10, 10, 10));
 //        tes->setPosition(ccp(150, 150));
 //        addChild(tes);
-        //WebGame::GUI::ShowDialog* showDialog = 
-        //  WebGame::GUI::ShowDialog::create("这是一个历史悠久的故事", "attack_mask.png", 
+        //WebGame::GUI::ShowDialog* showDialog =
+        //  WebGame::GUI::ShowDialog::create("这是一个历史悠久的故事", "attack_mask.png",
          //     "move_background.png", 0);
-        
-        WebGame::GUI::ShowDialog* showDialog = 
+
+        WebGame::GUI::ShowDialog* showDialog =
           WebGame::GUI::ShowDialog::create("aa.json");
         showDialog->setPosition(200, 200);
         addChild(showDialog);
-  
+
         m_isMoveScreen = false;
 
         initTileSystem("1-1.tmx");
@@ -140,6 +143,8 @@ bool HelloWorld::init()
 		this->setTouchEnabled(true);
 		CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, 0, true);
 
+    generateRandomPlayers();
+
     bRet = true;
 
     CCTexture2D* tex = CCTextureCache::sharedTextureCache()->textureForKey("move_background.png");
@@ -154,17 +159,41 @@ bool HelloWorld::init()
     m_oldman = CCSprite::createWithTexture(tex, CCRect(0, 0, 48, 48));
     addChild(m_oldman);
     m_oldman->setPosition(ccp(100, 150));
+    using WebGame::MoveInfo;
     std::vector<MoveInfo> infos;
     infos.push_back(MoveInfo(MoveInfo::RIGHT, 2));
     infos.push_back(MoveInfo(MoveInfo::UP, 2));
     infos.push_back(MoveInfo(MoveInfo::LEFT, 2));
     infos.push_back(MoveInfo(MoveInfo::DOWN, 2));
-    CCActionInterval* action = moveAction("DQV (1).png", infos);
+    CCActionInterval* action = WebGame::createMoveAnimationAction("DQV (1).png", infos,
+        m_tileSize,
+        4,
+        0.04f,
+        2,
+        MoveSpeed
+        );
     m_oldman->runAction(CCRepeatForever::create(action));
 
     } while (0);
 
     return bRet;
+}
+
+void HelloWorld::generateRandomPlayers() {
+  CCSize tileSize = m_tileMap->getTileSize();
+  CCPoint pos1(4 * tileSize.width, 4 * tileSize.height);
+  CCPoint pos2(5 * tileSize.width, 8 * tileSize.height);
+
+  using WebGame::Player;
+  CCRect rect(0,0,48,48);
+  Player* p = Player::create(0, "aa", "DQV (1).png", rect);
+  addChild(p);
+  p->setPosition(pos1);
+  m_players[p->id()] = p;
+  p = Player::create(1, "bb","DQV (1).png", rect);
+  addChild(p);
+  p->setPosition(pos2);
+  m_players[p->id()] = p;
 }
 
 void HelloWorld::initTileSystem(const char* tileMapName) {
@@ -256,6 +285,11 @@ void HelloWorld::updateAllPosition() {
 
   pos = m_oldman->getPosition();
   m_oldman->setPosition(ccp(pos.x - deltaX, pos.y - deltaY));
+
+  for(auto& v : m_players) {
+    const auto& pos = v.second->getPosition();
+    v.second->setPosition(pos.x - deltaX, pos.y - deltaY);
+  }
 }
 
 void HelloWorld::ccTouchMoved(cocos2d::CCTouch* pTouch,
@@ -268,7 +302,6 @@ void HelloWorld::ccTouchMoved(cocos2d::CCTouch* pTouch,
   m_tileMap->setPosition(-m_tileWindowPosition->x() +
       m_tileWindowPosition->initX(), -m_tileWindowPosition->y() +
       m_tileWindowPosition->initY());
-
 }
 
 
@@ -285,80 +318,6 @@ CCActionInterval* HelloWorld::createRFAnimFormPng(
     animation->setDelayPerUnit(frameTime);
     CCAnimate* action = CCAnimate::create(animation);
     return CCRepeat::create(action, 2);
-}
-
-cocos2d::CCActionInterval* HelloWorld::createRFAnimFormTexture(
-        cocos2d::CCTexture2D* pTexture,
-        const MoveInfo& moveInfo,
-        const cocos2d::CCSize& frameSize,
-        int frames,
-        float frameTime) {
-  CCAnimation* animation = CCAnimation::create();
-  for( int i = 0;i < frames;i++){
-    CCRect rect(frameSize.width * i,
-        moveInfo.Direction * frameSize.height,
-        frameSize.width,
-        frameSize.height);
-    animation->addSpriteFrame(CCSpriteFrame::createWithTexture(pTexture,
-          rect));
-  }
-  animation->setDelayPerUnit(frameTime);
-  CCAnimate* action = CCAnimate::create(animation);
-  return CCRepeat::create(action, moveInfo.Step * 2);
-}
-
-cocos2d::CCActionInterval* HelloWorld::moveAction(
-        const char* baseName,
-        const std::vector<MoveInfo>& moveInfo) {
-
-  CCTexture2D* tex =  CCTextureCache::sharedTextureCache()->textureForKey(baseName);
-  CCArray* arr = CCArray::create();
-  for(int i = 0 ; i < moveInfo.size() ; ++i) {
-    CCActionInterval* act = createRFAnimFormTexture(
-        tex, moveInfo[i],
-        m_tileSize,
-        4,
-        0.04f);
-    assert(act);
-    CCActionInterval* moveStep = createMoveStep(
-        moveInfo[i]);
-    assert(moveStep);
-    CCSpawn* spawn = CCSpawn::create(act, moveStep, 0);
-    arr->addObject(spawn);
-  }
-  CCSequence* seq = CCSequence::create(arr);
-  return seq;
-}
-cocos2d::CCActionInterval* HelloWorld::createMoveStep(
-    const MoveInfo& info) {
-  CCPoint moved(0, 0);
-  switch (info.Direction) {
-    case MoveInfo::LEFT :
-      {
-        moved.x = -m_tileSize.width * info.Step;
-        break;
-      }
-    case MoveInfo::RIGHT :
-      {
-        moved.x = m_tileSize.width * info.Step;
-        break;
-      }
-    case MoveInfo::UP:
-      {
-        moved.y = m_tileSize.height * info.Step;
-        break;
-      }
-    case MoveInfo::DOWN:
-      {
-        moved.y = -m_tileSize.height * info.Step;
-        break;
-      }
-    default:
-      assert(false);
-      break;
-  }
-  CCMoveBy* moveBy = CCMoveBy::create(MoveSpeed, moved);
-  return moveBy;
 }
 
 void HelloWorld::ccTouchEnded(cocos2d::CCTouch* touch,

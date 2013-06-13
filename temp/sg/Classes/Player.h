@@ -17,21 +17,33 @@
  */
 #ifndef FND_WEBGAME_PLAYER_H
 #define FND_WEBGAME_PLAYER_H
-
+#include "cocos2d.h"
 #include <memory>
 #include <string>
 #include <vector>
+class HelloWorld;
 namespace WebGame {
   class GraphNode;
-  class Player : public std::enable_shared_from_this<Player> {
+  class Player : public cocos2d::CCNode,
+  public cocos2d::CCTouchDelegate {
     public:
-      typedef std::shared_ptr<Player> pointer;
-      typedef std::shared_ptr<const Player> const_pointer;
       const std::string& name() const { return m_name;}
       int id() const { return m_id;}
       Player(int id, const std::string& name) :
         m_id(id),
-        m_name(name) {}
+        m_name(name),
+        m_sprite(0){}
+      static Player* create(int id, const std::string& name,
+          const std::string& texName,
+          const cocos2d::CCRect& rect);
+      virtual bool init();
+
+      virtual void onEnter();
+      virtual void onExit();
+      virtual bool ccTouchBegan(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
+      virtual void ccTouchMoved(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
+      virtual void ccTouchEnded(cocos2d::CCTouch* touch, cocos2d::CCEvent* event);
+
 
       void bindNode(std::shared_ptr<GraphNode> node);
     private:
@@ -39,6 +51,8 @@ namespace WebGame {
       int m_id;
       std::string m_name;
       std::vector<std::shared_ptr<GraphNode> > m_nodes;
+      cocos2d::CCSprite* m_sprite;
+      HelloWorld* getScene();
   };
 }
 #endif

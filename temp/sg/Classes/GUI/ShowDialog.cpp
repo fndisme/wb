@@ -3,7 +3,7 @@
  *
  *       Filename:  ShowDialog.cpp
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2013/6/12 14:56:04
@@ -11,7 +11,7 @@
  *       Compiler:  gcc
  *
  *         Author:  YOUR NAME (fndisme), fndisme@163.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
@@ -48,6 +48,7 @@ THIS_CLASS* THIS_CLASS::create(const std::string& jsonFile) {
     p->release();
     return 0;
   }
+  p->setContentSize(CCSize(width, height));
   p->addChild(p->m_background);
   p->m_background->setContentSize(CCSize(width, height));
 
@@ -87,7 +88,10 @@ THIS_CLASS* THIS_CLASS::create(const std::string& jsonFile) {
 
   float scale = pt.get<float>("scale", 1.0f);
   p->setScale(scale);
-
+  anchorX = pt.get<float>("anchor_x", 0.5f);
+  anchorY = pt.get<float>("anchor_y", 0.5f);
+  //p->setAnchorPoint(ccp(anchorX, anchorY));
+  p->m_background->setAnchorPoint(ccp(anchorX, anchorY));
   p->autorelease();
   return p;
 }
@@ -96,15 +100,22 @@ THIS_CLASS* THIS_CLASS::create(const std::string& jsonFile) {
 void THIS_CLASS::onEnter() {
   CCLog("ShowDialog onEnter");
   CCDirector::sharedDirector()->
-    getTouchDispatcher()->addTargetedDelegate(this, 0, true); 
+    getTouchDispatcher()->addTargetedDelegate(this, 0, true);
 }
 void THIS_CLASS::onExit() {
   CCLog("ShowDialog onExit");
-  CCDirector::sharedDirector()->getTouchDispatcher()->removeDelegate(this); 
+  CCDirector::sharedDirector()->getTouchDispatcher()->removeDelegate(this);
 }
 bool THIS_CLASS::ccTouchBegan(CCTouch* touch, CCEvent* event) {
-  CCLog("ShowDialog ccTouchBegan");
-  return true;
+  CCPoint point =
+    this->convertTouchToNodeSpace(touch);
+  const CCSize& size = getContentSize();
+  CCLog("ShowDialog ccTouchBegan %f %f %f %f", point.x, point.y, size.width, size.height);
+  CCRect box = m_background->boundingBox();
+  int containtit = box.containsPoint(point);
+  CCLog("box %f %f %f %f %d", box.getMinX(), box.getMaxX(), box.getMinY(), box.getMaxY(),
+      containtit);
+  return box.containsPoint(point);
 }
 void THIS_CLASS::ccTouchMoved(CCTouch* touch, CCEvent* event) {
   CCLog("ShowDialog ccTouchMoved");
@@ -113,7 +124,7 @@ void THIS_CLASS::ccTouchMoved(CCTouch* touch, CCEvent* event) {
 void THIS_CLASS::ccTouchEnded(CCTouch* touch, CCEvent* event) {
   CCLog("ShowDialog ccTouchEnded");
 }
-        
+
 
 
 bool THIS_CLASS::init() {
@@ -123,4 +134,3 @@ bool THIS_CLASS::init() {
 
 
 #undef THIS_CLASS
-
