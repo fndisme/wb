@@ -22,11 +22,13 @@
 #include <string>
 #include <vector>
 #include "PlayerMeta.h"
+#include "Weapon.h"
 
 class HelloWorld;
 namespace WebGame {
   class Weapon;
   class GraphNode;
+  class BagObject;
   class Player : public cocos2d::CCNode,
   public cocos2d::CCTouchDelegate {
     public:
@@ -57,7 +59,7 @@ namespace WebGame {
           m_canRevert = false;
         }
       }
-      const PhysicsWeapon* currentWeapon() const {
+      const Weapon* currentWeapon() const {
         return m_currentWeapon;
       }
       bool isBagFull() const;
@@ -73,7 +75,7 @@ namespace WebGame {
       PlayerMeta m_meta;
       PlayerMeta m_oldMeta;
       bool m_canRevert;
-      PhysicsWeapon* m_currentWeapon;
+      Weapon* m_currentWeapon;
   };
 }
 #endif

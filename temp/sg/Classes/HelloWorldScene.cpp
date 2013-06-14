@@ -226,14 +226,14 @@ void HelloWorld::initImages() {
   CCTextureCache::sharedTextureCache()->addImage("DQV (1).png");
 }
 
-void HelloWorld::createMask(int x, int y, int step) {
+void HelloWorld::createMask(int x, int y, WebGame::Player* p) {
   if(m_tileMask) removeChild(m_tileMask);
   if(m_attackMask) removeChild(m_attackMask);
 
   CCTexture2D* tex =  CCTextureCache::sharedTextureCache()->textureForKey("move_background.png");
   CCTexture2D* texAttack = CCTextureCache::sharedTextureCache()->textureForKey("attack_mask.png");
   assert(tex);
-  WebGame::GraphBFSFill<WebGame::SparseGraph> f(*m_graph, m_graph->node(x,y)->index(), step, weaponId);
+  WebGame::GraphBFSFill<WebGame::SparseGraph> f(*m_graph, m_graph->node(x,y)->index(), p->meta().MoveStep);
   CCLog("create mask %d %d", x, y);
   auto nodes = f.canMoveToNode();
   std::vector<CCPoint> tilePos;
@@ -329,13 +329,13 @@ CCActionInterval* HelloWorld::createRFAnimFormPng(
     return CCRepeat::create(action, 2);
 }
 
-void HelloWorld::showMaskInMap(const CCPoint& viewPoint, int step) {
+void HelloWorld::showMaskInMap(const CCPoint& viewPoint, WebGame::Player* p) {
   CCSize winSize = CCDirector::sharedDirector()->getWinSize();
   // FIXME has bug in next line
   if(m_showMapRect.containsPoint(viewPoint)) {
     CCPoint pos = m_tileWindowPosition->
       getTilePositon(viewPoint.x, winSize.height - viewPoint.y);
-    createMask(pos.x, pos.y, step);
+    createMask(pos.x, pos.y, p);
   }
 }
 

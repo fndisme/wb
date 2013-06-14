@@ -39,7 +39,7 @@ class HelloWorld : public cocos2d::CCLayer {
         cocos2d::CCEvent* pEvent) {
       return true;
     }
-    void showMaskInMap(const cocos2d::CCPoint& viewPoint);
+    void showMaskInMap(const cocos2d::CCPoint& viewPoint, WebGame::Player* player);
 
   private:
     cocos2d::CCTMXTiledMap* m_tileMap;
@@ -60,7 +60,7 @@ class HelloWorld : public cocos2d::CCLayer {
     WebGame::TileMask* m_tileMask;
     WebGame::TileMask* m_attackMask;
     bool m_isMoveScreen;
-    void createMask(int x, int y, int step);
+    void createMask(int x, int y, WebGame::Player* p);
     void initImages();
     cocos2d::CCRect m_showMapRect;
     float m_scale;

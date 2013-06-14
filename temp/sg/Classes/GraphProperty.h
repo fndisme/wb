@@ -39,7 +39,7 @@ namespace WebGame {
       void addAttackType(int type, AttackNeighbourType const& info) {
         m_attackRange.insert(std::make_pair(type, info));
       }
-      bool hasAttackType(int type) const { return m_attackRange.count(type);}
+      bool hasAttackType(int type) const { return m_attackRange.count(type) == 1;}
       const AttackNeighbourType& attackType(int type) const {
         std::map<int,AttackNeighbourType>::const_iterator iter = m_attackRange.find(type);
         return (*iter).second;

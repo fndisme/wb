@@ -55,7 +55,7 @@ namespace WebGame {
   }
 
   void Player::ccTouchEnded(CCTouch* touch, CCEvent* event) {
-    getScene()->showMaskInMap(touch->getLocationInView(), m_currentWeapon->id());
+    getScene()->showMaskInMap(touch->getLocationInView(), this);
   }
 
   bool Player::ccTouchBegan(CCTouch* touch, CCEvent* event) {
