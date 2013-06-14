@@ -194,12 +194,14 @@ void HelloWorld::generateRandomPlayers() {
   using WebGame::Player;
   CCRect rect(0,0,48,48);
   Player* p = Player::create(0, "aa", "DQV (1).png", rect);
+  p->setMeta(*(m_gameProperty->playerMeta(1)));
   addChild(p);
   p->setPosition(pos1);
   m_players[p->id()] = p;
   p = Player::create(1, "bb","DQV (1).png", rect);
   addChild(p);
   p->setPosition(pos2);
+  p->setMeta(*(m_gameProperty->playerMeta(2)));
   m_players[p->id()] = p;
 }
 
@@ -224,14 +226,14 @@ void HelloWorld::initImages() {
   CCTextureCache::sharedTextureCache()->addImage("DQV (1).png");
 }
 
-void HelloWorld::createMask(int x, int y) {
+void HelloWorld::createMask(int x, int y, int step) {
   if(m_tileMask) removeChild(m_tileMask);
   if(m_attackMask) removeChild(m_attackMask);
 
   CCTexture2D* tex =  CCTextureCache::sharedTextureCache()->textureForKey("move_background.png");
   CCTexture2D* texAttack = CCTextureCache::sharedTextureCache()->textureForKey("attack_mask.png");
   assert(tex);
-  WebGame::GraphBFSFill<WebGame::SparseGraph> f(*m_graph, m_graph->node(x,y)->index(), 0);
+  WebGame::GraphBFSFill<WebGame::SparseGraph> f(*m_graph, m_graph->node(x,y)->index(), step, weaponId);
   CCLog("create mask %d %d", x, y);
   auto nodes = f.canMoveToNode();
   std::vector<CCPoint> tilePos;
@@ -327,16 +329,26 @@ CCActionInterval* HelloWorld::createRFAnimFormPng(
     return CCRepeat::create(action, 2);
 }
 
+void HelloWorld::showMaskInMap(const CCPoint& viewPoint, int step) {
+  CCSize winSize = CCDirector::sharedDirector()->getWinSize();
+  // FIXME has bug in next line
+  if(m_showMapRect.containsPoint(viewPoint)) {
+    CCPoint pos = m_tileWindowPosition->
+      getTilePositon(viewPoint.x, winSize.height - viewPoint.y);
+    createMask(pos.x, pos.y, step);
+  }
+}
+
 void HelloWorld::ccTouchEnded(cocos2d::CCTouch* touch,
 		    cocos2d::CCEvent* pEvent) {
   if(!m_isMoveScreen) {
-    CCPoint location = touch->getLocationInView();
-    CCSize winSize = CCDirector::sharedDirector()->getWinSize();
-    if(m_showMapRect.containsPoint(location)) {
-      CCPoint pos =
-        m_tileWindowPosition->getTilePositon(location.x, winSize.height - location.y);
-      createMask(pos.x, pos.y);
-    }
+//    CCPoint location = touch->getLocationInView();
+//    CCSize winSize = CCDirector::sharedDirector()->getWinSize();
+//    if(m_showMapRect.containsPoint(location)) {
+//      CCPoint pos =
+//        m_tileWindowPosition->getTilePositon(location.x, winSize.height - location.y);
+//      createMask(pos.x, pos.y);
+//    }
   } else {
     m_isMoveScreen = false;
   }

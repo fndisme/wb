@@ -22,8 +22,10 @@
 #include <string>
 #include <vector>
 #include "PlayerMeta.h"
+
 class HelloWorld;
 namespace WebGame {
+  class Weapon;
   class GraphNode;
   class Player : public cocos2d::CCNode,
   public cocos2d::CCTouchDelegate {
@@ -47,7 +49,7 @@ namespace WebGame {
 
 
       void bindNode(std::shared_ptr<GraphNode> node);
-      void setMeta(const PlayerMeta& meta) { m_meta = meta;}
+      void setMeta(const PlayerMeta& meta) { m_meta = meta; m_oldMeta = meta;}
       const PlayerMeta& meta() const { return m_meta;}
       void revertMeta() {
         if(m_canRevert) {
@@ -55,6 +57,12 @@ namespace WebGame {
           m_canRevert = false;
         }
       }
+      const PhysicsWeapon* currentWeapon() const {
+        return m_currentWeapon;
+      }
+      bool isBagFull() const;
+      void pushBagObject(BagObject* object);
+      void exchangeBag(int lhs, int rhs);
     private:
       bool hasNode(const std::shared_ptr<GraphNode>& node) const;
       int m_id;
@@ -65,6 +73,7 @@ namespace WebGame {
       PlayerMeta m_meta;
       PlayerMeta m_oldMeta;
       bool m_canRevert;
+      PhysicsWeapon* m_currentWeapon;
   };
 }
 #endif

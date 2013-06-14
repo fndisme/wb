@@ -14,9 +14,8 @@ namespace WebGame {
   class GameProperty;
 }
 
-class HelloWorld : public cocos2d::CCLayer
-{
-public:
+class HelloWorld : public cocos2d::CCLayer {
+  public:
     // Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
     virtual bool init();
 
@@ -33,17 +32,16 @@ public:
     CREATE_FUNC(HelloWorld);
 
     void ccTouchEnded(cocos2d::CCTouch* pTouch,
-		    cocos2d::CCEvent* pEvent);
+        cocos2d::CCEvent* pEvent);
     void ccTouchMoved(cocos2d::CCTouch* pTouch,
-		    cocos2d::CCEvent* pEvent);
+        cocos2d::CCEvent* pEvent);
     bool ccTouchBegan(cocos2d::CCTouch* pTouch,
-		    cocos2d::CCEvent* pEvent) {
+        cocos2d::CCEvent* pEvent) {
       return true;
     }
+    void showMaskInMap(const cocos2d::CCPoint& viewPoint);
 
-
-
-private:
+  private:
     cocos2d::CCTMXTiledMap* m_tileMap;
     cocos2d::CCTMXLayer* m_background;
     cocos2d::CCSprite* m_tileMoveBackgroud;
@@ -62,7 +60,7 @@ private:
     WebGame::TileMask* m_tileMask;
     WebGame::TileMask* m_attackMask;
     bool m_isMoveScreen;
-    void createMask(int x, int y);
+    void createMask(int x, int y, int step);
     void initImages();
     cocos2d::CCRect m_showMapRect;
     float m_scale;
@@ -71,6 +69,8 @@ private:
     void initGameProperty();
     std::map<int,WebGame::Player*> m_players;
     void generateRandomPlayers();
+
 };
+
 
 #endif  // __HELLOWORLD_SCENE_H__
