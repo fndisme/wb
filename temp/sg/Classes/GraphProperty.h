@@ -21,6 +21,7 @@
 #include <map>
 #include <vector>
 #include "Terrain.h"
+#include "Weapon.h"
 namespace WebGame {
   class GraphProperty {
     public:
@@ -50,7 +51,7 @@ namespace WebGame {
     private:
       std::map<int, AttackNeighbourType> m_attackRange;
       std::map<int, Terrain> m_terrainMeta;
-
+      std::vector<PhysicsWeapon> m_weapons;
   };
 }
 #endif

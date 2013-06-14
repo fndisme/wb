@@ -1,0 +1,4 @@
+id	type	rank	level	physics_attack	physics_defence	energy_attack	energy_defence	magic_attack	magic_defence	power	blood	lucky	skill	kill_skill	can_used_weapon	speed	move_step	evade	physics_attack_growth_rate	physics_defence_growth_rate	energy_attack_growth_rate	energy_defence_growth_rate	magic_attack_growth_rate	magic_defence_growth_rate	power_growth_rate	blood_growth_rate	lucky_growth_rate	skill_growth_rate	kill_skill_growth_rate	speed_growth_rate	evade_growth_rate
+number	number	number	number	number	number	number	number	number	number	number	number	number	number	number	number	number	number	number	number	number	number	number	number	number	number	number	number	number	number	number	number
+1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	4	19	20	21	22	23	24	25	26	27	28	29	30	31	32
+2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	5	20	21	22	23	24	25	26	27	28	29	30	31	32	33

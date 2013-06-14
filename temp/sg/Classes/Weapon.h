@@ -3,7 +3,7 @@
  *
  *       Filename:  Weapon.h
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2013/6/13 20:34:23
@@ -11,7 +11,7 @@
  *       Compiler:  gcc
  *
  *         Author:  YOUR NAME (fndisme), fndisme@163.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
@@ -23,7 +23,7 @@ namespace WebGame {
   struct PhysicsWeapon {
     int Type;
     int Id;
-    int Rand;
+    int Rank;
     int HitRate;
     int Power;
     int KillRate;
@@ -39,6 +39,18 @@ namespace WebGame {
 
   std::vector<PhysicsWeapon> loadWeapons(
       const std::string& weapon);
+  class Weapon {
+    public:
+      Weapon(const PhysicsWeapon& meta, int endure) :
+        m_meta(meta),
+        m_endudre(endure) {}
+      int endure() const { return m_endudre;}
+      bool isValid() const { return m_endudre > 0;}
+      void consume() { m_endudre --; }
+      const PhysicsWeapon& meta() const { return m_meta;}
+    private:
+      PhysicsWeapon m_meta;
+      int m_endudre;
+  };
 }
 #endif
-

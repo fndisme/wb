@@ -63,10 +63,12 @@ namespace WebGame {
     neighbour.push_back(std::make_pair(-2, -1));
     neighbour.push_back(std::make_pair(-3, 0));
     property.addAttackType(SENIOR_ARROWMAN, neighbour);
+
+    property.m_weapons = loadWeapons("weapons.json");
     return property;
   }
 
   GraphProperty GraphProperty::buildFromFile(const std::string& fileName) {
-
+    return GraphProperty();
   }
 }

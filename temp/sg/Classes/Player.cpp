@@ -35,6 +35,7 @@ namespace WebGame {
     CCTexture2D* tex = CCTextureCache::sharedTextureCache()->textureForKey(texName.c_str());
     p->m_sprite = CCSprite::createWithTexture(tex, rect);
     p->addChild(p->m_sprite);
+    p->m_canRevert = true;
     return p;
   }
 

@@ -128,6 +128,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Classes\AppDelegate.h" />
+    <ClInclude Include="..\Classes\GameProperty.h" />
     <ClInclude Include="..\Classes\GraphBFSFill.h" />
     <ClInclude Include="..\Classes\GraphDFSSearch.h" />
     <ClInclude Include="..\Classes\GraphEdge.h" />
@@ -136,25 +137,30 @@
     <ClInclude Include="..\Classes\GUI\ShowDialog.h" />
     <ClInclude Include="..\Classes\HelloWorldScene.h" />
     <ClInclude Include="..\Classes\Player.h" />
+    <ClInclude Include="..\Classes\PlayerMeta.h" />
     <ClInclude Include="..\Classes\SparseGraph.h" />
     <ClInclude Include="..\Classes\SpritePool.h" />
     <ClInclude Include="..\Classes\TileMask.h" />
     <ClInclude Include="..\Classes\TileWindowPosition.h" />
     <ClInclude Include="..\Classes\utility\MakeAnimation.h" />
+    <ClInclude Include="..\Classes\Weapon.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Classes\AppDelegate.cpp" />
+    <ClCompile Include="..\Classes\GameProperty.cpp" />
     <ClCompile Include="..\Classes\GraphNode.cpp" />
     <ClCompile Include="..\Classes\GraphProperty.cpp" />
     <ClCompile Include="..\Classes\GUI\ShowDialog.cpp" />
     <ClCompile Include="..\Classes\HelloWorldScene.cpp" />
     <ClCompile Include="..\Classes\Player.cpp" />
+    <ClCompile Include="..\Classes\PlayerMeta.cpp" />
     <ClCompile Include="..\Classes\SparseGraph.cpp" />
     <ClCompile Include="..\Classes\TileMask.cpp" />
     <ClCompile Include="..\Classes\TileWindowPosition.cpp" />
     <ClCompile Include="..\Classes\utility\MakeAnimation.cpp" />
+    <ClCompile Include="..\Classes\Weapon.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

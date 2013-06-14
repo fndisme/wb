@@ -9,6 +9,7 @@
 #include "GUI/ShowDialog.h"
 #include "utility/MakeAnimation.h"
 #include "Player.h"
+#include "GameProperty.h"
 
 using namespace cocos2d;
 static const float MoveSpeed(0.8f);
@@ -104,6 +105,7 @@ bool HelloWorld::init()
 //        this->addChild(pSprite, 0);
 //
 //
+        initGameProperty();
         initImages();
 
 
@@ -177,6 +179,11 @@ bool HelloWorld::init()
     } while (0);
 
     return bRet;
+}
+
+void HelloWorld::initGameProperty() {
+  m_gameProperty = std::make_shared<WebGame::GameProperty>();
+  m_gameProperty->initPlayerMetaFromFile("playerMetas.json");
 }
 
 void HelloWorld::generateRandomPlayers() {

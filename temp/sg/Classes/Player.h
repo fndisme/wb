@@ -21,6 +21,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "PlayerMeta.h"
 class HelloWorld;
 namespace WebGame {
   class GraphNode;
@@ -46,6 +47,14 @@ namespace WebGame {
 
 
       void bindNode(std::shared_ptr<GraphNode> node);
+      void setMeta(const PlayerMeta& meta) { m_meta = meta;}
+      const PlayerMeta& meta() const { return m_meta;}
+      void revertMeta() {
+        if(m_canRevert) {
+          m_meta = m_oldMeta;
+          m_canRevert = false;
+        }
+      }
     private:
       bool hasNode(const std::shared_ptr<GraphNode>& node) const;
       int m_id;
@@ -53,6 +62,9 @@ namespace WebGame {
       std::vector<std::shared_ptr<GraphNode> > m_nodes;
       cocos2d::CCSprite* m_sprite;
       HelloWorld* getScene();
+      PlayerMeta m_meta;
+      PlayerMeta m_oldMeta;
+      bool m_canRevert;
   };
 }
 #endif

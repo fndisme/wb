@@ -1,0 +1,190 @@
+{
+	"data" : [
+		{
+		"type" : 1,
+		"id" : 1,
+		"rank" : 1,
+		"hit_rate" : 50,
+		"power" : 50,
+		"kill_rate" : 50,
+		"low_range" : 1,
+		"high_range" : 1,
+		"weight" : 1,
+		"endure" : 15,
+		"price" : 100,
+		"name" : "a",
+		"picture_name" : "aa",
+		"description" : "good"
+		}
+		,
+		{
+		"type" : 1,
+		"id" : 2,
+		"rank" : 1,
+		"hit_rate" : 50,
+		"power" : 50,
+		"kill_rate" : 50,
+		"low_range" : 1,
+		"high_range" : 1,
+		"weight" : 2,
+		"endure" : 16,
+		"price" : 101,
+		"name" : "a",
+		"picture_name" : "aa",
+		"description" : "good"
+		}
+		,
+		{
+		"type" : 1,
+		"id" : 3,
+		"rank" : 1,
+		"hit_rate" : 50,
+		"power" : 50,
+		"kill_rate" : 50,
+		"low_range" : 1,
+		"high_range" : 2,
+		"weight" : 3,
+		"endure" : 17,
+		"price" : 102,
+		"name" : "a",
+		"picture_name" : "aa",
+		"description" : "good"
+		}
+		,
+		{
+		"type" : 1,
+		"id" : 4,
+		"rank" : 1,
+		"hit_rate" : 50,
+		"power" : 50,
+		"kill_rate" : 50,
+		"low_range" : 1,
+		"high_range" : 1,
+		"weight" : 4,
+		"endure" : 18,
+		"price" : 103,
+		"name" : "a",
+		"picture_name" : "aa",
+		"description" : "good"
+		}
+		,
+		{
+		"type" : 1,
+		"id" : 5,
+		"rank" : 1,
+		"hit_rate" : 50,
+		"power" : 50,
+		"kill_rate" : 50,
+		"low_range" : 1,
+		"high_range" : 1,
+		"weight" : 5,
+		"endure" : 19,
+		"price" : 104,
+		"name" : "a",
+		"picture_name" : "aa",
+		"description" : "good"
+		}
+		,
+		{
+		"type" : 1,
+		"id" : 6,
+		"rank" : 1,
+		"hit_rate" : 50,
+		"power" : 50,
+		"kill_rate" : 50,
+		"low_range" : 1,
+		"high_range" : 1,
+		"weight" : 6,
+		"endure" : 20,
+		"price" : 105,
+		"name" : "a",
+		"picture_name" : "aa",
+		"description" : "good"
+		}
+		,
+		{
+		"type" : 1,
+		"id" : 7,
+		"rank" : 1,
+		"hit_rate" : 50,
+		"power" : 50,
+		"kill_rate" : 50,
+		"low_range" : 1,
+		"high_range" : 1,
+		"weight" : 7,
+		"endure" : 21,
+		"price" : 106,
+		"name" : "a",
+		"picture_name" : "aa",
+		"description" : "good"
+		}
+		,
+		{
+		"type" : 1,
+		"id" : 8,
+		"rank" : 1,
+		"hit_rate" : 50,
+		"power" : 50,
+		"kill_rate" : 50,
+		"low_range" : 1,
+		"high_range" : 1,
+		"weight" : 8,
+		"endure" : 22,
+		"price" : 107,
+		"name" : "a",
+		"picture_name" : "aa",
+		"description" : "good"
+		}
+		,
+		{
+		"type" : 1,
+		"id" : 9,
+		"rank" : 1,
+		"hit_rate" : 50,
+		"power" : 50,
+		"kill_rate" : 50,
+		"low_range" : 1,
+		"high_range" : 1,
+		"weight" : 9,
+		"endure" : 23,
+		"price" : 108,
+		"name" : "a",
+		"picture_name" : "aa",
+		"description" : "good"
+		}
+		,
+		{
+		"type" : 1,
+		"id" : 10,
+		"rank" : 1,
+		"hit_rate" : 50,
+		"power" : 50,
+		"kill_rate" : 50,
+		"low_range" : 1,
+		"high_range" : 1,
+		"weight" : 10,
+		"endure" : 24,
+		"price" : 109,
+		"name" : "a",
+		"picture_name" : "aa",
+		"description" : "good"
+		}
+		,
+		{
+		"type" : 1,
+		"id" : 11,
+		"rank" : 1,
+		"hit_rate" : 50,
+		"power" : 50,
+		"kill_rate" : 50,
+		"low_range" : 1,
+		"high_range" : 1,
+		"weight" : 11,
+		"endure" : 25,
+		"price" : 110,
+		"name" : "a",
+		"picture_name" : "aa",
+		"description" : "good"
+		}
+	]
+}

@@ -11,6 +11,7 @@ namespace WebGame {
   class SpritePool;
   class TileMask;
   class Player;
+  class GameProperty;
 }
 
 class HelloWorld : public cocos2d::CCLayer
@@ -49,6 +50,7 @@ private:
     cocos2d::CCSprite* m_oldman;
     std::shared_ptr<WebGame::SparseGraph> m_graph;
     std::shared_ptr<WebGame::TileWindowPosition> m_tileWindowPosition;
+    std::shared_ptr<WebGame::GameProperty> m_gameProperty;
 
     cocos2d::CCActionInterval* createRFAnimFormPng(
         cocos2d::CCTexture2D* pTexture,
@@ -66,6 +68,7 @@ private:
     float m_scale;
     cocos2d::CCSize m_tileSize;
     void initTileSystem(const char*);
+    void initGameProperty();
     std::map<int,WebGame::Player*> m_players;
     void generateRandomPlayers();
 };

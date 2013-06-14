@@ -82,6 +82,15 @@
     <ClInclude Include="..\Classes\utility\MakeAnimation.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\Classes\Weapon.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\PlayerMeta.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\GameProperty.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -115,6 +124,15 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\Classes\utility\MakeAnimation.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\Weapon.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\PlayerMeta.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\GameProperty.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
