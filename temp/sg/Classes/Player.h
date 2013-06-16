@@ -37,7 +37,8 @@ namespace WebGame {
       Player(int id, const std::string& name) :
         m_id(id),
         m_name(name),
-        m_sprite(0){}
+        m_sprite(0),
+        m_isMoveScreen(false){}
       static Player* create(int id, const std::string& name,
           const std::string& texName,
           const cocos2d::CCRect& rect);
@@ -76,6 +77,7 @@ namespace WebGame {
       PlayerMeta m_oldMeta;
       bool m_canRevert;
       Weapon* m_currentWeapon;
+      bool m_isMoveScreen;
   };
 }
 #endif

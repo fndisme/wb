@@ -29,7 +29,11 @@ namespace WebGame {
             const cocos2d::CCPoint& mapPos,
             const cocos2d::CCSize& tileSize,
             float scale,
-            const std::vector<cocos2d::CCPoint>& tilepos);
+            std::vector<cocos2d::CCPoint>&& tilepos);
+      bool hasPosition(const cocos2d::CCPoint& pos) const;
+    private:
+      cocos2d::CCPoint m_mapPosition;
+      std::vector<cocos2d::CCPoint> m_tilePositions;
   };
 }
 #endif

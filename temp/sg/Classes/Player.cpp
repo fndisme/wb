@@ -49,13 +49,16 @@ namespace WebGame {
   }
 
   void Player::ccTouchMoved(CCTouch* touch, CCEvent* event) {
+    m_isMoveScreen = true;
     if(auto scene = getScene()) {
       scene->ccTouchMoved(touch, event);
     }
   }
 
   void Player::ccTouchEnded(CCTouch* touch, CCEvent* event) {
-    getScene()->showMaskInMap(touch->getLocationInView(), this);
+    if(!m_isMoveScreen)
+      getScene()->showMaskInMap(touch->getLocationInView(), this);
+    m_isMoveScreen = false;
   }
 
   bool Player::ccTouchBegan(CCTouch* touch, CCEvent* event) {

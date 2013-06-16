@@ -25,8 +25,10 @@ namespace WebGame {
         const cocos2d::CCPoint& mapPos,
         const cocos2d::CCSize& tileSize,
         float scale,
-        const std::vector<cocos2d::CCPoint>& tilepos) {
+        std::vector<cocos2d::CCPoint>&& tilepos) {
       TileMask* mask = new TileMask();
+      mask->m_mapPosition = mapPos;
+      mask->m_tilePositions = std::move(tilepos);
       mask->autorelease();
       mask->setPosition(pos);
       mask->setAnchorPoint(ccp(0.0,0.0));
@@ -41,4 +43,10 @@ namespace WebGame {
       }
       return mask;
     }
+
+  bool TileMask::hasPosition(const cocos2d::CCPoint& pos) const {
+    return true;
+  }
+
+
 }

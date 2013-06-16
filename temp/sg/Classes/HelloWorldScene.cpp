@@ -195,11 +195,11 @@ void HelloWorld::generateRandomPlayers() {
   CCRect rect(0,0,48,48);
   Player* p = Player::create(0, "aa", "DQV (1).png", rect);
   p->setMeta(*(m_gameProperty->playerMeta(1)));
-  addChild(p);
+  addChild(p, 10);
   p->setPosition(pos1);
   m_players[p->id()] = p;
   p = Player::create(1, "bb","DQV (1).png", rect);
-  addChild(p);
+  addChild(p, 10);
   p->setPosition(pos2);
   p->setMeta(*(m_gameProperty->playerMeta(2)));
   m_players[p->id()] = p;
@@ -260,7 +260,7 @@ void HelloWorld::createMask(int x, int y, WebGame::Player* p) {
       ccp(x,y),
       m_tileSize,
       m_scale,
-      tilePos);
+      std::move(tilePos));
   addChild(m_tileMask);
 
   m_attackMask = WebGame::TileMask::create(
@@ -269,7 +269,7 @@ void HelloWorld::createMask(int x, int y, WebGame::Player* p) {
       ccp(x,y),
       m_tileSize,
       m_scale,
-      infPos);
+      std::move(infPos));
   addChild(m_attackMask);
 }
 
@@ -332,28 +332,42 @@ CCActionInterval* HelloWorld::createRFAnimFormPng(
 void HelloWorld::showMaskInMap(const CCPoint& viewPoint, WebGame::Player* p) {
   CCSize winSize = CCDirector::sharedDirector()->getWinSize();
   // FIXME has bug in next line
-  if(m_showMapRect.containsPoint(viewPoint)) {
-    CCPoint pos = m_tileWindowPosition->
-      getTilePositon(viewPoint.x, winSize.height - viewPoint.y);
-    createMask(pos.x, pos.y, p);
-  }
+  //if(m_showMapRect.containsPoint(viewPoint)) {
+  m_currentPlayer = p;
+  CCPoint pos = m_tileWindowPosition->
+    getTilePositon(viewPoint.x, winSize.height - viewPoint.y);
+  createMask(pos.x, pos.y, p);
+ // }
 }
 
 void HelloWorld::ccTouchEnded(cocos2d::CCTouch* touch,
 		    cocos2d::CCEvent* pEvent) {
   if(!m_isMoveScreen) {
-//    CCPoint location = touch->getLocationInView();
-//    CCSize winSize = CCDirector::sharedDirector()->getWinSize();
-//    if(m_showMapRect.containsPoint(location)) {
-//      CCPoint pos =
-//        m_tileWindowPosition->getTilePositon(location.x, winSize.height - location.y);
-//      createMask(pos.x, pos.y);
-//    }
+    if(checkInMoveMask(touch->getLocationInView())) {
+      
+    }
+
   } else {
     m_isMoveScreen = false;
   }
+}
 
-//
+cocos2d::CCPoint HelloWorld::viewPointToMapPos(const cocos2d::CCPoint& pointInView) {
+
+  const CCSize& winSize = CCDirector::sharedDirector()->getWinSize();
+  return m_tileWindowPosition->
+    getTilePositon(pointInView.x, winSize.height - pointInView.y);
+}
+
+bool HelloWorld::checkInMoveMask(const cocos2d::CCPoint& pointInView) {
+
+  if(m_showMapRect.containsPoint(pointInView)) {
+    if(m_currentPlayer && m_tileMask) {
+      auto pos = viewPointToMapPos(pointInView);
+      return m_tileMask->hasPosition(pos);
+    }
+  }
+  return false;
 }
 
 

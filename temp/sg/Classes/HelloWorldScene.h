@@ -56,6 +56,9 @@ class HelloWorld : public cocos2d::CCLayer {
         int frames,
         float frameTime);
 
+
+    cocos2d::CCPoint viewPointToMapPos(const cocos2d::CCPoint& pointInView);
+    bool checkInMoveMask(const cocos2d::CCPoint& pointInView);
     void updateAllPosition();
     WebGame::TileMask* m_tileMask;
     WebGame::TileMask* m_attackMask;
@@ -69,6 +72,7 @@ class HelloWorld : public cocos2d::CCLayer {
     void initGameProperty();
     std::map<int,WebGame::Player*> m_players;
     void generateRandomPlayers();
+    WebGame::Player* m_currentPlayer;
 
 };
 
