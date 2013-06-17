@@ -51,7 +51,7 @@ class HelloWorld : public cocos2d::CCLayer {
     };
     bool inCanChooseState() const;
     cocos2d::CCTMXTiledMap* m_tileMap;
-    cocos2d::CCTMXLayer* m_background;
+    //cocos2d::CCTMXLayer* m_background;
     cocos2d::CCSprite* m_tileMoveBackgroud;
     cocos2d::CCSprite* m_oldman;
     std::shared_ptr<WebGame::SparseGraph> m_graph;
@@ -85,6 +85,7 @@ class HelloWorld : public cocos2d::CCLayer {
     void inPlayerMoveState(const cocos2d::CCPoint& position);
     int m_currentState;
     void createMap(const char* fileName);
+    cocos2d::CCSprite* m_background;
 };
 
 

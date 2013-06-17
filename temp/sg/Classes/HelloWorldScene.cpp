@@ -13,7 +13,6 @@
 
 using namespace cocos2d;
 static const float MoveSpeed(0.8f);
-
 HelloWorld::HelloWorld() :
   m_tileMap(0),
   m_background(0),
@@ -136,6 +135,8 @@ bool HelloWorld::init()
               showSize,
               windowSize,
               ccp(0.5f, 0.5f))); // point in window (0 -- 1)
+    m_background->setTextureRect(m_tileWindowPosition->renderRect());
+    m_background->setScale(1/m_scale);
 		this->setTouchEnabled(true);
 		CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, 0, true);
 
@@ -181,7 +182,7 @@ void HelloWorld::initGameProperty() {
   m_gameProperty = std::make_shared<WebGame::GameProperty>();
   m_gameProperty->initPlayerMetaFromFile("playerMetas.json");
   CCSize windowSize = CCDirector::sharedDirector()->getWinSize();
-  m_scale =  windowSize.width / 960.0f;
+  m_scale =  windowSize.width / 640.0f;
 }
 
 void HelloWorld::generateRandomPlayers() {
@@ -213,8 +214,12 @@ void HelloWorld::createMap(const char* mapName) {
   m_tileSizeWithScale =
     CCSize(m_tileMap->getTileSize().width * m_scale,
         m_tileMap->getTileSize().height * m_scale);
-  addChild(m_tileMap, -1);
-  m_background = m_tileMap->layerNamed("Ground");
+  m_background = CCSprite::create("1-1.png");
+  m_background->setPosition(ccp(windowSize.width/2, windowSize.height/2));
+  m_background->setAnchorPoint(ccp(0.5f, 0.5f));
+  addChild(m_background, -1);
+  //addChild(m_tileMap, -1);
+  //m_background = m_tileMap->layerNamed("Ground");
 
 //  CCObject* pObj = NULL;
 //  CCARRAY_FOREACH(m_tileMap->getChildren(), pObj)
@@ -298,7 +303,10 @@ void HelloWorld::updateAllPosition() {
   int y = -m_tileWindowPosition->y();
   int deltaX = m_tileWindowPosition->deltaX();
   int deltaY = m_tileWindowPosition->deltaY();
-  m_tileMap->setPosition(x + m_tileWindowPosition->initX(), y + m_tileWindowPosition->initY());
+  //m_tileMap->setPosition(x + m_tileWindowPosition->initX(), y + m_tileWindowPosition->initY());
+  //m_background->setPosition(ccp(x + m_tileWindowPosition->initX(), y + m_tileWindowPosition->initY()));
+  //auto rect = m_tileWindowPosition->renderRect();
+  //m_background->setTextureRect(m_tileWindowPosition->renderRect());
 
   CCPoint pos = m_tileMoveBackgroud->getPosition();
   m_tileMoveBackgroud->setPosition(ccp(pos.x - deltaX, pos.y - deltaY));
@@ -327,10 +335,7 @@ void HelloWorld::ccTouchMoved(cocos2d::CCTouch* pTouch,
   CCPoint delta = pTouch->getDelta();
   m_tileWindowPosition->moveDelta(-delta.x, -delta.y);
   updateAllPosition();
-  const CCPoint& pos = m_tileMap->getPosition();
-  m_tileMap->setPosition(-m_tileWindowPosition->x() +
-      m_tileWindowPosition->initX(), -m_tileWindowPosition->y() +
-      m_tileWindowPosition->initY());
+  m_background->setTextureRect(m_tileWindowPosition->renderRect());
 }
 
 

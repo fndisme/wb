@@ -93,6 +93,11 @@ namespace WebGame {
               mapSize.height * tileSize.height),
           m_initPos(initPos.x * windowSize.width, initPos.y * windowSize.height),
           m_normalizedInitPosition(initPos){}
+      cocos2d::CCRect renderRect() const {
+        return cocos2d::CCRect( m_initPos.x - x() - m_viewSize.width / 2,
+            m_initPos.y - y() - m_viewSize.height / 2,
+            m_viewSize.width, m_viewSize.height);
+      }
 
       cocos2d::CCPoint getTilePositon(int posX, int posY) const {
         assert(posX >= windowLeft());
