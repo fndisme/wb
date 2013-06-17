@@ -56,8 +56,17 @@ namespace WebGame {
 
         //bool hasRoute() const { return m_hasRoute;}
 
-        std::list<int> pathToTarget()  const {
-          std::list<int> path;
+        std::vector<int> pathToTarget(int target)  const {
+
+          std::vector<int> path;
+          if(target < 0 || target >= static_cast<int>(m_parant.size())) return path;
+          int nd = target;
+          path.push_back(nd);
+          while (nd != m_source) {
+            nd = m_parant[nd];
+            path.push_back(nd);
+          }
+
           return path;
         }
 

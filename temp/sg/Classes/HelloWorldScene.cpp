@@ -14,7 +14,8 @@
 using namespace cocos2d;
 static const float MoveSpeed(0.8f);
 
-HelloWorld::HelloWorld() : m_tileMap(0),
+HelloWorld::HelloWorld() :
+  m_tileMap(0),
   m_background(0),
   m_tileMoveBackgroud(0){}
 
@@ -108,40 +109,33 @@ bool HelloWorld::init()
         initGameProperty();
         initImages();
 
-
-//        CCScale9Sprite* tes = CCScale9Sprite::create("attack_mask.png", CCRect(0, 0, 200, 200), CCRect(10, 10, 10, 10));
-//        tes->setPosition(ccp(150, 150));
-//        addChild(tes);
-        //WebGame::GUI::ShowDialog* showDialog =
-        //  WebGame::GUI::ShowDialog::create("这是一个历史悠久的故事", "attack_mask.png",
-         //     "move_background.png", 0);
-
-        WebGame::GUI::ShowDialog* showDialog =
-          WebGame::GUI::ShowDialog::create("aa.json");
-        showDialog->setPosition(200, 200);
-        addChild(showDialog);
-
-        m_isMoveScreen = false;
-
+//        WebGame::GUI::ShowDialog* showDialog =
+//          WebGame::GUI::ShowDialog::create("aa.json");
+//        showDialog->setPosition(200, 200);
+//        addChild(showDialog);
+//
         initTileSystem("1-1.tmx");
-
         CCSize mapSize = m_tileMap->getMapSize();
         CCSize tileSize = m_tileMap->getTileSize();
-        m_tileSize = CCSize(tileSize.width * m_tileMap->getScale(), tileSize.height * m_tileMap->getScale());
-        WebGame::GraphProperty property = WebGame::GraphProperty::buildDefault();
-        m_graph = WebGame::SparseGraph::createTileGraph(mapSize.width,
-            mapSize.height, property);
-        CCSize showSize(mapSize.width * m_tileSize.width, mapSize.height * m_tileSize.height);
+        CCSize showSize(mapSize.width * m_tileSizeWithScale.width,
+            mapSize.height * m_tileSizeWithScale.height);
         if(showSize.width > windowSize.width) showSize.width = windowSize.width;
         if(showSize.height > windowSize.height) showSize.height = windowSize.height;
-        m_showMapRect.setRect((windowSize.width - showSize.width)/2, (windowSize.height - showSize.height)/2,
+        // window size >= show size
+        // all the move must in the m_showMapRect
+
+        //m_tileMap->setContentSize(showSize);
+
+        //m_tileMap->setTextureRect(CCRect(0, 0, 100, 100));
+        m_showMapRect.setRect((windowSize.width - showSize.width)/2,
+            (windowSize.height - showSize.height)/2,
             showSize.width, showSize.height);
         m_tileWindowPosition.reset(new WebGame::TileWindowPosition(
               mapSize,
-              m_tileSize,
+              m_tileSizeWithScale,
               showSize,
               windowSize,
-              ccp(windowSize.width/2, windowSize.height/2)));
+              ccp(0.5f, 0.5f))); // point in window (0 -- 1)
 		this->setTouchEnabled(true);
 		CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, 0, true);
 
@@ -168,7 +162,7 @@ bool HelloWorld::init()
     infos.push_back(MoveInfo(MoveInfo::LEFT, 2));
     infos.push_back(MoveInfo(MoveInfo::DOWN, 2));
     CCActionInterval* action = WebGame::createMoveAnimationAction("DQV (1).png", infos,
-        m_tileSize,
+        m_tileSizeWithScale,
         4,
         0.04f,
         2,
@@ -182,8 +176,12 @@ bool HelloWorld::init()
 }
 
 void HelloWorld::initGameProperty() {
+  m_isMoveScreen = false;
+  m_currentState = S_IDLE;
   m_gameProperty = std::make_shared<WebGame::GameProperty>();
   m_gameProperty->initPlayerMetaFromFile("playerMetas.json");
+  CCSize windowSize = CCDirector::sharedDirector()->getWinSize();
+  m_scale =  windowSize.width / 960.0f;
 }
 
 void HelloWorld::generateRandomPlayers() {
@@ -193,30 +191,49 @@ void HelloWorld::generateRandomPlayers() {
 
   using WebGame::Player;
   CCRect rect(0,0,48,48);
-  Player* p = Player::create(0, "aa", "DQV (1).png", rect);
+  Player* p = Player::create(0, "aa", "DQV (1).png", rect, m_tileWindowPosition.get());
   p->setMeta(*(m_gameProperty->playerMeta(1)));
   addChild(p, 10);
   p->setPosition(pos1);
   m_players[p->id()] = p;
-  p = Player::create(1, "bb","DQV (1).png", rect);
+  p = Player::create(1, "bb","DQV (1).png", rect, m_tileWindowPosition.get());
   addChild(p, 10);
   p->setPosition(pos2);
   p->setMeta(*(m_gameProperty->playerMeta(2)));
   m_players[p->id()] = p;
 }
 
-void HelloWorld::initTileSystem(const char* tileMapName) {
-  CCSize windowSize = CCDirector::sharedDirector()->getWinSize();
-  m_tileMap = CCTMXTiledMap::create(tileMapName);
+void HelloWorld::createMap(const char* mapName) {
+  m_tileMap = CCTMXTiledMap::create(mapName);
   assert(m_tileMap);
   m_tileMap->setAnchorPoint(ccp(0.5f, 0.5f));
-  m_scale =  windowSize.width / 640.0f;
   m_tileMap->setScale(m_scale);
+  CCSize windowSize = CCDirector::sharedDirector()->getWinSize();
   m_tileMap->setPosition(ccp(windowSize.width/2, windowSize.height/2));
-  m_background = m_tileMap->layerNamed("Ground");
+  m_tileSizeWithScale =
+    CCSize(m_tileMap->getTileSize().width * m_scale,
+        m_tileMap->getTileSize().height * m_scale);
   addChild(m_tileMap, -1);
-  CCSize tileSize = m_tileMap->getTileSize();
-  m_tileSize = CCSize(tileSize.width * m_tileMap->getScale(), tileSize.height * m_tileMap->getScale());
+  m_background = m_tileMap->layerNamed("Ground");
+
+//  CCObject* pObj = NULL;
+//  CCARRAY_FOREACH(m_tileMap->getChildren(), pObj)
+//  {
+//    CCSpriteBatchNode* child = (CCSpriteBatchNode*)pObj;
+//    child->getTexture()->setAntiAliasTexParameters();
+//  }
+//
+}
+
+void HelloWorld::initTileSystem(const char* tileMapName) {
+  createMap(tileMapName);
+  createLogicGraph(m_tileMap->getTileSize());
+}
+
+void HelloWorld::createLogicGraph(const CCSize& mapSize) {
+  WebGame::GraphProperty property = WebGame::GraphProperty::buildDefault();
+  m_graph = WebGame::SparseGraph::createTileGraph(mapSize.width,
+      mapSize.height, property);
 }
 
 void HelloWorld::initImages() {
@@ -233,17 +250,18 @@ void HelloWorld::createMask(int x, int y, WebGame::Player* p) {
   CCTexture2D* tex =  CCTextureCache::sharedTextureCache()->textureForKey("move_background.png");
   CCTexture2D* texAttack = CCTextureCache::sharedTextureCache()->textureForKey("attack_mask.png");
   assert(tex);
-  WebGame::GraphBFSFill<WebGame::SparseGraph> f(*m_graph, m_graph->node(x,y)->index(), p->meta().MoveStep);
+  m_searcher.reset(new WebGame::GraphBFSFill<WebGame::SparseGraph>
+      (*m_graph, m_graph->node(x,y)->index(), p->meta().MoveStep));
   CCLog("create mask %d %d", x, y);
-  auto nodes = f.canMoveToNode();
+  auto nodes = m_searcher->canMoveToNode();
   std::vector<CCPoint> tilePos;
   for(auto v : nodes) {
     auto node = m_graph->node(v);
     tilePos.push_back(ccp(node->x() - x, node->y() - y));
   }
-  f.caculateCanInfluenceNodes(WebGame::GraphProperty::SENIOR_ARROWMAN);
+  m_searcher->caculateCanInfluenceNodes(WebGame::GraphProperty::SENIOR_ARROWMAN);
   std::vector<CCPoint> infPos;
-  const auto& influenceNodes = f.influencedNodes();
+  const auto& influenceNodes = m_searcher->influencedNodes();
   for(auto v : influenceNodes) {
     if(v.second) {
       auto node = m_graph->node(v.first);
@@ -256,18 +274,20 @@ void HelloWorld::createMask(int x, int y, WebGame::Player* p) {
   int minY = m_showMapRect.getMinY();
   m_tileMask = WebGame::TileMask::create(
       tex, // mask
-      ccp(m_tileSize.width * x - m_tileWindowPosition->realDeltaX(), m_tileSize.height * y - m_tileWindowPosition->realDeltaY()),
+      ccp(m_tileSizeWithScale.width * x - m_tileWindowPosition->realDeltaX(),
+        m_tileSizeWithScale.height * y - m_tileWindowPosition->realDeltaY()),
       ccp(x,y),
-      m_tileSize,
+      m_tileSizeWithScale,
       m_scale,
       std::move(tilePos));
   addChild(m_tileMask);
 
   m_attackMask = WebGame::TileMask::create(
       texAttack, // mask
-      ccp(m_tileSize.width * x - m_tileWindowPosition->realDeltaX(), m_tileSize.height * y - m_tileWindowPosition->realDeltaY()),
+      ccp(m_tileSizeWithScale.width * x - m_tileWindowPosition->realDeltaX(),
+        m_tileSizeWithScale.height * y - m_tileWindowPosition->realDeltaY()),
       ccp(x,y),
-      m_tileSize,
+      m_tileSizeWithScale,
       m_scale,
       std::move(infPos));
   addChild(m_attackMask);
@@ -297,7 +317,7 @@ void HelloWorld::updateAllPosition() {
 
   for(auto& v : m_players) {
     const auto& pos = v.second->getPosition();
-    v.second->setPosition(pos.x - deltaX, pos.y - deltaY);
+    v.second->setPosition(ccp(pos.x - deltaX, pos.y - deltaY));
   }
 }
 
@@ -329,7 +349,14 @@ CCActionInterval* HelloWorld::createRFAnimFormPng(
     return CCRepeat::create(action, 2);
 }
 
+bool HelloWorld::inCanChooseState() const {
+  if(m_currentState == S_IDLE || m_currentState == S_CHOOSE) return true;
+  return false;
+}
+
 void HelloWorld::showMaskInMap(const CCPoint& viewPoint, WebGame::Player* p) {
+  if(!inCanChooseState()) return;
+  m_currentState = S_CHOOSE;
   CCSize winSize = CCDirector::sharedDirector()->getWinSize();
   // FIXME has bug in next line
   //if(m_showMapRect.containsPoint(viewPoint)) {
@@ -343,10 +370,10 @@ void HelloWorld::showMaskInMap(const CCPoint& viewPoint, WebGame::Player* p) {
 void HelloWorld::ccTouchEnded(cocos2d::CCTouch* touch,
 		    cocos2d::CCEvent* pEvent) {
   if(!m_isMoveScreen) {
-    if(checkInMoveMask(touch->getLocationInView())) {
-      
+    auto pos = touch->getLocationInView();
+    if(checkInMoveMask(pos)) {
+      inPlayerMoveState(viewPointToMapPos(pos));
     }
-
   } else {
     m_isMoveScreen = false;
   }
@@ -357,6 +384,21 @@ cocos2d::CCPoint HelloWorld::viewPointToMapPos(const cocos2d::CCPoint& pointInVi
   const CCSize& winSize = CCDirector::sharedDirector()->getWinSize();
   return m_tileWindowPosition->
     getTilePositon(pointInView.x, winSize.height - pointInView.y);
+}
+
+void HelloWorld::inPlayerMoveState(const cocos2d::CCPoint& position) {
+  assert(m_graph->hasNode(position.x, position.y));
+  auto node = m_graph->node(position.x, position.y);
+  auto path = m_searcher->pathToTarget(node->index());
+  std::vector<CCPoint> deltaPositions;
+  const auto& originPos = m_currentPlayer->tilePosition();
+  for(const auto& index : path) {
+    auto n = m_graph->node(index);
+    deltaPositions.push_back(ccp(n->x() - originPos.x, n->y() - originPos.y));
+  }
+
+  m_currentPlayer->moveTo(position, deltaPositions);
+  m_currentState = S_PLAYER_MOVE;
 }
 
 bool HelloWorld::checkInMoveMask(const cocos2d::CCPoint& pointInView) {

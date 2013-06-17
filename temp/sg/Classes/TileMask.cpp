@@ -16,6 +16,8 @@
  * =====================================================================================
  */
 #include "TileMask.h"
+#include <algorithm>
+#include <functional>
 using namespace cocos2d;
 
 namespace WebGame {
@@ -33,10 +35,10 @@ namespace WebGame {
       mask->setPosition(pos);
       mask->setAnchorPoint(ccp(0.0,0.0));
 
-      for(int i = 0 ; i < tilepos.size() ; ++i) {
+      for(int i = 0 ; i < mask->m_tilePositions.size() ; ++i) {
         CCSprite* s = CCSprite::createWithTexture(tex);
-        s->setPosition(ccp(tilepos[i].x * tileSize.width,
-              tilepos[i].y * tileSize.height));
+        s->setPosition(ccp(mask->m_tilePositions[i].x * tileSize.width,
+              mask->m_tilePositions[i].y * tileSize.height));
         s->setAnchorPoint(ccp(0.0,0.0));
         s->setScale(scale);
         mask->addChild(s);
@@ -45,7 +47,11 @@ namespace WebGame {
     }
 
   bool TileMask::hasPosition(const cocos2d::CCPoint& pos) const {
-    return true;
+    CCPoint findPos(pos.x - m_mapPosition.x, pos.y - m_mapPosition.y);
+    bool ok = std::find_if(m_tilePositions.begin(), m_tilePositions.end(),
+        [&findPos](const CCPoint& p)
+        { return p.x == findPos.x && p.y == findPos.y ;}) != m_tilePositions.end();
+    return ok;
   }
 
 

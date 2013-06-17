@@ -44,7 +44,7 @@ namespace WebGame {
         std::map<int,AttackNeighbourType>::const_iterator iter = m_attackRange.find(type);
         return (*iter).second;
       }
-      bool hasTerrain(int type) const { return m_terrainMeta.count(type);}
+      bool hasTerrain(int type) const { return m_terrainMeta.count(type) > 0;}
       static
         GraphProperty buildDefault();
       static GraphProperty buildFromFile(const std::string& fileName);

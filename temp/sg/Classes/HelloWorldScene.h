@@ -12,6 +12,8 @@ namespace WebGame {
   class TileMask;
   class Player;
   class GameProperty;
+  template<typename G>
+    class GraphBFSFill;
 }
 
 class HelloWorld : public cocos2d::CCLayer {
@@ -42,6 +44,12 @@ class HelloWorld : public cocos2d::CCLayer {
     void showMaskInMap(const cocos2d::CCPoint& viewPoint, WebGame::Player* player);
 
   private:
+    enum State {
+      S_IDLE,
+      S_CHOOSE,
+      S_PLAYER_MOVE,
+    };
+    bool inCanChooseState() const;
     cocos2d::CCTMXTiledMap* m_tileMap;
     cocos2d::CCTMXLayer* m_background;
     cocos2d::CCSprite* m_tileMoveBackgroud;
@@ -49,7 +57,8 @@ class HelloWorld : public cocos2d::CCLayer {
     std::shared_ptr<WebGame::SparseGraph> m_graph;
     std::shared_ptr<WebGame::TileWindowPosition> m_tileWindowPosition;
     std::shared_ptr<WebGame::GameProperty> m_gameProperty;
-
+    std::shared_ptr<WebGame::GraphBFSFill<WebGame::SparseGraph> > m_searcher;
+    void createLogicGraph(const cocos2d::CCSize& mapSize);
     cocos2d::CCActionInterval* createRFAnimFormPng(
         cocos2d::CCTexture2D* pTexture,
         const cocos2d::CCSize& frameSize,
@@ -67,13 +76,15 @@ class HelloWorld : public cocos2d::CCLayer {
     void initImages();
     cocos2d::CCRect m_showMapRect;
     float m_scale;
-    cocos2d::CCSize m_tileSize;
+    cocos2d::CCSize m_tileSizeWithScale;
     void initTileSystem(const char*);
     void initGameProperty();
     std::map<int,WebGame::Player*> m_players;
     void generateRandomPlayers();
     WebGame::Player* m_currentPlayer;
-
+    void inPlayerMoveState(const cocos2d::CCPoint& position);
+    int m_currentState;
+    void createMap(const char* fileName);
 };
 
 

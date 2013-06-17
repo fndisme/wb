@@ -44,7 +44,6 @@ namespace WebGame {
         if(y < bottomTileInPixel())
           y = bottomTileInPixel();
         else if(y > topTileInPixel()) {
-
           y = topTileInPixel();
         }
         m_delta.x = x - m_position.x;
@@ -92,11 +91,10 @@ namespace WebGame {
           m_windowSize(windowSize),
           m_mapSizeInPixel(mapSize.width * tileSize.width,
               mapSize.height * tileSize.height),
-          m_initPos(initPos){}
+          m_initPos(initPos.x * windowSize.width, initPos.y * windowSize.height),
+          m_normalizedInitPosition(initPos){}
 
-      cocos2d::CCPoint getTilePositon(int posX, int posY) {
-        cocos2d::CCLog("getTilePositon %d %d %f %f %f %f", posX, posY, mapXDeltaWithWindow(), mapYDeltaWithWindow(),
-            viewLeft(), viewBotton());
+      cocos2d::CCPoint getTilePositon(int posX, int posY) const {
         assert(posX >= windowLeft());
         assert(posY >= windowBottom());
         assert(posX < windowRight());
@@ -117,9 +115,10 @@ namespace WebGame {
       cocos2d::CCSize m_mapSizeInPixel;
       cocos2d::CCPoint m_position;
       cocos2d::CCPoint m_initPos;
+      cocos2d::CCPoint m_normalizedInitPosition;
       cocos2d::CCPoint m_delta;
-      float mapXInPixel() const { return m_mapSize.width * m_tileSize.width;}
-      float mapYInPixel() const { return m_mapSize.height* m_tileSize.height;}
+      float mapXInPixel() const { return m_mapSizeInPixel.width;}
+      float mapYInPixel() const { return m_mapSizeInPixel.height;}
       float mapXDeltaWithWindow() const { return (mapXInPixel() - m_viewSize.width) / 2;}
       float mapYDeltaWithWindow() const { return (mapYInPixel() - m_viewSize.height) / 2;}
       float viewLeft() const { return (m_windowSize.width - m_viewSize.width) / 2;}

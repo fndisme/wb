@@ -29,6 +29,7 @@ namespace WebGame {
   class Weapon;
   class GraphNode;
   class BagObject;
+  class TileWindowPosition;
   class Player : public cocos2d::CCNode,
   public cocos2d::CCTouchDelegate {
     public:
@@ -38,10 +39,12 @@ namespace WebGame {
         m_id(id),
         m_name(name),
         m_sprite(0),
-        m_isMoveScreen(false){}
+        m_isMoveScreen(false),
+        m_graph(0){}
       static Player* create(int id, const std::string& name,
           const std::string& texName,
-          const cocos2d::CCRect& rect);
+          const cocos2d::CCRect& rect,
+          const TileWindowPosition*);
       virtual bool init();
 
       virtual void onEnter();
@@ -66,6 +69,10 @@ namespace WebGame {
       bool isBagFull() const;
       void pushBagObject(BagObject* object);
       void exchangeBag(int lhs, int rhs);
+      void moveTo(const cocos2d::CCPoint& pos,
+          const std::vector<cocos2d::CCPoint>& path);
+      virtual void setPosition(const cocos2d::CCPoint& pos);
+      const cocos2d::CCPoint& tilePosition() const { return m_mapPosition;}
     private:
       bool hasNode(const std::shared_ptr<GraphNode>& node) const;
       int m_id;
@@ -78,6 +85,8 @@ namespace WebGame {
       bool m_canRevert;
       Weapon* m_currentWeapon;
       bool m_isMoveScreen;
+      const TileWindowPosition* m_graph;
+      cocos2d::CCPoint m_mapPosition;
   };
 }
 #endif

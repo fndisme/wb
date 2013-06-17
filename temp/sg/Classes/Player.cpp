@@ -21,13 +21,16 @@
 #include <functional>
 #include "HelloWorldScene.h"
 #include "GraphNode.h"
+#include "TileWindowPosition.h"
+#include "utility/MakeAnimation.h"
 using namespace cocos2d;
 
 namespace WebGame {
 
   Player* Player::create(int id, const std::string& name,
       const std::string& texName,
-      const CCRect& rect) {
+      const CCRect& rect,
+      const TileWindowPosition* graph) {
     Player* p = new Player(id, name);
     if(p && p->init()) {
       p->autorelease();
@@ -36,6 +39,7 @@ namespace WebGame {
     p->m_sprite = CCSprite::createWithTexture(tex, rect);
     p->addChild(p->m_sprite);
     p->m_canRevert = true;
+    p->m_graph = graph;
     return p;
   }
 
@@ -46,6 +50,15 @@ namespace WebGame {
 
   void Player::onExit() {
     CCDirector::sharedDirector()->getTouchDispatcher()->removeDelegate(this);
+  }
+
+
+  void Player::setPosition(const CCPoint& pos) {
+    CCNode::setPosition(pos);
+    m_mapPosition = m_graph->getTilePositon(pos.x, pos.y);
+  }
+
+  void Player::moveTo(const CCPoint& pos, const std::vector<CCPoint>& path) {
   }
 
   void Player::ccTouchMoved(CCTouch* touch, CCEvent* event) {
