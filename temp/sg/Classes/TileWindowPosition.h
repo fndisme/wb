@@ -48,8 +48,8 @@ namespace WebGame {
         else if(y > topTileInPixel()) {
           y = topTileInPixel();
         }
-        m_delta.x = x - m_position.x;
-        m_delta.y = y - m_position.y;
+        m_delta.x = (x - m_position.x);
+        m_delta.y = (y - m_position.y);
         m_position.y = y;
         m_position.x = x;
       }
@@ -100,8 +100,8 @@ namespace WebGame {
             cocos2d::CCLog("init pos is %f %f", m_initPos.x, m_initPos.y);
           }
       cocos2d::CCRect renderRect() const {
-        return cocos2d::CCRect(mapXInPixel()/2/m_scale + x() - m_viewSize.width / 2,
-            mapYInPixel()/2/m_scale - y() - m_viewSize.height / 2,
+        return cocos2d::CCRect(mapXInPixel()/2/m_scale + x()/m_scale - m_viewSize.width / 2,
+            mapYInPixel()/2/m_scale - y()/m_scale - m_viewSize.height / 2,
             m_viewSize.width, m_viewSize.height);
       }
 
