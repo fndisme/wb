@@ -60,17 +60,17 @@ namespace WebGame {
       float deltaY() const { return m_delta.y;}
 
       float leftTileInPixel() const
-      { return -(m_mapSizeInPixel.width / m_scale - m_viewSize.width)/2;}
+      { return -(m_mapSizeInPixel.width - m_viewSize.width)/2;}
       float rightTileInPixel() const {
-        return (m_mapSizeInPixel.width / m_scale - m_viewSize.width)/2;
+        return (m_mapSizeInPixel.width  - m_viewSize.width)/2;
       }
 
       float bottomTileInPixel() const {
-        return 0 - (m_mapSizeInPixel.height / m_scale - m_viewSize.height)/2;
+        return 0 - (m_mapSizeInPixel.height  - m_viewSize.height)/2;
       }
 
       float topTileInPixel() const {
-        return (m_mapSizeInPixel.height / m_scale - m_viewSize.height)/2;
+        return (m_mapSizeInPixel.height  - m_viewSize.height)/2;
       }
 
       float initX() const { return m_initPos.x;}
@@ -110,9 +110,24 @@ namespace WebGame {
 //        assert(posY >= windowBottom());
 //        assert(posX < windowRight());
 //        assert(posY < windowTop());
-        int realX = (posX + m_position.x + mapXDeltaWithWindow() - viewLeft()) / m_tileSize.width;
-        int realY = (posY + m_position.y + mapYDeltaWithWindow() - viewBotton()) / m_tileSize.height;
-        return ccp(realX, realY);
+        cocos2d::CCPoint pos(-m_tileSize.width/2 - m_tileSize.width, -m_tileSize.height/2 - m_tileSize.height);
+        pos.x += mapXDeltaWithWindow();
+        pos.y += mapYDeltaWithWindow();
+        pos.x -= (viewLeft() - m_position.x) / m_scale;
+        pos.y -= (viewBotton() - m_position.y) / m_scale;
+        pos.x += posX;
+        pos.y += posY;
+        pos.x /= m_tileSize.width;
+        pos.y /= m_tileSize.height;
+        return pos;
+
+      }
+
+      cocos2d::CCPoint translateTilePositionToWindowPosition(int tileX, int tileY) const {
+        cocos2d::CCPoint pos(tileX * m_tileSize.width, tileY * m_tileSize.height);
+        pos.x += (viewLeft() - m_position.x) / m_scale - mapXDeltaWithWindow() + m_tileSize.width / 2;
+        pos.y += (viewBotton() - m_position.y) / m_scale - mapYDeltaWithWindow() + m_tileSize.height / 2;
+        return pos;
       }
 
       float realDeltaX() const { return m_position.x + mapXDeltaWithWindow() - viewLeft();}
