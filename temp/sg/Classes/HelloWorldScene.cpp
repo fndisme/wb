@@ -134,9 +134,10 @@ bool HelloWorld::init()
               m_tileSizeWithScale,
               showSize,
               windowSize,
-              ccp(0.5f, 0.5f))); // point in window (0 -- 1)
+              ccp(0.5f, 0.5f),
+              m_scale)); // point in window (0 -- 1)
     m_background->setTextureRect(m_tileWindowPosition->renderRect());
-    m_background->setScale(1/m_scale);
+    m_background->setScale(m_scale);
 		this->setTouchEnabled(true);
 		CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, 0, true);
 
@@ -182,7 +183,7 @@ void HelloWorld::initGameProperty() {
   m_gameProperty = std::make_shared<WebGame::GameProperty>();
   m_gameProperty->initPlayerMetaFromFile("playerMetas.json");
   CCSize windowSize = CCDirector::sharedDirector()->getWinSize();
-  m_scale =  windowSize.width / 640.0f;
+  m_scale =  960.0f / windowSize.width;
 }
 
 void HelloWorld::generateRandomPlayers() {
@@ -333,7 +334,9 @@ void HelloWorld::ccTouchMoved(cocos2d::CCTouch* pTouch,
     cocos2d::CCEvent* pEvent) {
   m_isMoveScreen = true;
   CCPoint delta = pTouch->getDelta();
+  CCLog("Start move 1");
   m_tileWindowPosition->moveDelta(-delta.x, -delta.y);
+  CCLog("Start Move 2");
   updateAllPosition();
   m_background->setTextureRect(m_tileWindowPosition->renderRect());
 }

@@ -17,6 +17,7 @@
  */
 #ifndef FND_WEBGAME_TILE_WINDOW_POSITION_H
 #define FND_WEBGAME_TILE_WINDOW_POSITION_H
+#include <iostream>
 #include "cocos2d.h"
 namespace WebGame {
   class TileWindowPosition {
@@ -29,13 +30,14 @@ namespace WebGame {
       }
 
       void moveDelta(int deltaX, int deltaY) {
+        cocos2d::CCLog("delta, %d %d", deltaX, deltaY);
         cocos2d::CCPoint pos(m_position.x + deltaX, m_position.y + deltaY);
         setAbsoluteCenter(pos);
       }
 
       void setAbsoluteCenter(const cocos2d::CCPoint& mapTile) {
-        int x = mapTile.x;
-        int y = mapTile.y;
+        float x = mapTile.x;
+        float y = mapTile.y;
         if(x < leftTileInPixel())
           x = leftTileInPixel();
         else if(x > rightTileInPixel()) {
@@ -48,8 +50,8 @@ namespace WebGame {
         }
         m_delta.x = x - m_position.x;
         m_delta.y = y - m_position.y;
-        m_position.x = x;
         m_position.y = y;
+        m_position.x = x;
       }
 
       float x() const { return  m_position.x;}
@@ -58,17 +60,17 @@ namespace WebGame {
       float deltaY() const { return m_delta.y;}
 
       float leftTileInPixel() const
-      { return -(m_mapSizeInPixel.width - m_viewSize.width)/2;}
+      { return -(m_mapSizeInPixel.width / m_scale - m_viewSize.width)/2;}
       float rightTileInPixel() const {
-        return (m_mapSizeInPixel.width - m_viewSize.width)/2;
+        return (m_mapSizeInPixel.width / m_scale - m_viewSize.width)/2;
       }
 
       float bottomTileInPixel() const {
-        return 0 - (m_mapSizeInPixel.height - m_viewSize.height)/2;
+        return 0 - (m_mapSizeInPixel.height / m_scale - m_viewSize.height)/2;
       }
 
       float topTileInPixel() const {
-        return (m_mapSizeInPixel.height - m_viewSize.height)/2;
+        return (m_mapSizeInPixel.height / m_scale - m_viewSize.height)/2;
       }
 
       float initX() const { return m_initPos.x;}
@@ -84,7 +86,8 @@ namespace WebGame {
           const cocos2d::CCSize& tileSize,
           const cocos2d::CCSize& viewSize,
           const cocos2d::CCSize& windowSize,
-          const cocos2d::CCPoint& initPos) :
+          const cocos2d::CCPoint& initPos,
+          float scale) :
           m_mapSize(mapSize),
           m_tileSize(tileSize),
           m_viewSize(viewSize),
@@ -92,18 +95,21 @@ namespace WebGame {
           m_mapSizeInPixel(mapSize.width * tileSize.width,
               mapSize.height * tileSize.height),
           m_initPos(initPos.x * windowSize.width, initPos.y * windowSize.height),
-          m_normalizedInitPosition(initPos){}
+          m_normalizedInitPosition(initPos),
+          m_scale(scale){
+            cocos2d::CCLog("init pos is %f %f", m_initPos.x, m_initPos.y);
+          }
       cocos2d::CCRect renderRect() const {
-        return cocos2d::CCRect( m_initPos.x - x() - m_viewSize.width / 2,
-            m_initPos.y - y() - m_viewSize.height / 2,
+        return cocos2d::CCRect(mapXInPixel()/2/m_scale + x() - m_viewSize.width / 2,
+            mapYInPixel()/2/m_scale - y() - m_viewSize.height / 2,
             m_viewSize.width, m_viewSize.height);
       }
 
       cocos2d::CCPoint getTilePositon(int posX, int posY) const {
-        assert(posX >= windowLeft());
-        assert(posY >= windowBottom());
-        assert(posX < windowRight());
-        assert(posY < windowTop());
+//        assert(posX >= windowLeft());
+//        assert(posY >= windowBottom());
+//        assert(posX < windowRight());
+//        assert(posY < windowTop());
         int realX = (posX + m_position.x + mapXDeltaWithWindow() - viewLeft()) / m_tileSize.width;
         int realY = (posY + m_position.y + mapYDeltaWithWindow() - viewBotton()) / m_tileSize.height;
         return ccp(realX, realY);
@@ -122,6 +128,7 @@ namespace WebGame {
       cocos2d::CCPoint m_initPos;
       cocos2d::CCPoint m_normalizedInitPosition;
       cocos2d::CCPoint m_delta;
+      float m_scale;
       float mapXInPixel() const { return m_mapSizeInPixel.width;}
       float mapYInPixel() const { return m_mapSizeInPixel.height;}
       float mapXDeltaWithWindow() const { return (mapXInPixel() - m_viewSize.width) / 2;}
