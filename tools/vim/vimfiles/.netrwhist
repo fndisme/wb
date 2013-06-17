@@ -1,0 +1,9 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =7
+let g:netrw_dirhist_1='/home/fangdh/software/systemtools/libraries/clasp/trunk/examples/cvu/prg'
+let g:netrw_dirhist_2='/home/fangdh/software/systemtools/libraries/clasp/trunk/examples/cvu/prg.main'
+let g:netrw_dirhist_3='/home/fangdh/study/opengl'
+let g:netrw_dirhist_4='/home/fangdh/tool/lib/samples'
+let g:netrw_dirhist_5='/home/fangdh/tool/lib/cocos2dx'
+let g:netrw_dirhist_6='/home/fangdh/software/work/CCode/fndisme/GJY_Message'
+let g:netrw_dirhist_7='/var/log'
