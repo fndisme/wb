@@ -97,12 +97,16 @@ namespace WebGame {
           m_initPos(initPos.x * windowSize.width, initPos.y * windowSize.height),
           m_normalizedInitPosition(initPos),
           m_scale(scale){
-            cocos2d::CCLog("init pos is %f %f", m_initPos.x, m_initPos.y);
+            m_viewRect = cocos2d::CCRect(m_initPos.x - m_viewSize.width/2,
+                m_initPos.y - m_viewSize.height/2,
+                m_viewSize.width,
+                m_viewSize.height);
+            m_textureSize = cocos2d::CCSize(m_viewSize.width / m_scale, m_viewSize.height / m_scale);
           }
       cocos2d::CCRect renderRect() const {
-        return cocos2d::CCRect(mapXInPixel()/2/m_scale + x()/m_scale - m_viewSize.width / 2,
-            mapYInPixel()/2/m_scale - y()/m_scale - m_viewSize.height / 2,
-            m_viewSize.width, m_viewSize.height);
+        auto leftTop = leftTopInTexture();
+      return cocos2d::CCRect(leftTop.x, leftTop.y,
+            m_textureSize.width, m_textureSize.height);
       }
 
       cocos2d::CCPoint getTilePositon(int posX, int posY) const {
@@ -138,6 +142,8 @@ namespace WebGame {
       const cocos2d::CCSize m_tileSize;
       const cocos2d::CCSize m_viewSize;
       const cocos2d::CCSize m_windowSize;
+      cocos2d::CCSize m_textureSize;
+      cocos2d::CCRect m_viewRect;
       cocos2d::CCSize m_mapSizeInPixel;
       cocos2d::CCPoint m_position;
       cocos2d::CCPoint m_initPos;
@@ -150,6 +156,10 @@ namespace WebGame {
       float mapYDeltaWithWindow() const { return (mapYInPixel() - m_viewSize.height) / 2;}
       float viewLeft() const { return (m_windowSize.width - m_viewSize.width) / 2;}
       float viewBotton() const { return (m_windowSize.height - m_viewSize.height) / 2;}
+      cocos2d::CCPoint leftTopInTexture() const {
+        return ccp((mapXInPixel()/2 + x())/m_scale - m_textureSize.width/2,
+            (mapYInPixel()/2 - y())/m_scale - m_textureSize.height/2);
+      }
 
   };
 }
