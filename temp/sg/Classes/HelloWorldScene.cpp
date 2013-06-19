@@ -416,7 +416,45 @@ void HelloWorld::inPlayerMoveState(const cocos2d::CCPoint& position) {
 }
 
 void HelloWorld::inChooseActionState() {
-  m_currentState = S_IDLE;
+  m_currentState = S_CHOOSE_ACTION;
+  CCPoint pos = m_currentPlayer->getPosition();
+  CCPoint tilePos = m_tileWindowPosition->getObjectPosition(pos);
+  m_searcher->refill(m_graph->node(tilePos.x,tilePos.y)->index(), 0);
+  int x = tilePos.x;
+  int y = tilePos.y;
+  m_searcher->caculateCanInfluenceNodes(WebGame::GraphProperty::SENIOR_ARROWMAN);
+  std::vector<CCPoint> infPos;
+  const auto& influenceNodes = m_searcher->influencedNodes();
+  for(auto v : influenceNodes) {
+    if(v.second) {
+      auto node = m_graph->node(v.first);
+      infPos.push_back(ccp(node->x() - x, node->y() - y));
+    }
+  }
+
+  int mapX = m_tileWindowPosition->x();
+  int mapY = m_tileWindowPosition->y();
+  int minX = m_showMapRect.getMinX();
+  int minY = m_showMapRect.getMinY();
+//  m_tileMask = WebGame::TileMask::create(
+//      tex, // mask
+//      ccp(m_tileSizeWithScale.width * x - m_tileWindowPosition->realDeltaX(),
+//        m_tileSizeWithScale.height * y - m_tileWindowPosition->realDeltaY()),
+//      ccp(x,y),
+//      m_tileSizeWithScale,
+//      m_scale,
+//      std::move(tilePos));
+//  addChild(m_tileMask);
+  CCTexture2D* texAttack = CCTextureCache::sharedTextureCache()->textureForKey("attack_mask.png");
+  m_attackMask = WebGame::TileMask::create(
+      texAttack, // mask
+      ccp(m_tileSizeWithScale.width * x - m_tileWindowPosition->realDeltaX(),
+        m_tileSizeWithScale.height * y - m_tileWindowPosition->realDeltaY()),
+      ccp(x,y),
+      m_tileSizeWithScale,
+      m_scale,
+      std::move(infPos));
+  addChild(m_attackMask);
 }
 
 bool HelloWorld::checkInMoveMask(const cocos2d::CCPoint& pointInView) {

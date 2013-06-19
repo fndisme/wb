@@ -50,6 +50,7 @@ class HelloWorld : public cocos2d::CCLayer {
       S_IDLE,
       S_CHOOSE,
       S_PLAYER_MOVE,
+      S_CHOOSE_ACTION,
     };
     bool inCanChooseState() const;
     cocos2d::CCTMXTiledMap* m_tileMap;

@@ -108,6 +108,16 @@ namespace WebGame {
             m_textureSize.width, m_textureSize.height);
       }
 
+      cocos2d::CCPoint getObjectPosition(const cocos2d::CCPoint& pos) const {
+        return getObjectPosition(pos.x, pos.y);
+      }
+
+      cocos2d::CCPoint getObjectPosition(int posX, int posY) const {
+        posX = posX - m_initPos.x + m_mapSizeInPixel.width / 2;
+        posY = posY - m_initPos.y + m_mapSizeInPixel.height / 2;
+        return ccp(posX/m_tileSize.width, posY/m_tileSize.height);
+      }
+
       cocos2d::CCPoint getTilePositon(int posX, int posY) const {
 //        assert(posX >= windowLeft());
 //        assert(posY >= windowBottom());

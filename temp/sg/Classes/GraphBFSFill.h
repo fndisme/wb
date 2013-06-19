@@ -54,6 +54,18 @@ namespace WebGame {
             caculateCanMoveNodes();
           }
 
+        void refill(int source, int power) {
+          m_source = source;
+          m_power = power;
+          m_visited.assign(m_visited.size(), unvisited);
+          m_parant.assign(m_parant.size(), -1);
+          m_moveLeftPower.assign(m_moveLeftPower.size(), 0);
+          m_canInfluenceNodes.clear();
+          m_canMoveNodes.clear();
+          fill();
+          caculateCanMoveNodes();
+        }
+
         //bool hasRoute() const { return m_hasRoute;}
 
         std::vector<int> pathToTarget(int target)  const {
