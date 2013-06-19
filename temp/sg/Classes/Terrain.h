@@ -22,11 +22,14 @@ namespace WebGame {
       int Water;
       int Fire;
       int Wind;
-      int Ice;
+      int Moutain;
+      int Heal;
+      int Magic;
       int Attack;
       int Defence;
       int Speed;
       int MovePower;
+      int Luck;
   };
 }
 #endif

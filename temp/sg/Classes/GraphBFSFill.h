@@ -159,7 +159,6 @@ namespace WebGame {
 
             auto result = checkCanGoto(next->from(), next->to(), power);
             if (result.first) {
-              std::cout << " from " << next->from() << " to " << next->to() << std::endl;
               m_parant[next->to()] = next->from();
               m_visited[next->to()] = visited;
               m_moveLeftPower[next->to()] = result.second;
