@@ -61,7 +61,6 @@ namespace {
   const std::string PlayerHeartBeat("PlayerHeartBeat") ;
 }
 
-
 THIS_CLASS::~DefaultZFrontServer() NOEXCEPT {}
 
 void THIS_CLASS::stop() {
@@ -96,8 +95,6 @@ void THIS_CLASS::init() {
   initOtherService() ;
   registerStockMessage() ;
   registerActions() ;
-
-
   makeMessageDealersFinal() ;
 
 }

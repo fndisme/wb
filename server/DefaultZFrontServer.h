@@ -80,15 +80,9 @@ namespace WebGame {
           return doIsRegisterConnection(nc) ;
         }
         DecoderType* decoder() { return m_decoder;}
-//        inline bool isNormalMessage(int msg) const {
-//          return m_normal_messages.find(msg) != m_normal_messages.end() ;
-//        }
         bool isNormalPostMessage(int msg) const {
           return m_normal_register_message.count(msg) == 1 ;
         }
-//        void registerNormalMessage(int msg) {
-//          m_normal_messages.insert(msg) ;
-//        }
         void registerNormalPostMessage(int msg) {
           m_normal_register_message.insert(msg) ;
         }
@@ -127,16 +121,18 @@ namespace WebGame {
 #else
         typedef folly::fbvector<player_tt> PlayerGroup ;
 #endif
-        void registerConnectionMessageCallback(int k, MessageDealerType::function_type const& func) {
-          registerNormalMessage(k) ;
+        void registerConnectionMessageCallback(int k,
+            MessageDealerType::function_type const& func) {
           m_client_handlers.add(k, func) ;
         }
 
-        void registerBackMessageCallback(int k, BackMessageDealerType::function_type const& func) {
+        void registerBackMessageCallback(int k,
+            BackMessageDealerType::function_type const& func) {
           m_back_dealer_handlers.add(k, func) ;
         }
 
-        void registerBackRedioMessageCallback(int k, BackMessageDealerType::function_type const& func) {
+        void registerBackRedioMessageCallback(int k,
+            BackMessageDealerType::function_type const& func) {
           m_back_subscriber_dealers.add(k, func) ;
         }
         void pushMessageToBack(const DataType& db) const ;
@@ -144,7 +140,8 @@ namespace WebGame {
           m_socket->sendMessage(cache) ;
         }
 
-        void registerRepeatTimer(second_tt inteval, const NetCore::timer_event_function_type& fun) ;
+        void registerRepeatTimer(second_tt inteval,
+            const NetCore::timer_event_function_type& fun) ;
 
         template<typename MSG>
           void pushMessageToBack(MSG&& msg, player_tt pid = player_tt(0)) const {
@@ -158,7 +155,8 @@ namespace WebGame {
 #else
         typedef folly::fbvector<Message::DataCache::const_pointer> SocketDataVector ;
 #endif
-        typedef ZSlaveServerSocket<Message::DataCache::const_pointer, DataType, SocketDataVector> ZSocketType ;
+        typedef ZSlaveServerSocket<Message::DataCache::const_pointer,
+                DataType, SocketDataVector> ZSocketType ;
       protected:
         template<typename Action>
           void addDelayAction(size_t position, Action&& act) {
@@ -198,14 +196,20 @@ namespace WebGame {
 
         virtual void doDefaultBackMessageCallback(const DataType&) const = 0;
         virtual void doSendMessageToAllConnection(const DataType& db) const = 0 ;
-        virtual void doOnConnectionLeave(const NetErrorType&, NetConnectionPointer) = 0 ;
-        virtual bool doIsValidMessage(const DataType& db, NetConnectionPointer nc) const = 0 ;
+        virtual void doOnConnectionLeave(const NetErrorType&,
+            NetConnectionPointer) = 0 ;
+        virtual bool doIsValidMessage(const DataType& db,
+            NetConnectionPointer nc) const = 0 ;
         virtual bool doIsRegisterConnection(NetConnectionPointer nc) const = 0 ;
         virtual void doRegisterActions() = 0 ;
-        virtual void do_deal_back_post_message(const DataType& db, PlayerGroup const&) = 0 ;
-        virtual void do_deal_back_post_message(const DataType& db, player_tt pid) = 0 ;
-        virtual void do_deal_back_post_message(int, int, int,const DataType& db, PlayerGroup const&) = 0 ;
-        virtual void do_deal_back_post_message(int, int, int,const DataType& db, player_tt pid) = 0 ;
+        virtual void do_deal_back_post_message(const DataType& db,
+            PlayerGroup const&) = 0 ;
+        virtual void do_deal_back_post_message(const DataType& db,
+            player_tt pid) = 0 ;
+        virtual void do_deal_back_post_message(int, int, int,
+            const DataType& db, PlayerGroup const&) = 0 ;
+        virtual void do_deal_back_post_message(int, int, int,
+            const DataType& db, player_tt pid) = 0 ;
         virtual void do_deal_back_post_message(int, int, int,const DataType& db) = 0 ;
         virtual void doInitOtherService() {} // do nothing default
         virtual void doBindPollManager(ZPollInManager* /*mgr*/) {} // normal we do nothing for bind poll mgr
