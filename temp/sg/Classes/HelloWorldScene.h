@@ -42,6 +42,8 @@ class HelloWorld : public cocos2d::CCLayer {
       return true;
     }
     void showMaskInMap(const cocos2d::CCPoint& viewPoint, WebGame::Player* player);
+    void hideMask();
+    void inChooseActionState();
 
   private:
     enum State {

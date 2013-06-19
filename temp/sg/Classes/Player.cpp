@@ -77,15 +77,18 @@ namespace WebGame {
           CCSize(48, 48),
           4,
           0.1f,
-          3);
+          1);
       //CCHide * hide= CCHide::create();
       m_sprite->runAction(action);
       action = createMoveAction(
           moveInfos,
           CCSize(48 * m_scale, 48 * m_scale),
-          0.3f);
-      runAction(action);
+          0.4f);
+      CCCallFunc* fun = CCCallFunc::create(getScene(), callfunc_selector(HelloWorld::inChooseActionState));
+
+      runAction(CCSequence::create(action, fun, 0));
     }
+
   }
 
   void Player::ccTouchMoved(CCTouch* touch, CCEvent* event) {

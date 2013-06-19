@@ -358,6 +358,19 @@ void HelloWorld::showMaskInMap(const CCPoint& viewPoint, WebGame::Player* p) {
  // }
 }
 
+void HelloWorld::hideMask() {
+  if(m_tileMask) {
+    removeChild(m_tileMask);
+    m_tileMask = 0;
+  }
+  if(m_attackMask) {
+    removeChild(m_attackMask);
+    m_attackMask = 0;
+  }
+
+
+}
+
 void HelloWorld::ccTouchEnded(cocos2d::CCTouch* touch,
 		    cocos2d::CCEvent* pEvent) {
   if(!m_isMoveScreen) {
@@ -399,6 +412,11 @@ void HelloWorld::inPlayerMoveState(const cocos2d::CCPoint& position) {
 
   m_currentPlayer->moveTo(position, deltaPositions);
   m_currentState = S_PLAYER_MOVE;
+  hideMask();
+}
+
+void HelloWorld::inChooseActionState() {
+  m_currentState = S_IDLE;
 }
 
 bool HelloWorld::checkInMoveMask(const cocos2d::CCPoint& pointInView) {
