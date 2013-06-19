@@ -195,10 +195,14 @@ void HelloWorld::generateRandomPlayers() {
   p->setMeta(*(m_gameProperty->playerMeta(1)));
   addChild(p, 10);
   p->setPosition(pos1);
+  auto pp2 = m_tileWindowPosition->getTilePosition(p->getPosition());
+  CCLog("init pos is %f %f %f %f", pp2.x, pp2.y, pos1.x, pos1.y);
   m_players[p->id()] = p;
   p = Player::create(1, "bb","DQV (1).png", rect, m_scale, m_tileWindowPosition.get());
   addChild(p, 10);
   p->setPosition(pos2);
+  pp2 = m_tileWindowPosition->getTilePosition(pos2.x, pos2.y);
+  CCLog("init pos is %f %f %f %f", pp2.x, pp2.y, pos2.x, pos2.y);
   p->setMeta(*(m_gameProperty->playerMeta(2)));
   m_players[p->id()] = p;
 }
@@ -353,7 +357,7 @@ void HelloWorld::showMaskInMap(const CCPoint& viewPoint, WebGame::Player* p) {
   //if(m_showMapRect.containsPoint(viewPoint)) {
   m_currentPlayer = p;
   CCPoint pos = m_tileWindowPosition->
-    getTilePositon(viewPoint.x, winSize.height - viewPoint.y);
+    getTilePosition(viewPoint.x, winSize.height - viewPoint.y);
   createMask(pos.x, pos.y, p);
  // }
 }
@@ -387,7 +391,7 @@ cocos2d::CCPoint HelloWorld::viewPointToMapPos(const cocos2d::CCPoint& pointInVi
 
   const CCSize& winSize = CCDirector::sharedDirector()->getWinSize();
   return m_tileWindowPosition->
-    getTilePositon(pointInView.x, winSize.height - pointInView.y);
+    getTilePosition(pointInView.x, winSize.height - pointInView.y);
 }
 
 void HelloWorld::inPlayerMoveState(const cocos2d::CCPoint& position) {
@@ -418,7 +422,8 @@ void HelloWorld::inPlayerMoveState(const cocos2d::CCPoint& position) {
 void HelloWorld::inChooseActionState() {
   m_currentState = S_CHOOSE_ACTION;
   CCPoint pos = m_currentPlayer->getPosition();
-  CCPoint tilePos = m_tileWindowPosition->getObjectPosition(pos);
+  CCPoint tilePos = m_tileWindowPosition->getTilePosition(pos);
+  CCLog("look real is %f %f", tilePos.x, tilePos.y);
   m_searcher->refill(m_graph->node(tilePos.x,tilePos.y)->index(), 0);
   int x = tilePos.x;
   int y = tilePos.y;

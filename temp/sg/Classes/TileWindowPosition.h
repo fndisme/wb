@@ -112,25 +112,45 @@ namespace WebGame {
         return getObjectPosition(pos.x, pos.y);
       }
 
+      // x + shift = x in tile position
+      int worldXShiftingWithTile() const {
+        return  m_initPos.x -
+          m_mapSizeInPixel.width / 2 + mapXDeltaWithWindow();
+      }
+
+      int worldYShiftingWithTile() const {
+        return  m_initPos.y -
+          m_mapSizeInPixel.height/ 2 + mapYDeltaWithWindow();
+      }
+
+
       cocos2d::CCPoint getObjectPosition(int posX, int posY) const {
-        posX = posX - m_initPos.x + m_mapSizeInPixel.width / 2;
-        posY = posY - m_initPos.y + m_mapSizeInPixel.height / 2;
+        // translate from world position to tile position
+        cocos2d::CCLog("first %d %d", posX, posY);
+        posX = posX + m_position.x;
+        posY = posY + m_position.y;
+        cocos2d::CCLog("second %d %d", posX, posY);
         return ccp(posX/m_tileSize.width, posY/m_tileSize.height);
       }
 
-      cocos2d::CCPoint getTilePositon(int posX, int posY) const {
-//        assert(posX >= windowLeft());
-//        assert(posY >= windowBottom());
-//        assert(posX < windowRight());
-//        assert(posY < windowTop());
-        cocos2d::CCPoint pos(0, 0);
-        pos.x += mapXDeltaWithWindow();
-        pos.y += mapYDeltaWithWindow();
+      cocos2d::CCPoint getTilePosition(const cocos2d::CCPoint& p) const {
+        cocos2d::CCPoint pos(mapXDeltaWithWindow(), mapYDeltaWithWindow());
+        pos.x -= (viewLeft() - m_position.x) ;
+        pos.y -= (viewBotton() - m_position.y) ;
+        pos.x += p.x;
+        pos.y += p.y;
+        pos.x /= m_tileSize.width;
+        pos.y /= m_tileSize.height;
+        return pos;
+
+      }
+
+      cocos2d::CCPoint getTilePosition(int posX, int posY) const {
+        cocos2d::CCPoint pos(mapXDeltaWithWindow(), mapYDeltaWithWindow());
         pos.x -= (viewLeft() - m_position.x) ;
         pos.y -= (viewBotton() - m_position.y) ;
         pos.x += posX;
         pos.y += posY;
-
         pos.x /= m_tileSize.width;
         pos.y /= m_tileSize.height;
         return pos;

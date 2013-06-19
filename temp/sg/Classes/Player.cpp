@@ -62,7 +62,7 @@ namespace WebGame {
 
   void Player::setPosition(const CCPoint& pos) {
     CCNode::setPosition(pos);
-    m_mapPosition = m_graph->getTilePositon(pos.x, pos.y);
+    m_mapPosition = m_graph->getTilePosition(pos.x, pos.y);
   }
 
   void Player::moveTo(const CCPoint& pos, const std::vector<CCPoint>& path) {
