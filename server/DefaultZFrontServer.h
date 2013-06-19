@@ -118,7 +118,7 @@ namespace WebGame {
 
         const std::string& propertyFileName() const { return m_init_file ;}
         typedef QSocketTratis::context_t ContextType ;
-        ContextType* context() { return m_zero_ctx ;}
+        ContextType* context() { return m_zeroContext;}
 
         typedef Utility::MessageManager<int, MessageHandlerType> MessageDealerType ;
         typedef Utility::MessageManager<int, DataType> BackMessageDealerType ;
@@ -166,7 +166,7 @@ namespace WebGame {
           }
       private:
         boost::asio::io_service* m_io_service ;
-        ContextType* m_zero_ctx ;
+        ContextType* m_zeroContext;
         boost::asio::strand* m_readStrand;
         boost::asio::strand* m_writeStrand;
         DecoderType* m_decoder;
@@ -213,8 +213,8 @@ namespace WebGame {
         virtual void doInitDecoder() = 0;
         second_tt m_maxAnswerTime;
 
-        bool m_has_back ;
-        bool isConnectedToBack() const { return m_has_back ;}
+        bool m_hasBack;
+        bool isConnectedToBack() const { return m_hasBack;}
         int m_port ;
 
         enum BackServerMessageType {

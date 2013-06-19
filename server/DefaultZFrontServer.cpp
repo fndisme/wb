@@ -58,7 +58,7 @@ namespace {
   const std::string HeartBeatRate("HeartBeatRate") ;
   const std::string MaxAnswerTime("MaxAnswerTime") ;
 
-	const std::string PlayerHeartBeat("PlayerHeartBeat") ;
+  const std::string PlayerHeartBeat("PlayerHeartBeat") ;
 }
 
 
@@ -70,7 +70,7 @@ void THIS_CLASS::stop() {
 
 THIS_CLASS::DefaultZFrontServer(const OptionType& option) :
   m_io_service(option.IoService),
-  m_zero_ctx(option.ZeroContext),
+  m_zeroContext(option.ZeroContext),
   m_readStrand(option.ReadStrand),
   m_writeStrand(option.WriteStrand),
   m_decoder(option.Decoder),
@@ -82,9 +82,8 @@ THIS_CLASS::DefaultZFrontServer(const OptionType& option) :
   m_acceptor(),
   m_timers(),
   m_registered_name(""),
-  //m_normal_messages(),
   m_maxAnswerTime(0) ,
-  m_has_back(true),
+  m_hasBack(true),
   m_port(0),
   m_hard_system_prepared_message_limit(10000),
   m_delayActor(MaxDelayTime) {
@@ -104,7 +103,7 @@ void THIS_CLASS::init() {
 }
 
 void THIS_CLASS::registerStockMessage() {
-  if(m_has_back) {
+  if(m_hasBack) {
     m_back_dealer_handlers.add(Stock::InnerMessage::value,
         boost::bind(&THIS_CLASS::handleBackInnerMessage,
           this,
@@ -120,42 +119,42 @@ void THIS_CLASS::registerStockMessage() {
 }
 
 void THIS_CLASS::connectBack() {
-	Utility::PageParser pp(m_init_file) ;
+  Utility::PageParser pp(m_init_file) ;
 
-  m_has_back = pp.get(Net, IsHasBackServer, 1) > 0 ;
+  m_hasBack= pp.get(Net, IsHasBackServer, 1) > 0 ;
 
-  if(m_has_back) {
-  std::string default_address ;
-	// first set sub address
-	std::string radio_address =
-		pp.get(Net, BackServerPublishAddress, default_address) ;
+  if(m_hasBack) {
+    std::string default_address ;
+    // first set sub address
+    std::string radio_address =
+      pp.get(Net, BackServerPublishAddress, default_address) ;
 
-	pantheios::log_DEBUG("connect sub address is ", radio_address) ;
-  PANTHEIOS_MESSAGE_ASSERT(!radio_address.empty(),
-      "we need BackServerPublishAddress") ;
+    pantheios::log_DEBUG("connect sub address is ", radio_address) ;
+    PANTHEIOS_MESSAGE_ASSERT(!radio_address.empty(),
+        "we need BackServerPublishAddress") ;
 
-  // register where we get back the message
-  m_registered_name=
-		pp.get(Net, NameOfMyself, default_address) ;
-	PANTHEIOS_MESSAGE_ASSERT(!m_registered_name.empty(),
-			"we need NameOfMyself has a ****name****") ;
-  // set name tell back who am I.
-	std::string socket_address =
-		pp.get(Net, BackServerSocketAddress, default_address) ;
-  pantheios::log_DEBUG("connect back poster is ", socket_address) ;
-  PANTHEIOS_MESSAGE_ASSERT(!socket_address.empty(),
-      "we need BackServerPosterAddress") ;
+    // register where we get back the message
+    m_registered_name=
+      pp.get(Net, NameOfMyself, default_address) ;
+    PANTHEIOS_MESSAGE_ASSERT(!m_registered_name.empty(),
+        "we need NameOfMyself has a ****name****") ;
+    // set name tell back who am I.
+    std::string socket_address =
+      pp.get(Net, BackServerSocketAddress, default_address) ;
+    pantheios::log_DEBUG("connect back poster is ", socket_address) ;
+    PANTHEIOS_MESSAGE_ASSERT(!socket_address.empty(),
+        "we need BackServerPosterAddress") ;
 
-  PANTHEIOS_ASSERT(m_zero_ctx) ;
+    PANTHEIOS_ASSERT(m_zeroContext) ;
 
-  m_socket.reset(
-      new ZSocketType(
-        *m_readStrand,
-        *m_zero_ctx,
-        *m_decoder,
-        m_registered_name,
-        radio_address,
-        socket_address)) ;
+    m_socket.reset(
+        new ZSocketType(
+          *m_readStrand,
+          *m_zeroContext,
+          *m_decoder,
+          m_registered_name,
+          radio_address,
+          socket_address)) ;
   }
 }
 
@@ -174,14 +173,13 @@ void THIS_CLASS::onReceiveConncetionMessage(const DataType& db,
   }
 }
 
-
 void THIS_CLASS::dispatchConnectionMessage(const DataType& db,
-		THIS_CLASS::NetConnectionType::pointer nc) {
-	if(!m_client_handlers.dispatch(db.messageType(), std::make_tuple(std::cref(db),
-					nc))) {
-		if(isRegisterConnection(nc) && isConnectedToBack())
-			pushMessageToBack(db) ;
-	}
+    THIS_CLASS::NetConnectionType::pointer nc) {
+  if(!m_client_handlers.dispatch(db.messageType(), std::make_tuple(std::cref(db),
+          nc))) {
+    if(isRegisterConnection(nc) && isConnectedToBack())
+      pushMessageToBack(db) ;
+  }
 }
 
 void THIS_CLASS::pushMessageToBack(const DataType& db) const {
@@ -199,7 +197,6 @@ void THIS_CLASS::startReceiveConnection() {
   m_hard_system_prepared_message_limit = pp.get(Net, HardPoolMessageSize, 10000L) ;
   m_ungent_max_send_size = pp.get(Net, MaxSendUngentMessageSize, 100) ;
   m_normal_max_send_size = pp.get(Net, MaxSendNormalMessageSize, m_ungent_max_send_size) ;
-
   auto handle_connect = boost::bind(&THIS_CLASS::onNewConnection, this, _1, _2) ;
   auto handle_connect_success = boost::bind(&THIS_CLASS::makeConnectionValid, this, _1) ;
   auto handle_error = boost::bind(&THIS_CLASS::onConnectionLeave, this, _1, _2);
@@ -214,7 +211,6 @@ void THIS_CLASS::startReceiveConnection() {
       *m_writeStrand,
       *m_decoder,
       m_port, prop) ;
-
 
   second_tt rate = second_tt(pp.get(ClientOption, HeartBeatRate, 0)) ;
   if(rate > 0) {
@@ -248,9 +244,9 @@ void THIS_CLASS::makeDecorderLocked() {
 void THIS_CLASS::registerRepeatTimer(second_tt inteval,
     const NetCore::timer_event_function_type& func) {
   m_timers.push_back(NetCore::TimerEvent::create(*m_readStrand,
-          inteval,
-          func
-          )) ;
+        inteval,
+        func
+        )) ;
 }
 
 void THIS_CLASS::dealHeartBeat() {
@@ -260,12 +256,12 @@ void THIS_CLASS::dealHeartBeat() {
 
   m_acceptor->processInplaceAction(std::move(declevel)) ;
 
-	auto cond = [](NetConnectionType::pointer nc) -> bool {
-		return nc->isHeartDead() ;
-	} ;
+  auto cond = [](NetConnectionType::pointer nc) -> bool {
+    return nc->isHeartDead() ;
+  } ;
 
-	auto fun = [](NetConnectionType::pointer nc) { nc->onError() ;} ;
-	m_acceptor->processAction(std::move(cond), std::move(fun)) ;
+  auto fun = [](NetConnectionType::pointer nc) { nc->onError() ;} ;
+  m_acceptor->processAction(std::move(cond), std::move(fun)) ;
 
   auto needheart = [](NetConnectionType::pointer nc) -> bool {
     return nc->isNeedHeartBeat() ;
@@ -286,22 +282,22 @@ void
 THIS_CLASS::makeConnectionValid(THIS_CLASS::NetConnectionType::pointer nc) {
 
   pan::log_DEBUG("start reseive player data....") ;
-	nc->start() ;
+  nc->start() ;
   pan::log_DEBUG("real start ok....") ;
 }
 
 void THIS_CLASS::bindPollManager(ZPollInManager* mgr) {
   if(isConnectedToBack()) {
-  m_socket->bindPollManager(mgr,
-      boost::bind(&THIS_CLASS::dealBackMessage,
-        this,
-        _1),
-      boost::bind(&THIS_CLASS::dealBackRadioMessage,
-        this,
-        _1)
-      ) ;
-  mgr->registerWriteActor(std::bind(&THIS_CLASS::absorbDelaySystemMessage,
-        this), ZPollInManager::OT_FRONT) ;
+    m_socket->bindPollManager(mgr,
+        boost::bind(&THIS_CLASS::dealBackMessage,
+          this,
+          _1),
+        boost::bind(&THIS_CLASS::dealBackRadioMessage,
+          this,
+          _1)
+        ) ;
+    mgr->registerWriteActor(std::bind(&THIS_CLASS::absorbDelaySystemMessage,
+          this), ZPollInManager::OT_FRONT) ;
   }
 
   doBindPollManager(mgr) ;
@@ -322,7 +318,7 @@ void THIS_CLASS::sendFastMessage() {
 
 void THIS_CLASS::postNormalMessage() {
   pantheios::log_DEBUG("Post Normal Message ", pan::i(m_normal_post_message.size())) ;
-size_t max_send_size = std::min(m_normal_max_send_size, m_normal_post_message.size()) ;
+  size_t max_send_size = std::min(m_normal_max_send_size, m_normal_post_message.size()) ;
   auto iter = m_normal_post_message.begin(), iter_end = m_normal_post_message.begin() + max_send_size ;
   std::for_each(iter, iter_end, [this](NormalMessageGroup::const_reference v) {
       make_message_to_radio_dealer(v) ;
@@ -371,15 +367,15 @@ void THIS_CLASS::handleBackInnerPostMessage(const DataType& db) {
   if(msg->has_group()) {
     if(ids.empty()) {
       do_deal_back_post_message(msg->group().type(),
-                                msg->group().id(),msg->group().property(), db2) ;
+          msg->group().id(),msg->group().property(), db2) ;
     } else if(ids.size() == 1) {
       do_deal_back_post_message(msg->group().type(),
-                                msg->group().id(),
-                                msg->group().property(), db2, ids[0]) ;
+          msg->group().id(),
+          msg->group().property(), db2, ids[0]) ;
     } else {
-    do_deal_back_post_message(msg->group().type(),
-                              msg->group().id(),
-                              msg->group().property(), db2, ids) ;
+      do_deal_back_post_message(msg->group().type(),
+          msg->group().id(),
+          msg->group().property(), db2, ids) ;
     }
   } else {
     if(ids.empty()) sendMessageToAllConnection(db2) ;
@@ -390,13 +386,13 @@ void THIS_CLASS::handleBackInnerPostMessage(const DataType& db) {
 }
 
 void THIS_CLASS::make_message_to_named_dealer(const DataType& db) {
-if(!m_back_dealer_handlers.dispatch(db.messageType(), db)) {
+  if(!m_back_dealer_handlers.dispatch(db.messageType(), db)) {
     doDefaultBackMessageCallback(db) ;
   }
 }
 
 void THIS_CLASS::make_message_to_radio_dealer(const DataType& db) {
-if(!m_back_subscriber_dealers.dispatch(db.messageType(), db))
+  if(!m_back_subscriber_dealers.dispatch(db.messageType(), db))
     sendMessageToAllConnection(db) ;
 }
 
@@ -426,7 +422,6 @@ bool THIS_CLASS::isNormalMessageNeedDelay() const {
 
 void THIS_CLASS::dealBackRadioMessage(std::shared_ptr<DataType> d) {
   auto& db = *d;
-  pantheios::log_DEBUG("dr: ", db) ;
   auto normalNeedDelay = isNormalMessageNeedDelay() ;
   bool needdelay = normalNeedDelay || !m_sys_delayed_message.empty() ;
 
