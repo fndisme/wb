@@ -27,6 +27,7 @@
 #include "webgame/message/shims/DataBlock.h"
 #include "webgame/message/MessageBuilder.h"
 #include "webgame/server/ZPollInManager.h"
+#include "webgame/utility/LockGuard.h"
 #include "webgame/utility/PageParser.h"
 
 // base message
@@ -81,12 +82,12 @@ THIS_CLASS::DefaultZFrontServer(const OptionType& option) :
   m_acceptor(),
   m_timers(),
   m_registered_name(""),
-  m_normal_messages(),
-  m_max_answer_time(0) ,
+  //m_normal_messages(),
+  m_maxAnswerTime(0) ,
   m_has_back(true),
   m_port(0),
   m_hard_system_prepared_message_limit(10000),
-  m_delay_actor(MaxDelayTime) {
+  m_delayActor(MaxDelayTime) {
   }
 
 void THIS_CLASS::init() {
@@ -99,7 +100,7 @@ void THIS_CLASS::init() {
 
 
   makeMessageDealersFinal() ;
-  
+
 }
 
 void THIS_CLASS::registerStockMessage() {
@@ -115,7 +116,7 @@ void THIS_CLASS::registerStockMessage() {
           _1)) ;
   }
 
-  if(needHeartBeat()) m_normal_messages.insert(Server::Stock::HeartBeat::value) ;
+  //if(needHeartBeat()) m_normal_messages.insert(Server::Stock::HeartBeat::value) ;
 }
 
 void THIS_CLASS::connectBack() {
@@ -219,11 +220,11 @@ void THIS_CLASS::startReceiveConnection() {
   if(rate > 0) {
     PANTHEIOS_ASSERT(m_decoder);
     m_decoder->registerBuilder<Server::Stock::HeartBeat>();
-    m_max_answer_time =
+    m_maxAnswerTime=
       second_tt(pp.get(ClientOption, MaxAnswerTime, 0)) ;
     pan::log_DEBUG("heart beat rate : ", pan::i(rate.base_type_value()),
-        " answer time is : ", pan::i(m_max_answer_time.base_type_value())) ;
-    PANTHEIOS_MESSAGE_ASSERT(m_max_answer_time > rate,
+        " answer time is : ", pan::i(m_maxAnswerTime.base_type_value())) ;
+    PANTHEIOS_MESSAGE_ASSERT(m_maxAnswerTime> rate,
         "we need right MaxAnswerTime") ;
     registerRepeatTimer(rate, boost::bind(&THIS_CLASS::dealHeartBeat, this)) ;
     m_client_handlers.add(Server::Stock::HeartBeat::value,
@@ -231,9 +232,8 @@ void THIS_CLASS::startReceiveConnection() {
   }
 
   registerRepeatTimer(second_tt(1), [this]() {
-      m_delay_actor.lock() ;
-      m_delay_actor.action() ;
-      m_delay_actor.unlock() ;
+      Utility::LockGuard<decltype(m_delayActor)> guard(m_delayActor);
+      m_delayActor.action() ;
       }) ;
 
   // start connect client
@@ -245,7 +245,7 @@ void THIS_CLASS::makeDecorderLocked() {
     m_decoder->makeFinal();
 }
 
-void THIS_CLASS::registerRepeatTimer(second_tt inteval, 
+void THIS_CLASS::registerRepeatTimer(second_tt inteval,
     const NetCore::timer_event_function_type& func) {
   m_timers.push_back(NetCore::TimerEvent::create(*m_readStrand,
           inteval,

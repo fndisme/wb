@@ -3,7 +3,7 @@
  *
  *       Filename:  TestServer.cpp
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2013年05月31日 22时19分01秒
@@ -11,11 +11,11 @@
  *       Compiler:  gcc
  *
  *         Author:  Fang Dongheng (fndisme), fndisme@163.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
-#include "TestServer.h" 
+#include "TestServer.h"
 #include <iostream>
 #include "webgame/netcore/Connection.h"
 #include "webgame/protocal/PingPong.pb.h"
@@ -81,6 +81,3 @@ THIS_CLASS::TestServer(const OptionType& option) :
   DefaultZFrontServer(option) {}
 
 #undef THIS_CLASS
-
-
-

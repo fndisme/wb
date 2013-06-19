@@ -75,20 +75,20 @@ namespace WebGame {
         typedef boost::system::error_code NetErrorType ;
         bool onNewConnection(NetConnectionPointer, const NetErrorType&) {return true ;}
         bool needHeartBeat() const { return maxAnswerTime() != 0;}
-        second_tt maxAnswerTime() const { return m_max_answer_time;}
+        second_tt maxAnswerTime() const { return m_maxAnswerTime;}
         inline bool isRegisterConnection(NetConnectionPointer nc) const {
           return doIsRegisterConnection(nc) ;
         }
         DecoderType* decoder() { return m_decoder;}
-        inline bool isNormalMessage(int msg) const {
-          return m_normal_messages.find(msg) != m_normal_messages.end() ;
-        }
+//        inline bool isNormalMessage(int msg) const {
+//          return m_normal_messages.find(msg) != m_normal_messages.end() ;
+//        }
         bool isNormalPostMessage(int msg) const {
           return m_normal_register_message.count(msg) == 1 ;
         }
-        void registerNormalMessage(int msg) {
-          m_normal_messages.insert(msg) ;
-        }
+//        void registerNormalMessage(int msg) {
+//          m_normal_messages.insert(msg) ;
+//        }
         void registerNormalPostMessage(int msg) {
           m_normal_register_message.insert(msg) ;
         }
@@ -162,7 +162,7 @@ namespace WebGame {
       protected:
         template<typename Action>
           void addDelayAction(size_t position, Action&& act) {
-            m_delay_actor.addAction(position, std::forward<Action>(act)) ;
+            m_delayActor.addAction(position, std::forward<Action>(act)) ;
           }
       private:
         boost::asio::io_service* m_io_service ;
@@ -181,7 +181,7 @@ namespace WebGame {
 
         std::vector<NetCore::timer_event_pointer> m_timers ;
         std::string m_registered_name ;
-        boost::container::flat_set<int> m_normal_messages ;
+        //boost::container::flat_set<int> m_normal_messages ;
         boost::container::flat_set<int> m_normal_register_message ;
         void dealHeartBeat() ;
         void makeDecorderLocked();
@@ -211,7 +211,7 @@ namespace WebGame {
         virtual void doBindPollManager(ZPollInManager* /*mgr*/) {} // normal we do nothing for bind poll mgr
         virtual void doStart() { init();}
         virtual void doInitDecoder() = 0;
-        second_tt m_max_answer_time ;
+        second_tt m_maxAnswerTime;
 
         bool m_has_back ;
         bool isConnectedToBack() const { return m_has_back ;}
@@ -241,7 +241,7 @@ namespace WebGame {
 
         typedef Utility::CircleActor<Utility::DelayMessageDealer> DelayMessageActor ;
 
-        DelayMessageActor m_delay_actor ;
+        DelayMessageActor m_delayActor;
 
         enum { MaxDelayTime = 10 } ;
     } ;
