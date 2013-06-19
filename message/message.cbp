@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="message" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="messaged" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj/Debug/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="message" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj/Release/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add directory="/home/fndisme/work/github" />
+		</Compiler>
+		<Unit filename="DataBlock.cpp" />
+		<Unit filename="DataBlock.h" />
+		<Unit filename="DataBlockFwd.h" />
+		<Unit filename="DataCache.h" />
+		<Unit filename="DataCache_fwd.h" />
+		<Unit filename="MakeCacheMessage.h" />
+		<Unit filename="MessageBuilder.h" />
+		<Unit filename="MessageUtility.cpp" />
+		<Unit filename="MessageUtility.h" />
+		<Unit filename="data_header.pb.cc" />
+		<Unit filename="data_header.pb.h" />
+		<Unit filename="shims/DataBlock.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

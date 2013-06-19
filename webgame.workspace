@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="Workspace">
+		<Project filename="test/test.cbp">
+			<Depends filename="utility/utility.cbp" />
+			<Depends filename="message/message.cbp" />
+			<Depends filename="netcore/netcore.cbp" />
+			<Depends filename="server/server.cbp" />
+		</Project>
+		<Project filename="utility/utility.cbp" />
+		<Project filename="message/message.cbp">
+			<Depends filename="utility/utility.cbp" />
+		</Project>
+		<Project filename="netcore/netcore.cbp">
+			<Depends filename="utility/utility.cbp" />
+			<Depends filename="message/message.cbp" />
+		</Project>
+		<Project filename="server/server.cbp">
+			<Depends filename="utility/utility.cbp" />
+			<Depends filename="message/message.cbp" />
+			<Depends filename="netcore/netcore.cbp" />
+		</Project>
+		<Project filename="testclient/testclient.cbp">
+			<Depends filename="utility/utility.cbp" />
+			<Depends filename="message/message.cbp" />
+			<Depends filename="netcore/netcore.cbp" />
+			<Depends filename="server/server.cbp" />
+			<Depends filename="mock/mock.cbp" />
+		</Project>
+		<Project filename="mock/mock.cbp">
+			<Depends filename="utility/utility.cbp" />
+			<Depends filename="message/message.cbp" />
+			<Depends filename="netcore/netcore.cbp" />
+			<Depends filename="server/server.cbp" />
+		</Project>
+	</Workspace>
+</CodeBlocks_workspace_file>

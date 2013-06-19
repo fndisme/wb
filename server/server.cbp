@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="server" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="serverd" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj/Debug/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="server" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj/Release/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add directory="/home/fndisme/work/github" />
+		</Compiler>
+		<Unit filename="CommonServerDef.h" />
+		<Unit filename="DefaultZFrontServer.cpp" />
+		<Unit filename="DefaultZFrontServer.h" />
+		<Unit filename="LoggerUtility.h" />
+		<Unit filename="SearchingPlayerFleetProperty.h" />
+		<Unit filename="ServerOption.h" />
+		<Unit filename="XSSocketTraits.h" />
+		<Unit filename="ZMQSocketTraits.h" />
+		<Unit filename="ZMasterServerSocket.h" />
+		<Unit filename="ZPollInManager.h" />
+		<Unit filename="ZSlaveDef.h" />
+		<Unit filename="ZSlaveServerSocket.h" />
+		<Unit filename="ZSocketDef.h" />
+		<Unit filename="ZSocketUtility.h" />
+		<Unit filename="stock/HeartBeat.pb.cc" />
+		<Unit filename="stock/HeartBeat.pb.h" />
+		<Unit filename="stock/InnerMessage.pb.cc" />
+		<Unit filename="stock/InnerMessage.pb.h" />
+		<Unit filename="stock/InnerPostMessage.pb.cc" />
+		<Unit filename="stock/InnerPostMessage.pb.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
