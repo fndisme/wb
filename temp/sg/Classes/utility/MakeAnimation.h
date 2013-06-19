@@ -33,6 +33,7 @@ namespace WebGame {
     MoveInfo(int dir, int step) :
       Direction(dir),
       Step(step) {}
+    explicit MoveInfo(const cocos2d::CCPoint& p);
   };
 
 
@@ -44,6 +45,19 @@ namespace WebGame {
       float frameTime,
       int timesPerStep,
       float moveSpeed);
+
+  cocos2d::CCActionInterval* createMoveAction(
+      const std::vector<MoveInfo>& moveInfo,
+      const cocos2d::CCSize& tileSize,
+      float moveSpeed);
+  cocos2d::CCActionInterval* createAnimation(
+      const std::string& baseName,
+      const std::vector<MoveInfo>& moveInfo,
+      const cocos2d::CCSize& tileSize,
+      int frameSize,
+      float frameTime,
+      int timesPerStep);
+
 
 }
 #endif

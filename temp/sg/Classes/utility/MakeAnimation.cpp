@@ -20,6 +20,19 @@
 using namespace cocos2d;
 namespace WebGame {
 
+  MoveInfo::MoveInfo(const CCPoint& pos) : Direction(LEFT),
+  Step(1) {
+    if(pos.x > 0) {
+      Direction = RIGHT;
+    } else if(pos.x < 0) {
+      Direction = LEFT;
+    } else if(pos.y > 0) {
+      Direction = UP;
+    } else if(pos.y < 0) {
+      Direction = DOWN;
+    }
+  }
+
   static cocos2d::CCActionInterval* createRFAnimFormTexture(
       cocos2d::CCTexture2D* pTexture,
       const MoveInfo& moveInfo,
@@ -72,9 +85,49 @@ namespace WebGame {
         assert(false);
         break;
     }
-    CCMoveBy* moveBy = CCMoveBy::create(moveSpeed, moved);
+    CCMoveBy* moveBy = CCMoveBy::create(moveSpeed * info.Step, moved);
     return moveBy;
   }
+}
+cocos2d::CCActionInterval* WebGame::createMoveAction(
+      const std::vector<MoveInfo>& moveInfo,
+      const cocos2d::CCSize& tileSize,
+      float moveSpeed) {
+  CCArray* arr = CCArray::create();
+  for(auto& info : moveInfo) {
+    CCActionInterval* moveStep = WebGame::createMoveStep(
+        tileSize,
+        info,
+        moveSpeed);
+    assert(moveStep);
+    arr->addObject(moveStep);
+  }
+  CCSequence* seq = CCSequence::create(arr);
+  return seq;
+}
+
+cocos2d::CCActionInterval* WebGame::createAnimation(
+    const std::string& baseName,
+    const std::vector<MoveInfo>& moveInfo,
+    const cocos2d::CCSize& tileSize,
+    int frameSize,
+    float frameTime,
+    int timesPerStep) {
+  CCTexture2D* tex =
+    CCTextureCache::sharedTextureCache()->textureForKey(baseName.c_str());
+  CCArray* arr = CCArray::create();
+  for(int i = 0 ; i < moveInfo.size() ; ++i) {
+    CCActionInterval* act = WebGame::createRFAnimFormTexture(
+        tex,
+        moveInfo[i],
+        tileSize,
+        frameSize,
+        frameTime,
+        timesPerStep);
+    assert(act);
+    arr->addObject(act);
+  }
+  return CCSequence::create(arr);
 }
 
 

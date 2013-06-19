@@ -32,6 +32,7 @@ namespace WebGame {
   class TileWindowPosition;
   class Player : public cocos2d::CCNode,
   public cocos2d::CCTouchDelegate {
+    typedef cocos2d::CCNode base_class;
     public:
       const std::string& name() const { return m_name;}
       int id() const { return m_id;}
@@ -40,10 +41,12 @@ namespace WebGame {
         m_name(name),
         m_sprite(0),
         m_isMoveScreen(false),
-        m_graph(0){}
+        m_graph(0),
+        m_scale(1.0f){}
       static Player* create(int id, const std::string& name,
           const std::string& texName,
           const cocos2d::CCRect& rect,
+          float scale,
           const TileWindowPosition*);
       virtual bool init();
 
@@ -77,6 +80,7 @@ namespace WebGame {
       bool hasNode(const std::shared_ptr<GraphNode>& node) const;
       int m_id;
       std::string m_name;
+      std::string m_animTextureName;
       std::vector<std::shared_ptr<GraphNode> > m_nodes;
       cocos2d::CCSprite* m_sprite;
       HelloWorld* getScene();
@@ -87,6 +91,7 @@ namespace WebGame {
       bool m_isMoveScreen;
       const TileWindowPosition* m_graph;
       cocos2d::CCPoint m_mapPosition;
+      float m_scale;
   };
 }
 #endif

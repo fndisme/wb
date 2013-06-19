@@ -30,26 +30,33 @@ namespace WebGame {
   Player* Player::create(int id, const std::string& name,
       const std::string& texName,
       const CCRect& rect,
+      float scale,
       const TileWindowPosition* graph) {
     Player* p = new Player(id, name);
     if(p && p->init()) {
       p->autorelease();
     }
+    p->m_animTextureName = texName;
     CCTexture2D* tex = CCTextureCache::sharedTextureCache()->textureForKey(texName.c_str());
     p->m_sprite = CCSprite::createWithTexture(tex, rect);
     p->addChild(p->m_sprite);
     p->m_canRevert = true;
     p->m_graph = graph;
+    p->m_scale = scale;
+    p->setScale(scale);
     return p;
   }
 
   void Player::onEnter() {
+    base_class::onEnter();
     CCDirector::sharedDirector()->
       getTouchDispatcher()->addTargetedDelegate(this, 0, true);
   }
 
   void Player::onExit() {
+
     CCDirector::sharedDirector()->getTouchDispatcher()->removeDelegate(this);
+    base_class::onExit();
   }
 
 
@@ -59,6 +66,26 @@ namespace WebGame {
   }
 
   void Player::moveTo(const CCPoint& pos, const std::vector<CCPoint>& path) {
+    if(!path.empty()) {
+      std::vector<MoveInfo> moveInfos;
+      for(auto& p : path) {
+        moveInfos.push_back(MoveInfo(p));
+      }
+
+      auto action = createAnimation(m_animTextureName,
+          moveInfos,
+          CCSize(48, 48),
+          4,
+          0.1f,
+          3);
+      //CCHide * hide= CCHide::create();
+      m_sprite->runAction(action);
+      action = createMoveAction(
+          moveInfos,
+          CCSize(48 * m_scale, 48 * m_scale),
+          0.3f);
+      runAction(action);
+    }
   }
 
   void Player::ccTouchMoved(CCTouch* touch, CCEvent* event) {
@@ -84,7 +111,7 @@ namespace WebGame {
   }
 
   bool Player::init() {
-    if(!CCNode::init()) return false;
+    if(!base_class::init()) return false;
     return true;
   }
 

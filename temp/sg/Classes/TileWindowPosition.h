@@ -30,7 +30,6 @@ namespace WebGame {
       }
 
       void moveDelta(int deltaX, int deltaY) {
-        cocos2d::CCLog("delta, %d %d", deltaX, deltaY);
         cocos2d::CCPoint pos(m_position.x + deltaX, m_position.y + deltaY);
         setAbsoluteCenter(pos);
       }
@@ -114,23 +113,16 @@ namespace WebGame {
 //        assert(posY >= windowBottom());
 //        assert(posX < windowRight());
 //        assert(posY < windowTop());
-        //cocos2d::CCPoint pos(-m_tileSize.width/2, -m_tileSize.height/2);
-        
         cocos2d::CCPoint pos(0, 0);
-        cocos2d::CCLog("first %f %f", pos.x, pos.y);
         pos.x += mapXDeltaWithWindow();
         pos.y += mapYDeltaWithWindow();
-        cocos2d::CCLog("second %f %f", pos.x, pos.y);
         pos.x -= (viewLeft() - m_position.x) ;
         pos.y -= (viewBotton() - m_position.y) ;
-        cocos2d::CCLog("thrid %f %f", pos.x, pos.y);
         pos.x += posX;
         pos.y += posY;
 
-        cocos2d::CCLog("four %f %f", pos.x, pos.y);
         pos.x /= m_tileSize.width;
         pos.y /= m_tileSize.height;
-        cocos2d::CCLog("last %d %d %f %f", posX, posY, pos.x, pos.y);
         return pos;
 
       }
@@ -139,10 +131,7 @@ namespace WebGame {
         cocos2d::CCPoint pos(tileX * m_tileSize.width, tileY * m_tileSize.height);
         pos.x += (viewLeft() - m_position.x)  - mapXDeltaWithWindow() + m_tileSize.width / 2;
         pos.y += (viewBotton() - m_position.y)  - mapYDeltaWithWindow() + m_tileSize.height / 2;
-        //auto p2 = getTilePositon(pos.x, pos.y);
-        //assert(p2.x == tileX);
-        //assert(p2.y == tileY);
-        cocos2d::CCLog("trans to it %d %d %f %f", tileX, tileY, pos.x, pos.y);
+
         return pos;
       }
 

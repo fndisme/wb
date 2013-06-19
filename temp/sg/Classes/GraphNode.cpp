@@ -29,6 +29,6 @@ namespace WebGame {
   }
 
   bool GraphNode::hasAttachedPlayer() const {
-    return m_player;
+    return m_player != 0;
   }
 }

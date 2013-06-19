@@ -191,12 +191,12 @@ void HelloWorld::generateRandomPlayers() {
 
   using WebGame::Player;
   CCRect rect(0,0,48,48);
-  Player* p = Player::create(0, "aa", "DQV (1).png", rect, m_tileWindowPosition.get());
+  Player* p = Player::create(0, "aa", "DQV (1).png", rect, m_scale, m_tileWindowPosition.get());
   p->setMeta(*(m_gameProperty->playerMeta(1)));
   addChild(p, 10);
   p->setPosition(pos1);
   m_players[p->id()] = p;
-  p = Player::create(1, "bb","DQV (1).png", rect, m_tileWindowPosition.get());
+  p = Player::create(1, "bb","DQV (1).png", rect, m_scale, m_tileWindowPosition.get());
   addChild(p, 10);
   p->setPosition(pos2);
   p->setMeta(*(m_gameProperty->playerMeta(2)));
@@ -382,11 +382,20 @@ void HelloWorld::inPlayerMoveState(const cocos2d::CCPoint& position) {
   auto node = m_graph->node(position.x, position.y);
   auto path = m_searcher->pathToTarget(node->index());
   std::vector<CCPoint> deltaPositions;
-  const auto& originPos = m_currentPlayer->tilePosition();
+  auto originPos = m_currentPlayer->tilePosition();
+  originPos.x = std::floor(originPos.x);
+  originPos.y = std::floor(originPos.y);
   for(const auto& index : path) {
     auto n = m_graph->node(index);
     deltaPositions.push_back(ccp(n->x() - originPos.x, n->y() - originPos.y));
   }
+  assert(!deltaPositions.empty());
+  for(int i = 0, size = deltaPositions.size() - 1; i < size ; ++i) {
+    deltaPositions[i].x = deltaPositions[i].x - deltaPositions[i+1].x;
+    deltaPositions[i].y = deltaPositions[i].y - deltaPositions[i+1].y;
+  }
+  deltaPositions.pop_back();
+  std::reverse(std::begin(deltaPositions), std::end(deltaPositions));
 
   m_currentPlayer->moveTo(position, deltaPositions);
   m_currentState = S_PLAYER_MOVE;
@@ -397,6 +406,9 @@ bool HelloWorld::checkInMoveMask(const cocos2d::CCPoint& pointInView) {
   if(m_showMapRect.containsPoint(pointInView)) {
     if(m_currentPlayer && m_tileMask) {
       auto pos = viewPointToMapPos(pointInView);
+      pos.x = std::floor(pos.x);
+      pos.y = std::floor(pos.y);
+      CCLog("Check in inview %f %f", pos.x, pos.y);
       return m_tileMask->hasPosition(pos);
     }
   }
