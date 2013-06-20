@@ -87,11 +87,17 @@ namespace WebGame {
           m_normal_register_message.insert(msg) ;
         }
 
-        bool isNormalMessageNeedDelay() const ;
+        bool isTooManyMessageWaitingForDealing() const ;
         bool isFasterPostMessage(const DataType&) const ;
         inline bool isValidMessage(DataType const& db, NetConnectionPointer nc) const {
           return doIsValidMessage(db, nc) ;
         }
+        /**
+         * @brief when client connection is successed connect to server. call
+         * it, default action is make it read and write.
+         *
+         * @param NetConnectionPointer
+         */
         virtual void makeConnectionValid(NetConnectionPointer);
         void onReceiveConncetionMessage(const DataType&, NetConnectionPointer)  ;
         inline void onConnectionLeave(const NetErrorType& error, NetConnectionPointer nc) {
@@ -100,7 +106,10 @@ namespace WebGame {
         inline void sendMessageToAllConnection(const DataType& db) const {
           doSendMessageToAllConnection(db) ;
         }
-        int listenPort() const { return m_port ;}
+      private:
+        short m_port;
+      public:
+        short listenPort() const { return m_port ;}
         inline void registerActions() {
           doRegisterActions() ;
         }
@@ -148,7 +157,7 @@ namespace WebGame {
             pushCacheMessageToBack(easy_data_block_cache(std::forward<MSG>(msg), pid)) ;
           }
 
-        const std::string& name() const { return m_registered_name ;}
+        const std::string& name() const { return m_nameForBackServer;}
 
 #ifdef WIN32
         typedef std::vector<Message::DataCache::const_pointer> SocketDataVector;
@@ -162,8 +171,17 @@ namespace WebGame {
           void addDelayAction(size_t position, Action&& act) {
             m_delayActor.addAction(position, std::forward<Action>(act)) ;
           }
+        struct MiniGroup {
+          int Id;
+          int Type;
+          int Property;
+          explicit MiniGroup(int id, int type, int property) :
+            Id(id),
+            Type(type),
+            Property(property) {}
+        };
       private:
-        boost::asio::io_service* m_io_service ;
+        //boost::asio::io_service* m_ioService ;
         ContextType* m_zeroContext;
         boost::asio::strand* m_readStrand;
         boost::asio::strand* m_writeStrand;
@@ -178,8 +196,7 @@ namespace WebGame {
         AcceptorPointer m_acceptor ;
 
         std::vector<NetCore::timer_event_pointer> m_timers ;
-        std::string m_registered_name ;
-        //boost::container::flat_set<int> m_normal_messages ;
+        std::string m_nameForBackServer;
         boost::container::flat_set<int> m_normal_register_message ;
         void dealHeartBeat() ;
         void makeDecorderLocked();
@@ -194,54 +211,91 @@ namespace WebGame {
         void handleBackInnerPostMessage(const DataType&) ;
         void initOtherService() { doInitOtherService() ;}
 
+        /// after are child class must instanced
+        /**
+         * @brief when the server could not deal the message. call it.
+         *
+         * @param DataType the message back send to front
+         */
         virtual void doDefaultBackMessageCallback(const DataType&) const = 0;
+        /**
+         * @brief send message to all client.
+         *
+         * @param db message
+         */
         virtual void doSendMessageToAllConnection(const DataType& db) const = 0 ;
+        /**
+         * @brief when client socket disconnected call it
+         *
+         * @param NetErrorType error
+         * @param NetConnectionPointer connect
+         */
         virtual void doOnConnectionLeave(const NetErrorType&,
             NetConnectionPointer) = 0 ;
+        /**
+         * @brief check is client message is valid
+         *
+         * @param db
+         * @param nc
+         *
+         * @return true for ok
+         */
         virtual bool doIsValidMessage(const DataType& db,
             NetConnectionPointer nc) const = 0 ;
+        /**
+         * @brief check if the client is registered
+         *
+         * @param nc
+         *
+         * @return trur for ok
+         */
         virtual bool doIsRegisterConnection(NetConnectionPointer nc) const = 0 ;
+        /**
+         * @brief in this function register all the message callbacks.
+         */
         virtual void doRegisterActions() = 0 ;
-        virtual void do_deal_back_post_message(const DataType& db,
-            PlayerGroup const&) = 0 ;
-        virtual void do_deal_back_post_message(const DataType& db,
-            player_tt pid) = 0 ;
-        virtual void do_deal_back_post_message(int, int, int,
-            const DataType& db, PlayerGroup const&) = 0 ;
-        virtual void do_deal_back_post_message(int, int, int,
-            const DataType& db, player_tt pid) = 0 ;
-        virtual void do_deal_back_post_message(int, int, int,const DataType& db) = 0 ;
+        // no group
+        virtual void doDealBackServerPostMessage(const DataType& db,
+            PlayerGroup const& group) = 0;
+        virtual void doDealBackServerGroupMessage(const MiniGroup&,
+            const DataType& db,
+            PlayerGroup const& clientsIds) = 0;
+        /**
+         * @brief init the decorder to decode or encode message.
+         */
+        virtual void doInitDecoder() = 0;
+
+        /**
+         * @brief if the server has other special action or service. do it here
+         * default is nothing if as simple front server
+         */
         virtual void doInitOtherService() {} // do nothing default
         virtual void doBindPollManager(ZPollInManager* /*mgr*/) {} // normal we do nothing for bind poll mgr
+        /**
+         * @brief start the service..
+         * default just call init make it as a simple server
+         */
         virtual void doStart() { init();}
-        virtual void doInitDecoder() = 0;
         second_tt m_maxAnswerTime;
 
         bool m_hasBack;
         bool isConnectedToBack() const { return m_hasBack;}
-        int m_port ;
-
-        enum BackServerMessageType {
-          BSM_RADIO,
-          BSM_NAMED,
-        } ;
-
-        //typedef std::tuple<BackServerMessageType, DataType> HardCoreDelayedMessage ;
-
         typedef boost::container::deque<DataType> UngentMessageGroup ;
         typedef UngentMessageGroup HardCoreDelayedMessageGroup ;
-        HardCoreDelayedMessageGroup m_sys_delayed_message ;
-        UngentMessageGroup m_ungent_message ;
+        HardCoreDelayedMessageGroup m_canDelayedMessage;
+        UngentMessageGroup m_ungentMessage;
         typedef UngentMessageGroup NormalMessageGroup ;
-        NormalMessageGroup m_normal_post_message ;
+        NormalMessageGroup m_waitingPostMessage;
         void sendFastMessage() ;
+
+        void sendWaitingMessage(size_t maxSendSize, UngentMessageGroup& messages);
         size_t m_hard_system_prepared_message_limit ;
         void absorbDelaySystemMessage() ;
-        void make_message_to_named_dealer(const DataType&) ;
-        void make_message_to_radio_dealer(const DataType&) ;
-        size_t m_ungent_max_send_size ;
-        void postNormalMessage() ;
-        size_t m_normal_max_send_size ;
+        void dispatchBackServerMessage(const DataType&) ;
+        void dispatchBackServerBroadcastMessage(const DataType&) ;
+        size_t m_ungentMaxSendSize;
+        void sendNormalMessage() ;
+        size_t m_normal_max_send_size;
 
         typedef Utility::CircleActor<Utility::DelayMessageDealer> DelayMessageActor ;
 

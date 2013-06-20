@@ -51,11 +51,14 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_WIN32_WINNT=0x0501;BOOST_ASIO_SEPARATE_COMPILATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../..;$(BOOST_ROOT)\include;$(STLSOFT)\include;$(PANTHEIOS_ROOT)\include;$(FASTFORMAT_ROOT)\include;$(PROTOBUF_ROOT)\include;$(ZEROMQ_ROOT)\include;$(CROSSROAD_ROOT)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(BOOST_ROOT)\lib;$(CROSSROAD_ROOT)\lib\Win32;$(PANTHEIOS_ROOT)\lib;$(FASTFORMAT_ROOT)\lib;$(PROTOBUF_ROOT)\Debug;..\utility\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libxs_d.lib;libprotobuf.lib;server.lib;message.lib;netcore.lib;utility.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

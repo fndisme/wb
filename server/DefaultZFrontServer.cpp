@@ -68,7 +68,7 @@ void THIS_CLASS::stop() {
 }
 
 THIS_CLASS::DefaultZFrontServer(const OptionType& option) :
-  m_io_service(option.IoService),
+  //m_ioService(option.IoService),
   m_zeroContext(option.ZeroContext),
   m_readStrand(option.ReadStrand),
   m_writeStrand(option.WriteStrand),
@@ -80,7 +80,7 @@ THIS_CLASS::DefaultZFrontServer(const OptionType& option) :
   m_back_subscriber_dealers(),
   m_acceptor(),
   m_timers(),
-  m_registered_name(""),
+  m_nameForBackServer(),
   m_maxAnswerTime(0) ,
   m_hasBack(true),
   m_port(0),
@@ -131,9 +131,9 @@ void THIS_CLASS::connectBack() {
         "we need BackServerPublishAddress") ;
 
     // register where we get back the message
-    m_registered_name=
+    m_nameForBackServer=
       pp.get(Net, NameOfMyself, default_address) ;
-    PANTHEIOS_MESSAGE_ASSERT(!m_registered_name.empty(),
+    PANTHEIOS_MESSAGE_ASSERT(!m_nameForBackServer.empty(),
         "we need NameOfMyself has a ****name****") ;
     // set name tell back who am I.
     std::string socket_address =
@@ -149,7 +149,7 @@ void THIS_CLASS::connectBack() {
           *m_readStrand,
           *m_zeroContext,
           *m_decoder,
-          m_registered_name,
+          m_nameForBackServer,
           radio_address,
           socket_address)) ;
   }
@@ -192,8 +192,8 @@ void THIS_CLASS::startReceiveConnection() {
       "we need ListenPort to cocumacate with client") ;
 
   m_hard_system_prepared_message_limit = pp.get(Net, HardPoolMessageSize, 10000L) ;
-  m_ungent_max_send_size = pp.get(Net, MaxSendUngentMessageSize, 100) ;
-  m_normal_max_send_size = pp.get(Net, MaxSendNormalMessageSize, m_ungent_max_send_size) ;
+  m_ungentMaxSendSize = pp.get(Net, MaxSendUngentMessageSize, 100) ;
+  m_normal_max_send_size = pp.get(Net, MaxSendNormalMessageSize, m_ungentMaxSendSize) ;
   auto handle_connect = boost::bind(&THIS_CLASS::onNewConnection, this, _1, _2) ;
   auto handle_connect_success = boost::bind(&THIS_CLASS::makeConnectionValid, this, _1) ;
   auto handle_error = boost::bind(&THIS_CLASS::onConnectionLeave, this, _1, _2);
@@ -202,7 +202,8 @@ void THIS_CLASS::startReceiveConnection() {
       handle_connect_success,
       handle_error,
       handle_data) ;
-  PANTHEIOS_MESSAGE_ASSERT(m_io_service, "we need io_service....") ;
+  PANTHEIOS_ASSERT(m_readStrand);
+  //PANTHEIOS_MESSAGE_ASSERT(m_readStrand.get_io_service(), "we need io_service....") ;
   m_acceptor = AcceptorType::create(
       *m_readStrand,
       *m_writeStrand,
@@ -301,45 +302,37 @@ void THIS_CLASS::bindPollManager(ZPollInManager* mgr) {
 }
 
 void THIS_CLASS::sendFastMessage() {
-  size_t max_send_size = std::min(m_ungent_max_send_size, m_ungent_message.size()) ;
-  pan::log_DEBUG("send ungent msg ", pan::i(max_send_size), " ",
-      pan::i(m_ungent_message.size())) ;
-  auto iter = m_ungent_message.begin(), iter_end = m_ungent_message.begin() + max_send_size ;
+  sendWaitingMessage(m_ungentMaxSendSize, m_ungentMessage);
+}
+
+void THIS_CLASS::sendWaitingMessage(size_t maxSendSize,
+                                    UngentMessageGroup& messages) {
+  size_t sendSize = std::min(maxSendSize, m_ungentMessage.size()) ;
+  auto iter = messages.begin(), iter_end = messages.begin() + sendSize;
   std::for_each(iter, iter_end, [this](UngentMessageGroup::const_reference v) {
-      make_message_to_named_dealer(v) ;
+      dispatchBackServerMessage(v) ;
       }) ;
-  m_ungent_message.erase(iter, iter_end) ;
-  pan::log_DEBUG("su ok") ;
-
+  messages.erase(iter, iter_end) ;
 }
 
-void THIS_CLASS::postNormalMessage() {
-  pantheios::log_DEBUG("Post Normal Message ", pan::i(m_normal_post_message.size())) ;
-  size_t max_send_size = std::min(m_normal_max_send_size, m_normal_post_message.size()) ;
-  auto iter = m_normal_post_message.begin(), iter_end = m_normal_post_message.begin() + max_send_size ;
-  std::for_each(iter, iter_end, [this](NormalMessageGroup::const_reference v) {
-      make_message_to_radio_dealer(v) ;
-      }) ;
-  m_normal_post_message.erase(iter, iter_end) ;
+void THIS_CLASS::sendNormalMessage() {
+  sendWaitingMessage(m_normal_max_send_size, m_waitingPostMessage);
 }
+
 
 void THIS_CLASS::absorbDelaySystemMessage() {
-  if(m_ungent_message.empty() && m_sys_delayed_message.empty() && m_normal_post_message.empty()) return ; // many times it is TRUE
-  if(!m_ungent_message.empty()) sendFastMessage() ;
-  if(m_ungent_message.empty() && !m_normal_post_message.empty()) postNormalMessage() ;
+  if(m_ungentMessage.empty() && m_canDelayedMessage.empty() && m_waitingPostMessage.empty()) return ; // many times it is TRUE
+  if(!m_ungentMessage.empty()) sendFastMessage() ;
+  if(m_ungentMessage.empty() && !m_waitingPostMessage.empty()) sendNormalMessage() ;
   if(m_hard_system_prepared_message_limit < current_prepared_message_number_of_net_pool()) {
-  } else if(m_ungent_message.empty() && m_normal_post_message.empty()) {
-    while(!m_sys_delayed_message.empty()) {
-      pan::log_DEBUG("call delayed..") ;
-      make_message_to_radio_dealer(m_sys_delayed_message.front()) ;
-      m_sys_delayed_message.pop_front() ;
-      pan::log_DEBUG("cd ok") ;
+  } else if(m_ungentMessage.empty() && m_waitingPostMessage.empty()) {
+    while(!m_canDelayedMessage.empty()) {
+      dispatchBackServerMessage(m_canDelayedMessage.front()) ;
+      m_canDelayedMessage.pop_front() ;
       if(m_hard_system_prepared_message_limit < current_prepared_message_number_of_net_pool()) break ;
     }
-
   }
 }
-
 
 void THIS_CLASS::handleBackInnerMessage(const DataType& db) {
   auto msg = db.constBody<Stock::InnerMessage>() ;
@@ -349,7 +342,7 @@ void THIS_CLASS::handleBackInnerMessage(const DataType& db) {
   PANTHEIOS_ASSERT(ok) ;
   PANTHEIOS_ASSERT(db2.messageType() != db.messageType()) ;
   db2.setHeaderId(db.headerId()) ;
-  make_message_to_named_dealer(db2) ;
+  dispatchBackServerMessage(db2) ;
 }
 
 void THIS_CLASS::handleBackInnerPostMessage(const DataType& db) {
@@ -362,33 +355,22 @@ void THIS_CLASS::handleBackInnerPostMessage(const DataType& db) {
   for(int i = 0, size = msg->omitted_id_size() ; i < size ; ++i)
     ids.push_back(player_tt(msg->omitted_id(i))) ;
   if(msg->has_group()) {
-    if(ids.empty()) {
-      do_deal_back_post_message(msg->group().type(),
-          msg->group().id(),msg->group().property(), db2) ;
-    } else if(ids.size() == 1) {
-      do_deal_back_post_message(msg->group().type(),
-          msg->group().id(),
-          msg->group().property(), db2, ids[0]) ;
-    } else {
-      do_deal_back_post_message(msg->group().type(),
-          msg->group().id(),
-          msg->group().property(), db2, ids) ;
-    }
+    MiniGroup group(msg->group().id(),
+        msg->group().type(),
+        msg->group().property());
+      doDealBackServerGroupMessage(group, db2, ids) ;
   } else {
-    if(ids.empty()) sendMessageToAllConnection(db2) ;
-    else if(ids.size() == 1)
-      do_deal_back_post_message(db2, ids[0]) ;
-    else do_deal_back_post_message(db2, ids) ;
+    doDealBackServerPostMessage(db2, ids);
   }
 }
 
-void THIS_CLASS::make_message_to_named_dealer(const DataType& db) {
+void THIS_CLASS::dispatchBackServerMessage(const DataType& db) {
   if(!m_back_dealer_handlers.dispatch(db.messageType(), db)) {
     doDefaultBackMessageCallback(db) ;
   }
 }
 
-void THIS_CLASS::make_message_to_radio_dealer(const DataType& db) {
+void THIS_CLASS::dispatchBackServerBroadcastMessage(const DataType& db) {
   if(!m_back_subscriber_dealers.dispatch(db.messageType(), db))
     sendMessageToAllConnection(db) ;
 }
@@ -396,10 +378,10 @@ void THIS_CLASS::make_message_to_radio_dealer(const DataType& db) {
 void THIS_CLASS::dealBackMessage(std::shared_ptr<DataType> d) {
   auto& db = *d;
   if(current_prepared_message_number_of_net_pool() > m_hard_system_prepared_message_limit ||
-      !m_ungent_message.empty()) {
-    m_ungent_message.push_back(db) ;
+      !m_ungentMessage.empty()) {
+    m_ungentMessage.push_back(db) ;
   } else {
-    make_message_to_named_dealer(db) ;
+    dispatchBackServerMessage(db) ;
   }
 }
 
@@ -409,9 +391,9 @@ bool THIS_CLASS::isFasterPostMessage(const DataType& db) const {
   return msg->no_delay() ;
 }
 
-bool THIS_CLASS::isNormalMessageNeedDelay() const {
-  return !m_ungent_message.empty() || // has ungent message
-    !m_normal_post_message.empty() || // has not send normal post message
+bool THIS_CLASS::isTooManyMessageWaitingForDealing() const {
+  return !m_ungentMessage.empty() || // has ungent message
+    !m_waitingPostMessage.empty() || // has not send normal post message
     // or has two many message in poll to send
     m_hard_system_prepared_message_limit < current_prepared_message_number_of_net_pool() ;
 
@@ -419,17 +401,22 @@ bool THIS_CLASS::isNormalMessageNeedDelay() const {
 
 void THIS_CLASS::dealBackRadioMessage(std::shared_ptr<DataType> d) {
   auto& db = *d;
-  auto normalNeedDelay = isNormalMessageNeedDelay() ;
-  bool needdelay = normalNeedDelay || !m_sys_delayed_message.empty() ;
+  auto hasWaitingMessage = isTooManyMessageWaitingForDealing() ;
+  bool needdelay = hasWaitingMessage || !m_canDelayedMessage.empty() ;
 
   if(isNormalPostMessage(db.messageType()) ||
       isFasterPostMessage(db)) {
-    if(normalNeedDelay) {
+    if(hasWaitingMessage) {
       pantheios::log_DEBUG("make the message delay", pan::i(db.messageType())) ;
-      m_normal_post_message.push_back(db) ;
-    } else make_message_to_radio_dealer(db) ;
-  } else if(needdelay) m_sys_delayed_message.push_back(db) ;
-  else make_message_to_radio_dealer(db) ;
+      m_waitingPostMessage.push_back(db) ;
+    } else
+      dispatchBackServerBroadcastMessage(db) ;
+  } else if(needdelay) {
+    m_canDelayedMessage.push_back(db) ;
+  }
+  else {
+    dispatchBackServerBroadcastMessage(db) ;
+  }
 }
 
 #undef THIS_CLASS

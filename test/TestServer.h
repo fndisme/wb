@@ -3,7 +3,7 @@
  *
  *       Filename:  TestServer.h
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2013年05月31日 22时13分33秒
@@ -11,7 +11,7 @@
  *       Compiler:  gcc
  *
  *         Author:  Fang Dongheng (fndisme), fndisme@163.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
@@ -30,13 +30,12 @@ class TestServer : public WebGame::Server::DefaultZFrontServer {
   virtual bool doIsValidMessage(const DataType& db, NetConnectionPointer nc) const ;
   virtual bool doIsRegisterConnection(NetConnectionPointer nc) const ;
   virtual void doRegisterActions() ;
-  virtual void do_deal_back_post_message(const DataType& db, PlayerGroup const&) ;
-  virtual void do_deal_back_post_message(const DataType& db, WebGame::player_tt pid) ;
-  virtual void do_deal_back_post_message(int, int, int,const DataType& db, PlayerGroup const&) ;
-  virtual void do_deal_back_post_message(int, int, int,const DataType& db, WebGame::player_tt pid) ;
-  virtual void do_deal_back_post_message(int, int, int,const DataType& db) ;
+  virtual void doDealBackServerPostMessage(const DataType& db,
+      PlayerGroup const& group);
+  virtual void doDealBackServerGroupMessage(const MiniGroup&,
+      const DataType& db,
+      PlayerGroup const& clientsIds);
   virtual void doInitDecoder();
 
 };
 #endif
-

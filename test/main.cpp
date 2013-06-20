@@ -24,9 +24,6 @@ int main(int argc, char** argv) {
   boost::asio::strand strand(io_service);
 
   MessageBuilder builder;
-
-
-
   TestServer::OptionType option(
       "TestServer.json",
       &io_service,

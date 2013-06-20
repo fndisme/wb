@@ -34,11 +34,13 @@ void THIS_CLASS::doDefaultBackMessageCallback(const DataType&) const {
 void THIS_CLASS::doSendMessageToAllConnection(const DataType& db) const {
 
 }
-void THIS_CLASS::doOnConnectionLeave(const NetErrorType& error, NetConnectionPointer nc) {
+void THIS_CLASS::doOnConnectionLeave(const NetErrorType& error,
+    NetConnectionPointer nc) {
   std::cout << "client leave " << error.message() << std::endl;
 
 }
-bool THIS_CLASS::doIsValidMessage(const DataType& db, NetConnectionPointer nc) const {
+bool THIS_CLASS::doIsValidMessage(const DataType& db,
+    NetConnectionPointer nc) const {
   return true;
 }
 bool THIS_CLASS::doIsRegisterConnection(NetConnectionPointer nc) const {
@@ -52,26 +54,19 @@ void THIS_CLASS::doRegisterActions() {
       auto conn = std::get<1>(msg);
       std::cout << db.debugString() << std::endl;
       conn->sendAsyncMessage(db);
-
       });
 
 }
 
-void THIS_CLASS::do_deal_back_post_message(const DataType& db, PlayerGroup const&) {
-
-}
-void THIS_CLASS::do_deal_back_post_message(const DataType& db, player_tt pid) {
-
-}
-void THIS_CLASS::do_deal_back_post_message(int, int, int,const DataType& db, PlayerGroup const&) {
-
-}
-void THIS_CLASS::do_deal_back_post_message(int, int, int,const DataType& db, player_tt pid) {
-
-}
-void THIS_CLASS::do_deal_back_post_message(int, int, int,const DataType& db) {
+void THIS_CLASS::doDealBackServerPostMessage(const DataType& db,
+    PlayerGroup const&) {
 }
 
+void THIS_CLASS::doDealBackServerGroupMessage(const MiniGroup& group,
+    const DataType& db,
+    PlayerGroup const&) {
+
+}
 
 void THIS_CLASS::doInitDecoder() {
     PANTHEIOS_ASSERT(decoder());
