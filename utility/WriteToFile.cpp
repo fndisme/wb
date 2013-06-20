@@ -14,6 +14,7 @@
 #include <iostream>
 #include <locale>
 #include <stdexcept>
+#include <boost/exception/diagnostic_information.hpp>
 
 bool WebGame::Utility::writeToFile(const Utility::StringGroupType& infos, std::ostream& os) {
   try {
@@ -23,9 +24,12 @@ bool WebGame::Utility::writeToFile(const Utility::StringGroupType& infos, std::o
     return true;
   }
   catch ( const std::exception &ExceptObj ) {		/* handle exception: */
+    std::cerr << ExceptObj.what() << std::endl;
     return false ;
   }
   catch (...) {		/* handle exception: unspecified */
+    std::cerr << "Unhandled exception!" << std::endl <<
+            boost::current_exception_diagnostic_information();
     return false ;
   }
 }
@@ -36,10 +40,13 @@ bool WebGame::Utility::writeToFile(const std::string& info, std::ostream& os) {
     os << info << std::endl ;
     return true ;
   }
-  catch ( const std::exception &) {		/* handle exception: */
+  catch ( const std::exception & error) {		/* handle exception: */
+    std::cerr << error.what() << std::endl;
     return false ;
   }
   catch (...) {		/* handle exception: unspecified */
+    std::cerr << "Unhandled exception!" << std::endl <<
+            boost::current_exception_diagnostic_information();
     return false ;
   }
 

@@ -4,7 +4,13 @@
 *.o
 *.depend
 *.layout
+*.filters
+*.opensdf
+*.sdf
+*.user
+*.suo
 obj
 bin
 tags
-
+Debug
+Release

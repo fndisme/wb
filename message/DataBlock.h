@@ -13,7 +13,7 @@
 #ifndef _WIN32
 #include <folly/Optional.h>
 #endif
-#include "webgame/message/data_header.pb.h"
+#include "webgame/message/Header.pb.h"
 #include "webgame/shared/Platform.h"
 #include "webgame/shared/identity_type.h"
 namespace WebGame {
@@ -38,7 +38,7 @@ namespace WebGame {
       const error_reason_t m_reason ;
     } ;
     typedef std::shared_ptr< ::google::protobuf::Message> body_type ;
-    typedef data_exchange::header header_type ;
+    typedef DataExchange::Header header_type ;
     DataBlock() ;
     ~DataBlock() ;
     template<typename T>
@@ -70,7 +70,7 @@ namespace WebGame {
 		template<typename T>
 			std::shared_ptr<const T> constBody() const {
 				return std::static_pointer_cast<const T>(m_body) ;
-			} 
+			}
 		template<typename T>
 			const T& constRefBody() const {
 				return *(std::static_pointer_cast<const T>(m_body)) ;

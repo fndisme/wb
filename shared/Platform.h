@@ -18,7 +18,7 @@
 #ifndef WEBGAME_PLATFORM_H
 #define WEBGAME_PLATFORM_H
 #ifdef _WIN32
-#define CONSTEXPR 
+#define CONSTEXPR inline 
 #define NOEXCEPT
 #else
 #define CONSTEXPR constexpr

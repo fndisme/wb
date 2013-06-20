@@ -16,7 +16,7 @@
  * =====================================================================================
  */
 #ifndef FND_WEBGAME_XSSOCKETTRAITS_H
-#define FND_WEBGAME_XSQSOCKETTRAITS_H
+#define FND_WEBGAME_XSSOCKETTRAITS_H
 #include <memory>
 #include <boost/bind.hpp>
 #include <xs.hpp>

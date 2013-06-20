@@ -3,7 +3,7 @@
  *
  *       Filename:  game_message_util.cpp
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2011-11-8 10:22:08
@@ -25,12 +25,12 @@ size_t messageBodySize(const ::google::protobuf::Message& msg) {
 	return  msg.ByteSize() ;
 }
 
-size_t total_message_size(const data_exchange::header& header,
+size_t total_message_size(const WebGame::Message::DataBlock::header_type& header,
 		const ::google::protobuf::Message* const msg) {
 	return header.ByteSize() + messageBodySize(msg) ;
 }
 
-void pack_cache_message(const data_exchange::header& header,
+void pack_cache_message(const WebGame::Message::DataBlock::header_type& header,
 		const ::google::protobuf::Message* msg,
 		void* buffer,
 		size_t buffer_size) {
@@ -53,7 +53,7 @@ void make_cache_body(void* buffer, const ::google::protobuf::Message* msg, size_
 }
 
 void make_cache_header(void* buffer, int message_type, size_t body_size, WebGame::player_tt id) {
-	data_exchange::header header ;
+  WebGame::Message::DataBlock::header_type header ;
 	header.set_id(id.base_type_value()) ;
 	header.set_type(message_type) ;
 	header.set_size(body_size) ;

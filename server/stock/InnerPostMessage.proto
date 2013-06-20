@@ -1,0 +1,14 @@
+package WebGame.Server.Stock;
+message InnerPostMessage {
+  enum traits { value = 3 ;}
+  message SpecialGroup {
+    required int32 type = 1;
+    required int32 id = 2;
+    optional int32 property = 3;
+  }
+
+  repeated int32 omitted_id = 1;
+  optional bool no_delay = 2;
+  required bytes information = 3;
+  optional SpecialGroup group = 4;
+}

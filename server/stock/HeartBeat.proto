@@ -1,0 +1,4 @@
+package WebGame.Server.Stock;
+message HeartBeat {
+  enum traits { value = 1 ;}
+}

@@ -3,7 +3,7 @@
  *
  *       Filename:  game_message_util.h
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2011-11-8 10:17:33
@@ -23,9 +23,9 @@
 size_t messageBodySize(const ::google::protobuf::Message* const msg) ;
 size_t messageBodySize(const ::google::protobuf::Message& msg) ;
 
-size_t total_message_size(const data_exchange::header& header,
+size_t total_message_size(const WebGame::Message::DataBlock::header_type& header,
 		const ::google::protobuf::Message* const msg) ;
-void pack_cache_message(const data_exchange::header&,
+void pack_cache_message(const WebGame::Message::DataBlock::header_type&,
 		const ::google::protobuf::Message* msg,
 		void* buffer,
 		size_t buffer_size) ;

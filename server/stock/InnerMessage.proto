@@ -1,0 +1,5 @@
+package WebGame.Server.Stock;
+message InnerMessage {
+  enum traits { value = 2 ;}
+  required bytes information = 1;
+}

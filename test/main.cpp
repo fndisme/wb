@@ -1,4 +1,5 @@
 #include <iostream>
+#include <boost/asio.hpp> // for include compile error
 #include <pantheios/assert.h>
 #include <pantheios/pantheios.hpp>
 #include <pantheios/pan.hpp>
@@ -14,7 +15,7 @@ using namespace std;
 int main(int argc, char** argv) {
   using namespace WebGame::Message;
   std::string logFile("TS%D-%T.log");
-  
+
   pantheios_be_file_setFilePath(logFile.c_str(),
       PANTHEIOS_BE_FILE_F_TRUNCATE,
       PANTHEIOS_BE_FILE_F_TRUNCATE,
@@ -23,7 +24,7 @@ int main(int argc, char** argv) {
   boost::asio::strand strand(io_service);
 
   MessageBuilder builder;
-  
+
 
 
   TestServer::OptionType option(

@@ -3,7 +3,7 @@
  *
  *       Filename:  tiny_finder.h
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2010-11-24 13:39:22
@@ -54,10 +54,10 @@ template<typename K, typename V>
 
       bool hasValue(K key) const {
         PANTHEIOS_ASSERT(!isDirty()) ;
-        return m_values.count(key);
+        return m_values.count(key) > 0;
       }
 
-      TinyFinder() : 
+      TinyFinder() :
         m_values(),
         m_dirty(true){}
       bool isDirty() const { return m_dirty ;}
@@ -70,4 +70,3 @@ template<typename K, typename V>
 }
 }
 #endif
-

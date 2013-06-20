@@ -8,7 +8,7 @@
 #if defined(PLATFORMSTL_OS_IS_UNIX)
 #include <pantheios/implicit_link/bec.fprintf.h>
 #elif defined(PLATFORMSTL_OS_IS_WINDOWS)
-#include <pantheios/implicit_link/bec.WindowsConsole.WithCallback.h>
+//#include <pantheios/implicit_link/bec.WindowsConsole.WithCallback.h>
 #else
 #error platform not descriminated
 #endif

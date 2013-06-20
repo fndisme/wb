@@ -63,14 +63,14 @@ namespace WebGame {
     vec.resize(totalSize()) ;
     return  packToArray(&vec[0], vec.size()) ;
   }
-    
+
   /*static */
   std::string DataBlock::describeHeaderInformation(const DataBlock& db) {
 		std::string sink ;
 		fastformat::fmt(sink, "Header info is:{0}", db.m_header.DebugString()) ;
     return sink;
   }
-    
+
   size_t DataBlock::totalSize() const{
     PANTHEIOS_ASSERT(m_body) ;
     PANTHEIOS_ASSERT(isSync()) ;
@@ -86,7 +86,7 @@ namespace WebGame {
     m_body = new_body ;
     m_header.set_type(type) ;
     m_header.set_size(m_body->ByteSize()) ;
-        
+
   }
 
   DataBlock::DataBlock(int body_type,
@@ -103,13 +103,12 @@ namespace WebGame {
     m_header.set_size(m_body->ByteSize()) ;
   }
 
-    
   DataBlock::DataBlock()  {
     m_header.set_type(0) ;
     m_header.set_size(0) ;
     m_header.set_id(0) ;
   }
-    
+
   bool DataBlock::isSync() const {
     return m_header.type() != 0 &&
       (m_body.get() ?
@@ -121,10 +120,10 @@ namespace WebGame {
   }
 
   bool DataBlock::packToArray(void* buffer, size_t buffer_size)const {
-		return buffer && 	
-			buffer_size >= totalSize() && 
-			packHeaderToArray(buffer, headerSize()) && 
-			m_body->SerializeToArray((void*)((char*)buffer + headerSize()), bodySize()) ;	
+		return buffer &&
+			buffer_size >= totalSize() &&
+			packHeaderToArray(buffer, headerSize()) &&
+			m_body->SerializeToArray((void*)((char*)buffer + headerSize()), bodySize()) ;
   }
 
 
@@ -141,7 +140,7 @@ namespace WebGame {
     if(vec.size() < headerSize()) return false ;
     return m_header.ParseFromArray(&vec[0], headerSize()) ;
   }
-    
+
     bool DataBlock::importFromArray(const void* b, size_t buffer_size,
       DecoderType const& builder) {
     if(buffer_size < headerSize()) return false ;
@@ -153,11 +152,11 @@ namespace WebGame {
 
 
   bool DataBlock::importHeaderFromArray(const void* buffer, size_t buffer_size) {
-	
+
     if(!buffer || buffer_size < headerSize()) return false ;
-		
+
     return m_header.ParseFromArray(buffer, headerSize()) ;
-	
+
   }
 
   bool DataBlock::importBodyFromString(int type, const std::string& buffer,
@@ -171,8 +170,8 @@ namespace WebGame {
   bool DataBlock::importHeaderFromString(const std::string& header) {
     return m_header.ParseFromString(header) ;
   }
-    
-  bool DataBlock::importBodyFromString(const std::string& buffer, 
+
+  bool DataBlock::importBodyFromString(const std::string& buffer,
           DecoderType const& builder) {
     PANTHEIOS_ASSERT(m_header.type() != 0) ;
     return importBodyFromString(m_header.type(), buffer, builder) ;
@@ -190,7 +189,7 @@ namespace WebGame {
     return safeBuildBody(m_header.type(), buffer, buffer_size, builder) ;
   }
 
-  bool DataBlock::safeBuildBody(int type, const std::string& v, 
+  bool DataBlock::safeBuildBody(int type, const std::string& v,
       DataBlock::DecoderType const& builder) {
     return safeBuildBody(type, v.data(), v.size(), builder) ;
   }
@@ -228,7 +227,7 @@ namespace WebGame {
                   m_body->ShortDebugString()) ;
           return sink ;
       } else {
-          return std::string("[not valid DataBlock....]") ; 
+          return std::string("[not valid DataBlock....]") ;
       }
   }
 
