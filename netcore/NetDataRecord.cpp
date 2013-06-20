@@ -19,10 +19,10 @@
 #include <atomic>
 
 namespace {
-  static std::atomic<size_t> gCurrentPreparedMessageSize = 0;
-  static std::atomic<size_t> gTotalPreparedMessageSize = 0;
-  static std::atomic<size_t> gTotalSendMessageNumber = 0;
-  static std::atomic<uint64_t> gTotalSendMessageSize = 0;
+  static std::atomic<size_t> gCurrentPreparedMessageSize(0);
+  static std::atomic<size_t> gTotalPreparedMessageSize(0);
+  static std::atomic<size_t> gTotalSendMessageNumber(0);
+  static std::atomic<uint64_t> gTotalSendMessageSize(0);
 }
 
 namespace WebGame {

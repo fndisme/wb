@@ -1,0 +1,6 @@
+{
+    "Net" : {
+      "IsHasBackServer" : 0,
+      "ListenPort" : 9999
+    }
+}

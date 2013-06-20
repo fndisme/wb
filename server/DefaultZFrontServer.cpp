@@ -69,6 +69,7 @@ void THIS_CLASS::stop() {
 
 THIS_CLASS::DefaultZFrontServer(const OptionType& option) :
   //m_ioService(option.IoService),
+  m_port(0),
   m_zeroContext(option.ZeroContext),
   m_readStrand(option.ReadStrand),
   m_writeStrand(option.WriteStrand),
@@ -83,7 +84,6 @@ THIS_CLASS::DefaultZFrontServer(const OptionType& option) :
   m_nameForBackServer(),
   m_maxAnswerTime(0) ,
   m_hasBack(true),
-  m_port(0),
   m_hard_system_prepared_message_limit(10000),
   m_delayActor(MaxDelayTime) {
   }

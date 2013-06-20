@@ -1,0 +1,12 @@
+{
+	"player" : {
+		"id" : 20
+	},
+    "test" : {
+        "max_player_num" : 300
+    },
+	"net" : {
+		"server" : "127.0.0.1",
+		"port" : "9999"
+		}
+}
