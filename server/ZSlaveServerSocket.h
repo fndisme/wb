@@ -47,7 +47,7 @@ namespace WebGame {
             typedef boost::function<void (std::shared_ptr<RD>)> MessageDealerFunctionType ;
             ZSlaveServerSocket(
                 boost::asio::strand& strand,
-                QSocketTratis::context_t& ctx,
+                QSocketTraits::context_t& ctx,
                 const DecoderType& decoder,
                 std::string const& name,
                 std::string const& subaddress,
@@ -56,8 +56,8 @@ namespace WebGame {
                 std::string const& default_filter = "") :
               m_strand(strand),
                 m_decoder(decoder),
-              m_subscriber(new QSocketTratis::socket_t(ctx, QSocketTratis::typeSub())),
-              m_socket(new QSocketTratis::socket_t(ctx, QSocketTratis::typeDealer())),
+              m_subscriber(new QSocketTraits::socket_t(ctx, QSocketTraits::typeSub())),
+              m_socket(new QSocketTraits::socket_t(ctx, QSocketTraits::typeDealer())),
               m_name(name),
               m_send_data(),
               m_dealer_function(),
@@ -68,21 +68,21 @@ namespace WebGame {
 
             ZSlaveServerSocket(
                 boost::asio::strand& strand,
-                QSocketTratis::context_t& ctx,
+                QSocketTraits::context_t& ctx,
                 const DecoderType& decoder,
                 std::string const& name,
                 std::string const& socketaddress,
                 NeedLingerOption nl = NEED_LINGER) :
               m_strand(strand),
               m_decoder(decoder),
-              m_socket(new QSocketTratis::socket_t(ctx, QSocketTratis::typeDealer())),
+              m_socket(new QSocketTraits::socket_t(ctx, QSocketTraits::typeDealer())),
               //m_socket(new socket_t(ctx, XS_DEALER)),
               m_name(name),
               m_HWM(1000) {
                 init(socketaddress, std::string(), nl == NEED_LINGER, std::string()) ;
               }
 
-            ~ZSlaveServerSocket() {} 
+            ~ZSlaveServerSocket() {}
 
             void sendMessage(send_data_type d) const {
               boost::lock_guard<boost::mutex> lock(m_mutex);
@@ -141,19 +141,19 @@ namespace WebGame {
                 boost::lock_guard<boost::mutex> lock(m_mutex);
                 data.swap(m_send_data);
               }
-              if(!data.empty()) 
-                QSocketTratis::sendAllGroupMessage(std::move(data), *m_socket) ;
+              if(!data.empty())
+                QSocketTraits::sendAllGroupMessage(std::move(data), *m_socket) ;
 
             }
 
             void recv() {
-              QSocketTratis::absorbAndDispatchMessage<read_data_type>(
+              QSocketTraits::absorbAndDispatchMessage<read_data_type>(
                   *m_socket, m_dealer_function, m_strand, m_decoder) ;
             }
 
             void recvSubscribeMessage() {
               PANTHEIOS_ASSERT(m_subscriber) ;
-              QSocketTratis::absorbAndDispatchMessage<read_data_type>(
+              QSocketTraits::absorbAndDispatchMessage<read_data_type>(
                   *m_subscriber, m_subscriber_function, m_strand, m_decoder) ;
             }
 
@@ -164,18 +164,18 @@ namespace WebGame {
               if(need_linger) {
                 int linger = 0 ;
                 if(m_subscriber)
-                  m_subscriber->setsockopt(QSocketTratis::optionLinger(), &linger, sizeof linger) ;
-                m_socket->setsockopt(QSocketTratis::optionLinger(), &linger, sizeof linger) ;
+                  m_subscriber->setsockopt(QSocketTraits::optionLinger(), &linger, sizeof linger) ;
+                m_socket->setsockopt(QSocketTraits::optionLinger(), &linger, sizeof linger) ;
               }
 
               if(m_subscriber) {
-                m_subscriber->setsockopt(QSocketTratis::optionSubscribe(),
+                m_subscriber->setsockopt(QSocketTraits::optionSubscribe(),
                     default_filter.data(),
                     default_filter.size()) ;
                 m_subscriber->connect(subaddress.c_str()) ;
               }
 
-              m_socket->setsockopt(QSocketTratis::optionIdentity(), m_name.c_str(), m_name.size()) ;
+              m_socket->setsockopt(QSocketTraits::optionIdentity(), m_name.c_str(), m_name.size()) ;
               m_socket->connect(socketaddress.c_str()) ;
             }
         } ;

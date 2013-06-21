@@ -3,7 +3,7 @@
  *
  *       Filename:  timer_event_fwd.h
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2011-12-31 10:34:48
@@ -22,9 +22,9 @@
 namespace WebGame {
   namespace NetCore {
 	class TimerEvent;
-  typedef boost::function<void ()> timer_event_function_type ;
- 
-	typedef std::unique_ptr<TimerEvent> timer_event_pointer ;
+  typedef boost::function<void ()> TimerEventCallBack;
+
+	typedef std::unique_ptr<TimerEvent> TimerEventPonter;
   }
 }
 #endif

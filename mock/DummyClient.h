@@ -3,15 +3,15 @@
  *
  *       Filename:  dummy_client.h
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2011-9-2 13:38:40
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  YOUR NAME (), 
- *        Company:  
+ *         Author:  YOUR NAME (),
+ *        Company:
  *
  * =====================================================================================
  */
@@ -20,6 +20,7 @@
 #include <string>
 #include <memory>
 #include <boost/noncopyable.hpp>
+#include <stlsoft/memory/auto_buffer.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread/mutex.hpp>
 #include <deque>
@@ -35,7 +36,7 @@ namespace WebGame {
     class DummyClient : boost::noncopyable {
       public:
         typedef WebGame::NetCore::DefaultNetConnectType ConnectionType;
-        typedef typename ConnectionType::DecoderType DecoderType;
+        typedef ConnectionType::DecoderType DecoderType;
         void run() ;
         DummyClient(boost::asio::io_service&,
             boost::asio::strand& readStrand,
@@ -43,23 +44,22 @@ namespace WebGame {
             const std::string& init_file, player_tt id,
             boost::mutex& mutex,
             const DecoderType& decoder
-            ) ;	
+            ) ;
         virtual ~DummyClient();
         void parse_cmd() ;
         void start() ;
         void update() ;
-        void outside_command(const std::string& cmd) ; 
+        void outside_command(const std::string& cmd) ;
       protected:
         typedef std::tuple<const ConnectionType::data_type&,
                 ConnectionType::pointer>& message_handler_parameter_type ;
-        typedef WebGame::Utility::MessageManager<int, message_handler_parameter_type> message_handler_type ;
+        typedef WebGame::Utility::MessageManager<int,
+                message_handler_parameter_type> message_handler_type ;
 
         template<typename Func>
             void addHandler(int v, Func f) {
                 m_message_handler.add(v, f) ;
             }
-
-
       private:
         boost::asio::io_service& m_io_service ;
         boost::mutex& m_mutex ;
@@ -68,7 +68,7 @@ namespace WebGame {
         ConnectionType::pointer m_unity_connection ;
         ConnectionType::pointer m_db_connection ;
         player_tt m_id ;
-        bool handle_parse_message(const std::string&, 
+        bool handle_parse_message(const std::string&,
             const std::vector<std::string>&, WebGame::Message::DataBlock& db, int&) ;
         bool parse_message(WebGame::Message::DataBlock& db, const std::string& msg, int&) ;
         void handle_server_data(const ConnectionType::data_type& db,
@@ -82,7 +82,7 @@ namespace WebGame {
             ConnectionType::pointer nc) ;
         message_handler_type m_message_handler ;
         message_handler_type m_unity_handler ;
-        NetCore::timer_event_pointer m_heart_beat_timer ;
+        NetCore::TimerEventPonter m_heart_beat_timer ;
         void deal_with_client_net_property(message_handler_parameter_type) ;
         void deal_HeartBeat(message_handler_parameter_type) const;
         void handle_heart_beat() ;
@@ -94,7 +94,7 @@ namespace WebGame {
         std::string m_port;
         virtual void doInitHandler() {}
 
-        virtual bool doParse(const std::string&, 
+        virtual bool doParse(const std::string&,
             const std::vector<std::string>&, WebGame::Message::DataBlock& db, int&) {return false;}
 
     } ;

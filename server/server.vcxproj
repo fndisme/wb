@@ -46,8 +46,9 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0501;_DEBUG;_LIB;BOOST_ASIO_SEPARATE_COMPILATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0501;_DEBUG;_LIB;BOOST_ASIO_SEPARATE_COMPILATION;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../..;$(BOOST_ROOT)\include;$(STLSOFT)\include;$(PANTHEIOS_ROOT)\include;$(FASTFORMAT_ROOT)\include;$(PROTOBUF_ROOT)\include;$(ZEROMQ_ROOT)\include;$(CROSSROAD_ROOT)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4819</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -76,6 +77,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DefaultZBackServer.cpp" />
     <ClCompile Include="DefaultZFrontServer.cpp" />
     <ClCompile Include="stock\HeartBeat.pb.cc" />
     <ClCompile Include="stock\InnerMessage.pb.cc" />
@@ -83,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonServerDef.h" />
+    <ClInclude Include="DefaultZBackServer.h" />
     <ClInclude Include="DefaultZFrontServer.h" />
     <ClInclude Include="LoggerUtility.h" />
     <ClInclude Include="SearchingPlayerFleetProperty.h" />

@@ -75,7 +75,7 @@ THIS_CLASS::DefaultZFrontServer(const OptionType& option) :
   m_writeStrand(option.WriteStrand),
   m_decoder(option.Decoder),
   m_socket(),
-  m_init_file(option.PropertyFileName),
+  m_propertyFile(option.PropertyFileName),
   m_client_handlers(),
   m_back_dealer_handlers(),
   m_back_subscriber_dealers(),
@@ -116,7 +116,7 @@ void THIS_CLASS::registerStockMessage() {
 }
 
 void THIS_CLASS::connectBack() {
-  Utility::PageParser pp(m_init_file) ;
+  Utility::PageParser pp(m_propertyFile) ;
 
   m_hasBack= pp.get(Net, IsHasBackServer, 1) > 0 ;
 
@@ -184,7 +184,7 @@ void THIS_CLASS::pushMessageToBack(const DataType& db) const {
 }
 
 void THIS_CLASS::startReceiveConnection() {
-  Utility::PageParser pp(m_init_file) ;
+  Utility::PageParser pp(m_propertyFile) ;
   // set accetpor for *NORMAL* player........
   m_port = pp.get(Net, ListenPort, 0);
   pantheios::log_DEBUG("we listen client port is ", pan::i(m_port)) ;
@@ -240,7 +240,7 @@ void THIS_CLASS::makeDecorderLocked() {
 }
 
 void THIS_CLASS::registerRepeatTimer(second_tt inteval,
-    const NetCore::timer_event_function_type& func) {
+    const NetCore::TimerEvent::CallBack& func) {
   m_timers.push_back(NetCore::TimerEvent::create(*m_readStrand,
         inteval,
         func

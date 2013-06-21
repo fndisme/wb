@@ -23,20 +23,20 @@
 #include <memory>
 #include <boost/asio.hpp>
 #include <boost/container/flat_map.hpp>
+#include <boost/noncopyable.hpp>
 #include <pantheios/assert.h>
 #include "webgame/server/ZSocketDef.h"
 #include "webgame/server/ZSlaveDef.h"
 #include "webgame/server/ZPollInManager.h"
-#include "webgame/server/ZSocketUtility.h"
+//#include "webgame/server/ZSocketUtility.h"
 #include "webgame/shared/identity_type.h"
 
-namespace WebGame
-{
+namespace WebGame {
+namespace Server {
 template<typename SD,
          typename RD,
          typename C = std::vector<SD> >
-class ZMasterServerSocket
-{
+class ZMasterServerSocket : boost::noncopyable {
 public:
     typedef SD send_data_type ;
     typedef send_data_type CacheDataType ;
@@ -55,22 +55,19 @@ public:
         ZM_RECEIVE
     } ;
 
-    class_type& operator = (class_type const&) = delete ;
-    ZMasterServerSocket(class_type const&) = delete ;
-
     ZMasterServerSocket(
         boost::asio::strand& strand,
-        QSocketTratis::context_t& ctx,
+        QSocketTraits::context_t& ctx,
         const DecoderType& decoder,
         std::string const& publishaddress,
         std::string const& socketaddress,
         const ZSockOption& option = ZSockOption()) :
       m_strand(strand),
       m_decoder(decoder),
-      m_publisher(new QSocketTratis::socket_t(ctx, QSocketTratis::typePub())),
-      m_socket(new QSocketTratis::socket_t(ctx, QSocketTratis::typeRouter())),
-      m_messages {},
-      m_publishMessage {},
+      m_publisher(new QSocketTraits::socket_t(ctx, QSocketTratis::typePub())),
+      m_socket(new QSocketTraits::socket_t(ctx, QSocketTratis::typeRouter())),
+      m_messages(),
+      m_publishMessage(),
       m_HWM(option.HWM != 0 ? option.HWM : 1000) {
 
         init(publishaddress, socketaddress, option.LingerOption == NEED_LINGER) ;
@@ -78,13 +75,13 @@ public:
 
     ZMasterServerSocket(
         boost::asio::strand& strand,
-        QSocketTratis::context_t& ctx,
+        QSocketTraits::context_t& ctx,
         const DecoderType& decoder,
         std::string const& socketaddress,
         const ZSockOption& option = ZSockOption()) :
         m_strand(strand),
         m_decoder(decoder),
-        m_socket(new QSocketTratis::socket_t(ctx, QSocketTratis::type_router())),
+        m_socket(new QSocketTraits::socket_t(ctx, QSocketTratis::type_router())),
         m_HWM(option.HWM != 0 ? option.HWM : 1000) {
         init(std::string(), socketaddress, option.LingerOption == NEED_LINGER) ;
 
@@ -150,7 +147,7 @@ private:
     mutable boost::mutex m_mutex;
 
     void recv() {
-        QSocketTratis::absorbHeaderDispatchMesage<read_data_type>(*m_socket,
+        QSocketTraits::absorbHeaderDispatchMesage<read_data_type>(*m_socket,
                 m_dealer_function,
                 m_strand,
                 m_decoder) ;
@@ -164,7 +161,7 @@ private:
         boost::lock_guard<boost::mutex> lock(m_mutex);
         data.swap(m_publishMessage);
       }
-        QSocketTratis::sendScatterMessage(data,
+        QSocketTraits::sendScatterMessage(data,
                 *m_publisher, m_HWM) ;
     }
 
@@ -175,10 +172,10 @@ private:
         boost::lock_guard<boost::mutex> lock(m_mutex);
         messages.swap(m_messages);
       }
-    
+
       for(auto& v : messages) {
         if(v.second.empty()) continue;
-        QSocketTratis::sendAllGroupMessage(v.second, v.first.get(),
+        QSocketTraits::sendAllGroupMessage(v.second, v.first.get(),
                     *m_socket) ;
       }
     }
@@ -187,9 +184,9 @@ private:
               const std::string& socketaddress,
               bool need_linger) {
         if(m_publisher)
-            m_publisher->setsockopt(QSocketTratis::option_send_high_water_mark(),
+            m_publisher->setsockopt(QSocketTraits::option_send_high_water_mark(),
                                     &(m_HWM), sizeof(m_HWM)) ;
-        m_socket->setsockopt(QSocketTratis::option_send_high_water_mark(),
+        m_socket->setsockopt(QSocketTraits::option_send_high_water_mark(),
                              &(m_HWM), sizeof(m_HWM)) ;
 
 
@@ -201,14 +198,15 @@ private:
         if(need_linger) {
             int linger = 0 ;
             if(m_publisher)
-                m_publisher->setsockopt(QSocketTratis::option_linger(),
+                m_publisher->setsockopt(QSocketTraits::option_linger(),
                                         &linger, sizeof linger) ;
-            m_socket->setsockopt(QSocketTratis::option_linger(),
+            m_socket->setsockopt(QSocketTraits::option_linger(),
                                  &linger, sizeof linger) ;
 
         }
     }
 } ;
+}
 }
 
 

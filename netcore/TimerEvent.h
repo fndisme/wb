@@ -15,15 +15,14 @@ namespace WebGame {
       public:
 
         typedef TimerEvent class_type;
-        typedef boost::function<void ()>
-          timer_event_function_type ;
+        typedef boost::function<void ()> CallBack;
         typedef std::unique_ptr<class_type> pointer ;
-        timer_event_function_type onEvent;
+        CallBack onEvent;
         static pointer
           create(boost::asio::strand& strand,
               times_tt times,
               second_tt seconds,
-              const timer_event_function_type& func) {
+              const CallBack& func) {
             auto* ev = new TimerEvent(
                 strand,
                 times,
@@ -42,7 +41,7 @@ namespace WebGame {
 
         static pointer create(boost::asio::strand& strand,
             second_tt seconds,
-            const timer_event_function_type& func) {
+            const CallBack& func) {
           return create(strand, loopForever(), seconds, func) ;
         }
 
@@ -77,11 +76,11 @@ namespace WebGame {
         void changeTime(second_tt seconds) ;
         void restart() ;
         void changeActionTimes(times_tt t) { m_times = t ;}
-        void changeCallback(const timer_event_function_type& func) {
+        void changeCallback(const CallBack& func) {
           onEvent = func ;
         }
         void resetTimer(times_tt t, second_tt sec,
-            const timer_event_function_type& func) {
+            const CallBack& func) {
           changeTime(sec);
           changeActionTimes(t) ;
           changeCallback(func) ;

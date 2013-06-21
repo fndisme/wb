@@ -65,8 +65,8 @@ namespace WebGame {
       protected:
         virtual ~DefaultZFrontServer() NOEXCEPT;
         void init() ;
-        DefaultZFrontServer(const OptionType& option) ;
-        typedef Message::DataBlock DataType ;
+        explicit DefaultZFrontServer(const OptionType& option);
+        typedef Message::DataBlock DataType;
         typedef NetCore::DefaultNetConnectType NetConnectionType ;
         typedef NetCore::MessageHandlerType MessageHandlerType;
         typedef std::shared_ptr<NetConnectionType> NetConnectionPointer ;
@@ -89,7 +89,8 @@ namespace WebGame {
 
         bool isTooManyMessageWaitingForDealing() const ;
         bool isFasterPostMessage(const DataType&) const ;
-        inline bool isValidMessage(DataType const& db, NetConnectionPointer nc) const {
+        inline bool isValidMessage(DataType const& db,
+                                   NetConnectionPointer nc) const {
           return doIsValidMessage(db, nc) ;
         }
         /**
@@ -100,7 +101,8 @@ namespace WebGame {
          */
         virtual void makeConnectionValid(NetConnectionPointer);
         void onReceiveConncetionMessage(const DataType&, NetConnectionPointer)  ;
-        inline void onConnectionLeave(const NetErrorType& error, NetConnectionPointer nc) {
+        inline void onConnectionLeave(const NetErrorType& error,
+                                      NetConnectionPointer nc) {
           doOnConnectionLeave(error, nc) ;
         }
         inline void sendMessageToAllConnection(const DataType& db) const {
@@ -119,8 +121,8 @@ namespace WebGame {
           m_back_subscriber_dealers.lock() ; // for back radio
         }
 
-        const std::string& propertyFileName() const { return m_init_file ;}
-        typedef QSocketTratis::context_t ContextType ;
+        const std::string& propertyFileName() const { return m_propertyFile;}
+        typedef QSocketTraits::context_t ContextType ;
         ContextType* context() { return m_zeroContext;}
 
         typedef Utility::MessageManager<int, MessageHandlerType> MessageDealerType ;
@@ -150,7 +152,7 @@ namespace WebGame {
         }
 
         void registerRepeatTimer(second_tt inteval,
-            const NetCore::timer_event_function_type& fun) ;
+            const NetCore::TimerEventCallBack& fun) ;
 
         template<typename MSG>
           void pushMessageToBack(MSG&& msg, player_tt pid = player_tt(0)) const {
@@ -165,7 +167,7 @@ namespace WebGame {
         typedef folly::fbvector<Message::DataCache::const_pointer> SocketDataVector ;
 #endif
         typedef ZSlaveServerSocket<Message::DataCache::const_pointer,
-                DataType, SocketDataVector> ZSocketType ;
+                DataType, SocketDataVector> ZSocketType;
       protected:
         template<typename Action>
           void addDelayAction(size_t position, Action&& act) {
@@ -187,7 +189,7 @@ namespace WebGame {
         boost::asio::strand* m_writeStrand;
         DecoderType* m_decoder;
         std::unique_ptr<ZSocketType> m_socket ;
-        const std::string m_init_file ;
+        const std::string m_propertyFile;
         // handle message from client....
         MessageDealerType m_client_handlers ;
         BackMessageDealerType m_back_dealer_handlers ;
@@ -195,7 +197,7 @@ namespace WebGame {
         typedef std::unique_ptr<AcceptorType> AcceptorPointer ;
         AcceptorPointer m_acceptor ;
 
-        std::vector<NetCore::timer_event_pointer> m_timers ;
+        std::vector<NetCore::TimerEventPonter> m_timers ;
         std::string m_nameForBackServer;
         boost::container::flat_set<int> m_normal_register_message ;
         void dealHeartBeat() ;

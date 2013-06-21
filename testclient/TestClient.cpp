@@ -19,7 +19,7 @@
 #include "webgame/protocal/PingPong.pb.h"
 
 bool TestClient::doParse(
-    const std::string& cmd, 
+    const std::string& cmd,
     const std::vector<std::string>& params, WebGame::Message::DataBlock& db, int& who) {
   auto pingpang = std::make_shared<WebGame::Protocal::PingPong>();
   pingpang->set_information(params[1]);

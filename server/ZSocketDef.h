@@ -33,11 +33,11 @@
 namespace WebGame {
   namespace Server {
 #ifdef FND_USE_ZMQ
-  namespace QSocketTratis = ZMQSocketTraits ;
+  namespace QSocketTraits = ZMQSocketTraits ;
 #else
-  namespace QSocketTratis = XSSocketTraits;
+  namespace QSocketTraits = XSSocketTraits;
 #endif
-  typedef std::unique_ptr<QSocketTratis::socket_t> ZSocketPointer ;
+  typedef std::unique_ptr<QSocketTraits::socket_t> ZSocketPointer ;
   typedef Message::DataCache::const_pointer ZDataType ;
 
   enum NeedLingerOption {

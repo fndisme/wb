@@ -43,10 +43,10 @@ namespace WebGame {
 
       void registerReadActor(void* socket, const ActionFunctionType& fun) {
         //xs_pollitem_t item ;
-        QSocketTratis::pollitem_t item ;
+        QSocketTraits::pollitem_t item ;
         item.socket = socket ;
         //item.events = XS_POLLIN ;
-        item.events = QSocketTratis::eventPollIn();
+        item.events = QSocketTraits::eventPollIn();
         item.revents = 0 ;
         m_pollers.push_back(item) ;
         m_functions.push_back(fun) ;
@@ -55,12 +55,12 @@ namespace WebGame {
         int rc = 0 ;
         for(auto& v : m_fronter_functions) v() ;
         if(!m_pollers.empty())  {
-          rc = QSocketTratis::poll(m_pollers, ms) ;
+          rc = QSocketTraits::poll(m_pollers, ms) ;
 
           //rc = zmq::poll(&(m_pollers[0]), m_pollers.size(), ms) ;
           if(rc != 0) {
             for(size_t i = 0, size = m_pollers.size() ; i < size ; ++i) {
-              if(m_pollers[i].revents & QSocketTratis::eventPollIn()) {
+              if(m_pollers[i].revents & QSocketTraits::eventPollIn()) {
                 m_functions[i]() ;
               }
             }
@@ -68,7 +68,7 @@ namespace WebGame {
         } else {
           //xs::poll(nullptr, 0, ms) ;
           //zmq::poll(nullptr, 0, ms) ;
-          QSocketTratis::wait(ms) ;
+          QSocketTraits::wait(ms) ;
         }
 
         for(auto& v : m_absolute_functions) v() ;
@@ -100,7 +100,7 @@ namespace WebGame {
       {}
     private:
       //typedef std::vector<xs::pollitem_t> PollGroupType ;
-      typedef std::vector<QSocketTratis::pollitem_t> PollGroupType ;
+      typedef std::vector<QSocketTraits::pollitem_t> PollGroupType ;
       PollGroupType m_pollers ;
       typedef std::vector<ActionFunctionType> ActorGroupType ;
       ActorGroupType m_functions ;

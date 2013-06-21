@@ -49,7 +49,7 @@ THIS_CLASS::DummyClient(boost::asio::io_service& io_service,
     const DecoderType& decoder) :
   m_io_service(io_service),
   m_mutex(mutex),
-  m_connection(new THIS_CLASS::ConnectionType(io_service, readStrand, 
+  m_connection(new THIS_CLASS::ConnectionType(io_service, readStrand,
         writeStrand, decoder)),
   m_id(pid) {
     init_property(init_file_name) ;

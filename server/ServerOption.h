@@ -26,7 +26,7 @@ namespace WebGame {
       template<typename MessageDecoder>
     struct ServerOption : boost::noncopyable {
       boost::asio::io_service* IoService ;
-      QSocketTratis::context_t* ZeroContext ;
+      QSocketTraits::context_t* ZeroContext ;
       const std::string PropertyFileName ;
       boost::asio::strand* ReadStrand;
       boost::asio::strand* WriteStrand;
@@ -34,7 +34,7 @@ namespace WebGame {
       explicit ServerOption(
           const std::string& filename,
           boost::asio::io_service* service = nullptr,
-          QSocketTratis::context_t* context = nullptr,
+          QSocketTraits::context_t* context = nullptr,
           MessageDecoder* decoder= nullptr,
           boost::asio::strand* readStrand = nullptr,
           boost::asio::strand* writeStrand = nullptr) :

@@ -28,7 +28,7 @@ class TestClient : public WebGame::Mock::DummyClient {
         const DecoderType& decoder
         );
   private:
-    virtual bool doParse(const std::string&, 
+    virtual bool doParse(const std::string&,
         const std::vector<std::string>&, WebGame::Message::DataBlock& db, int&);
     virtual void doInitHandler();
 
