@@ -20,7 +20,7 @@
 #include "webgame/netcore/Connection.h"
 #include "webgame/protocal/PingPong.pb.h"
 #include "webgame/message/MessageBuilder.h"
-
+#include "webgame/server/ServerOption.h"
 #ifdef THIS_CLASS
 #undef THIS_CLASS
 #endif

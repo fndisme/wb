@@ -33,7 +33,7 @@
 namespace WebGame {
 namespace Server {
   class ZPollInManager;
-  class ServerOption;
+  struct ServerOption;
   class DefaultZBackServer : boost::noncopyable {
     public:
       typedef Message::DataBlock::DecoderType DecoderType;
