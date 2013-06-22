@@ -107,8 +107,6 @@ namespace WebGame {
       ActorGroupType m_absolute_functions ;
       ActorGroupType m_fronter_functions ;
       boost::thread::id m_threadId;
-      //ZPollInManager(const ZPollInManager&) = delete ;
-      //ZPollInManager& operator = (ZPollInManager const&) = delete ;
   } ;
   }
 }

@@ -47,7 +47,7 @@ bool THIS_CLASS::doIsRegisterConnection(NetConnectionPointer nc) const {
   return true;
 }
 void THIS_CLASS::doRegisterActions() {
-  decoder()->registerBuilder<WebGame::Protocal::PingPong>();
+  decoder().registerBuilder<WebGame::Protocal::PingPong>();
   registerConnectionMessageCallback(WebGame::Protocal::PingPong::value,
       [](MessageHandlerType msg) {
       const auto& db = std::get<0>(msg);
@@ -66,10 +66,6 @@ void THIS_CLASS::doDealBackServerGroupMessage(const MiniGroup& group,
     const DataType& db,
     PlayerGroup const&) {
 
-}
-
-void THIS_CLASS::doInitDecoder() {
-    PANTHEIOS_ASSERT(decoder());
 }
 
 THIS_CLASS::TestServer(const OptionType& option) :

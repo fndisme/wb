@@ -35,7 +35,6 @@ class TestServer : public WebGame::Server::DefaultZFrontServer {
   virtual void doDealBackServerGroupMessage(const MiniGroup&,
       const DataType& db,
       PlayerGroup const& clientsIds);
-  virtual void doInitDecoder();
 
 };
 #endif

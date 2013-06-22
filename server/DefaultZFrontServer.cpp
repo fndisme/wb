@@ -26,9 +26,11 @@
 #include "webgame/netcore/TimerEvent.h"
 #include "webgame/message/shims/DataBlock.h"
 #include "webgame/message/MessageBuilder.h"
+#include "webgame/server/ServerOption.h"
 #include "webgame/server/ZPollInManager.h"
 #include "webgame/utility/LockGuard.h"
 #include "webgame/utility/PageParser.h"
+
 
 // base message
 #include "webgame/server/stock/HeartBeat.pb.h"
@@ -73,7 +75,7 @@ THIS_CLASS::DefaultZFrontServer(const OptionType& option) :
   m_zeroContext(option.ZeroContext),
   m_readStrand(option.ReadStrand),
   m_writeStrand(option.WriteStrand),
-  m_decoder(option.Decoder),
+  m_decoder(new DecoderType()),
   m_socket(),
   m_propertyFile(option.PropertyFileName),
   m_client_handlers(),
@@ -89,12 +91,11 @@ THIS_CLASS::DefaultZFrontServer(const OptionType& option) :
   }
 
 void THIS_CLASS::init() {
-  initDecoder();
+  registerActions() ;
   connectBack() ;
   startReceiveConnection() ;
   initOtherService() ;
   registerStockMessage() ;
-  registerActions() ;
   makeMessageDealersFinal() ;
 
 }
@@ -148,7 +149,7 @@ void THIS_CLASS::connectBack() {
         new ZSocketType(
           *m_readStrand,
           *m_zeroContext,
-          *m_decoder,
+          decoder(),
           m_nameForBackServer,
           radio_address,
           socket_address)) ;
@@ -207,13 +208,12 @@ void THIS_CLASS::startReceiveConnection() {
   m_acceptor = AcceptorType::create(
       *m_readStrand,
       *m_writeStrand,
-      *m_decoder,
+      decoder(),
       m_port, prop) ;
 
   second_tt rate = second_tt(pp.get(ClientOption, HeartBeatRate, 0)) ;
   if(rate > 0) {
-    PANTHEIOS_ASSERT(m_decoder);
-    m_decoder->registerBuilder<Server::Stock::HeartBeat>();
+    decoder().registerBuilder<Server::Stock::HeartBeat>();
     m_maxAnswerTime=
       second_tt(pp.get(ClientOption, MaxAnswerTime, 0)) ;
     pan::log_DEBUG("heart beat rate : ", pan::i(rate.base_type_value()),
@@ -235,8 +235,7 @@ void THIS_CLASS::startReceiveConnection() {
 }
 
 void THIS_CLASS::makeDecorderLocked() {
-  if (m_decoder)
-    m_decoder->makeFinal();
+    decoder().makeFinal();
 }
 
 void THIS_CLASS::registerRepeatTimer(second_tt inteval,
@@ -338,7 +337,7 @@ void THIS_CLASS::handleBackInnerMessage(const DataType& db) {
   auto msg = db.constBody<Stock::InnerMessage>() ;
   PANTHEIOS_ASSERT(msg) ;
   DataType db2 ;
-  bool ok = db2.importFromString(msg->information(), *m_decoder) ;
+  bool ok = db2.importFromString(msg->information(), decoder()) ;
   PANTHEIOS_ASSERT(ok) ;
   PANTHEIOS_ASSERT(db2.messageType() != db.messageType()) ;
   db2.setHeaderId(db.headerId()) ;
@@ -349,7 +348,7 @@ void THIS_CLASS::handleBackInnerPostMessage(const DataType& db) {
   auto msg = db.constBody<Stock::InnerPostMessage>() ;
   PANTHEIOS_ASSERT(msg) ;
   DataType db2 ;
-  bool ok = db2.importFromString(msg->information(), *m_decoder) ;
+  bool ok = db2.importFromString(msg->information(), decoder()) ;
   PANTHEIOS_ASSERT(ok) ;
   PlayerGroup ids ;
   for(int i = 0, size = msg->omitted_id_size() ; i < size ; ++i)

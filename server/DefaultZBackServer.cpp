@@ -16,7 +16,9 @@
  * =====================================================================================
  */
 #include "webgame/server/DefaultZBackServer.h"
+#include "webgame/message/MessageBuilder.h"
 #include "webgame/netcore/TimerEvent.h"
+#include "webgame/server/ServerOption.h"
 
 #ifdef THIS_CLASS
 #undef THIS_CLASS
@@ -30,10 +32,19 @@ THIS_CLASS::DefaultZBackServer(const OptionType& option) :
   m_zeroContext(option.ZeroContext),
   m_readStrand(option.ReadStrand),
   m_writeStrand(option.WriteStrand),
-  m_decoder(option.Decoder),
+  m_decoder(new DecoderType()),
   m_propertyFile(option.PropertyFileName) {
   }
 
+void THIS_CLASS::makeDecorderLocked() {
+    m_decoder->makeFinal();
+}
+
+void THIS_CLASS::init() {
+}
+
+void THIS_CLASS::bindPollManager(ZPollInManager* mgr) {
+}
 
 
 #undef THIS_CLASS

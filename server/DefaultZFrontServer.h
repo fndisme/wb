@@ -36,8 +36,6 @@
 #include "webgame/shared/Platform.h"
 #include "webgame/utility/CircleActor.h"
 #include "webgame/utility/DelayMessageDealer.h"
-#include "webgame/server/ServerOption.h"
-
 
 namespace boost {
   namespace system {
@@ -51,11 +49,11 @@ namespace WebGame {
   }
   namespace Server {
     class ZPollInManager ;
-
+    class ServerOption;
     class DefaultZFrontServer : boost::noncopyable {
     public:
       typedef Message::DataBlock::DecoderType DecoderType;
-      typedef ServerOption<Message::DataBlock::DecoderType> OptionType;
+      typedef ServerOption OptionType;
         void bindPollManager(ZPollInManager* mgr) ;
         void stop() ;
         void start() {
@@ -79,7 +77,8 @@ namespace WebGame {
         inline bool isRegisterConnection(NetConnectionPointer nc) const {
           return doIsRegisterConnection(nc) ;
         }
-        DecoderType* decoder() { return m_decoder;}
+        DecoderType& decoder() { return *m_decoder;}
+        const DecoderType& decoder() const { return *m_decoder;}
         bool isNormalPostMessage(int msg) const {
           return m_normal_register_message.count(msg) == 1 ;
         }
@@ -185,9 +184,10 @@ namespace WebGame {
       private:
         //boost::asio::io_service* m_ioService ;
         ContextType* m_zeroContext;
-        boost::asio::strand* m_readStrand;
-        boost::asio::strand* m_writeStrand;
-        DecoderType* m_decoder;
+        typedef boost::asio::strand Strand;
+        Strand* m_readStrand;
+        Strand* m_writeStrand;
+        std::unique_ptr<DecoderType> m_decoder;
         std::unique_ptr<ZSocketType> m_socket ;
         const std::string m_propertyFile;
         // handle message from client....
@@ -205,7 +205,6 @@ namespace WebGame {
         void dealBackMessage(std::shared_ptr<DataType> db) ;
         void dealBackRadioMessage(std::shared_ptr<DataType> db) ;
         void connectBack() ;
-        void initDecoder() { doInitDecoder();}
         void startReceiveConnection() ;
         void dispatchConnectionMessage(const DataType&, NetConnectionPointer)  ;
         void registerStockMessage() ;
@@ -262,11 +261,6 @@ namespace WebGame {
         virtual void doDealBackServerGroupMessage(const MiniGroup&,
             const DataType& db,
             PlayerGroup const& clientsIds) = 0;
-        /**
-         * @brief init the decorder to decode or encode message.
-         */
-        virtual void doInitDecoder() = 0;
-
         /**
          * @brief if the server has other special action or service. do it here
          * default is nothing if as simple front server

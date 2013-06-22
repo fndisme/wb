@@ -64,8 +64,8 @@ public:
         const ZSockOption& option = ZSockOption()) :
       m_strand(strand),
       m_decoder(decoder),
-      m_publisher(new QSocketTraits::socket_t(ctx, QSocketTratis::typePub())),
-      m_socket(new QSocketTraits::socket_t(ctx, QSocketTratis::typeRouter())),
+      m_publisher(new QSocketTraits::socket_t(ctx, QSocketTraits::typePub())),
+      m_socket(new QSocketTraits::socket_t(ctx, QSocketTraits::typeRouter())),
       m_messages(),
       m_publishMessage(),
       m_HWM(option.HWM != 0 ? option.HWM : 1000) {
@@ -81,7 +81,7 @@ public:
         const ZSockOption& option = ZSockOption()) :
         m_strand(strand),
         m_decoder(decoder),
-        m_socket(new QSocketTraits::socket_t(ctx, QSocketTratis::type_router())),
+        m_socket(new QSocketTraits::socket_t(ctx, QSocketTraits::typeRouter())),
         m_HWM(option.HWM != 0 ? option.HWM : 1000) {
         init(std::string(), socketaddress, option.LingerOption == NEED_LINGER) ;
 
@@ -108,12 +108,16 @@ public:
     }
 
     template<typename M>
-    void sendMessage(const SlaveServerNameType& name, M&& msg, player_tt pid = player_tt(0)) const {
+    void sendMessage(const SlaveServerNameType& name,
+                     M&& msg,
+                     player_tt pid = player_tt(0)) const {
         sendMessage(name, easy_data_block_cache(msg, pid)) ;
     }
 
     template<typename M>
-    void sendMessage(const std::string& name, M&& msg, player_tt pid = player_tt(0)) const {
+    void sendMessage(const std::string& name,
+                     M&& msg,
+                     player_tt pid = player_tt(0)) const {
         sendMessage(name, easy_data_block_cache(msg, pid)) ;
     }
 
@@ -125,17 +129,19 @@ public:
     void bindPollManager(ZPollInManager* mgr,
                               const MessageDealerFunctionType& func,
                               DirectionEnum direction = ZM_BOTH) {
-        if(direction == ZM_BOTH) {
-            mgr->registerWriteActor(std::bind(&class_type::sendToSlave, this)) ;
-            if(m_publisher) mgr->registerWriteActor(std::bind(&class_type::sendPublishMessage, this)) ;
-        }
+      if(direction == ZM_BOTH) {
+        mgr->registerWriteActor(std::bind(&class_type::sendToSlave, this)) ;
+        if(m_publisher)
+          mgr->registerWriteActor(std::bind(&class_type::sendPublishMessage, this)) ;
+      }
 
-        m_dealer_function = func ;
-        mgr->registerReadActor(*m_socket, std::bind(&class_type::recv, this)) ;
+      m_dealer_function = func ;
+      mgr->registerReadActor(*m_socket, std::bind(&class_type::recv, this)) ;
     }
 
 private:
     boost::asio::strand& m_strand;
+    const DecoderType& m_decoder;
     ZSocketPointer m_publisher ;
     ZSocketPointer m_socket ;
 
@@ -147,10 +153,11 @@ private:
     mutable boost::mutex m_mutex;
 
     void recv() {
-        QSocketTraits::absorbHeaderDispatchMesage<read_data_type>(*m_socket,
-                m_dealer_function,
-                m_strand,
-                m_decoder) ;
+        QSocketTraits::absorbHeaderDispatchMesage<read_data_type>(
+            *m_socket,
+            m_dealer_function,
+            m_strand,
+            m_decoder) ;
     }
 
     void sendPublishMessage() {
@@ -183,27 +190,27 @@ private:
     void init(const std::string& publishaddress,
               const std::string& socketaddress,
               bool need_linger) {
+      if(m_publisher)
+        m_publisher->setsockopt(QSocketTraits::optionSetHighWaterMark(),
+                                &(m_HWM), sizeof(m_HWM)) ;
+      m_socket->setsockopt(QSocketTraits::optionSetHighWaterMark(),
+                           &(m_HWM), sizeof(m_HWM)) ;
+
+
+      if(m_publisher)
+        m_publisher->bind(publishaddress.c_str()) ;
+
+      m_socket->bind(socketaddress.c_str()) ;
+
+      if(need_linger) {
+        int linger = 0 ;
         if(m_publisher)
-            m_publisher->setsockopt(QSocketTraits::option_send_high_water_mark(),
-                                    &(m_HWM), sizeof(m_HWM)) ;
-        m_socket->setsockopt(QSocketTraits::option_send_high_water_mark(),
-                             &(m_HWM), sizeof(m_HWM)) ;
+          m_publisher->setsockopt(QSocketTraits::optionLinger(),
+                                  &linger, sizeof linger) ;
+        m_socket->setsockopt(QSocketTraits::optionLinger(),
+                             &linger, sizeof linger) ;
 
-
-        if(m_publisher)
-            m_publisher->bind(publishaddress.c_str()) ;
-
-        m_socket->bind(socketaddress.c_str()) ;
-
-        if(need_linger) {
-            int linger = 0 ;
-            if(m_publisher)
-                m_publisher->setsockopt(QSocketTraits::option_linger(),
-                                        &linger, sizeof linger) ;
-            m_socket->setsockopt(QSocketTraits::option_linger(),
-                                 &linger, sizeof linger) ;
-
-        }
+      }
     }
 } ;
 }

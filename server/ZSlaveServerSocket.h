@@ -55,7 +55,7 @@ namespace WebGame {
                 NeedLingerOption nl = NEED_LINGER,
                 std::string const& default_filter = "") :
               m_strand(strand),
-                m_decoder(decoder),
+              m_decoder(decoder),
               m_subscriber(new QSocketTraits::socket_t(ctx, QSocketTraits::typeSub())),
               m_socket(new QSocketTraits::socket_t(ctx, QSocketTraits::typeDealer())),
               m_name(name),

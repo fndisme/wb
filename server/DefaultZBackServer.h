@@ -26,7 +26,6 @@
 #include "webgame/message/MakeCacheMessage.h"
 #include "webgame/netcore/TimerEventFwd.h"
 #include "webgame/server/ZMasterServerSocket.h"
-#include "webgame/server/ServerOption.h"
 #ifndef WIN32
 #include <folly/FBVector.h>
 #endif
@@ -34,12 +33,13 @@
 namespace WebGame {
 namespace Server {
   class ZPollInManager;
+  class ServerOption;
   class DefaultZBackServer : boost::noncopyable {
     public:
       typedef Message::DataBlock::DecoderType DecoderType;
-      typedef ServerOption<Message::DataBlock::DecoderType> OptionType;
+      typedef ServerOption OptionType;
+      typedef Message::DataBlock DataType;
       void bindPollManager(ZPollInManager* mgr);
-      void stop();
       void start() {
         doStart();
         makeDecorderLocked();
@@ -59,7 +59,7 @@ namespace Server {
       void makeDecorderLocked();
     protected:
       void init();
-      typedef QSocketTratis::context_t ContextType;
+      typedef QSocketTraits::context_t ContextType;
       typedef boost::asio::strand Strand;
 
     private:
@@ -69,14 +69,13 @@ namespace Server {
       ContextType* m_zeroContext;
       Strand* m_readStrand;
       Strand* m_writeStrand;
-      DecoderType* m_decoder;
+      std::unique_ptr<DecoderType> m_decoder;
       NetCore::TimerEventPonter m_clockTimer;
       std::string m_propertyFile;
     public:
       ~DefaultZBackServer() NOEXCEPT;
     protected:
       explicit DefaultZBackServer(const OptionType& option);
-      typedef Message::DataBlock DataType;
       Strand* readStrand() { return m_readStrand;}
       Strand* writeStrand() { return m_writeStrand;}
       ContextType* context() { return m_zeroContext;}
