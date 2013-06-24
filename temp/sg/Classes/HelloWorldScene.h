@@ -44,8 +44,6 @@ class HelloWorld : public cocos2d::CCLayer {
     void showMaskInMap(const cocos2d::CCPoint& viewPoint, WebGame::Player* player);
     void hideMask();
     void inChooseActionState();
-
-  private:
     enum State {
       S_IDLE,
       S_CHOOSE,
@@ -53,6 +51,12 @@ class HelloWorld : public cocos2d::CCLayer {
       S_CHOOSE_ACTION,
     };
     bool inCanChooseState() const;
+    bool inChooseAction() const { return currentState() == S_CHOOSE_ACTION;}
+    bool isAttackTarget(WebGame::Player* target) const;
+    void attackTarget(WebGame::Player* target);
+  private:
+
+    int currentState() const { return m_currentState;}
     cocos2d::CCTMXTiledMap* m_tileMap;
     //cocos2d::CCTMXLayer* m_background;
     cocos2d::CCSprite* m_tileMoveBackgroud;
@@ -83,6 +87,9 @@ class HelloWorld : public cocos2d::CCLayer {
     void initTileSystem(const char*);
     void initGameProperty();
     std::map<int,WebGame::Player*> m_players;
+    std::vector<WebGame::Player*> m_reds;
+    std::vector<WebGame::Player*> m_blues;
+    std::vector<WebGame::Player*> m_greens;
     void generateRandomPlayers();
     WebGame::Player* m_currentPlayer;
     void inPlayerMoveState(const cocos2d::CCPoint& position);

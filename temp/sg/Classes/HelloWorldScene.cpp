@@ -349,6 +349,15 @@ bool HelloWorld::inCanChooseState() const {
   return false;
 }
 
+ bool HelloWorld::isAttackTarget(WebGame::Player* target) const {
+   assert(false);
+   return false;
+
+ }
+void HelloWorld::attackTarget(WebGame::Player* target) {
+  assert(false);
+}
+
 void HelloWorld::showMaskInMap(const CCPoint& viewPoint, WebGame::Player* p) {
   if(!inCanChooseState()) return;
   m_currentState = S_CHOOSE;
@@ -441,15 +450,7 @@ void HelloWorld::inChooseActionState() {
   int mapY = m_tileWindowPosition->y();
   int minX = m_showMapRect.getMinX();
   int minY = m_showMapRect.getMinY();
-//  m_tileMask = WebGame::TileMask::create(
-//      tex, // mask
-//      ccp(m_tileSizeWithScale.width * x - m_tileWindowPosition->realDeltaX(),
-//        m_tileSizeWithScale.height * y - m_tileWindowPosition->realDeltaY()),
-//      ccp(x,y),
-//      m_tileSizeWithScale,
-//      m_scale,
-//      std::move(tilePos));
-//  addChild(m_tileMask);
+
   CCTexture2D* texAttack = CCTextureCache::sharedTextureCache()->textureForKey("attack_mask.png");
   m_attackMask = WebGame::TileMask::create(
       texAttack, // mask

@@ -99,8 +99,13 @@ namespace WebGame {
   }
 
   void Player::ccTouchEnded(CCTouch* touch, CCEvent* event) {
-    if(!m_isMoveScreen)
-      getScene()->showMaskInMap(touch->getLocationInView(), this);
+    if(!m_isMoveScreen) {
+      if(getScene()->inCanChooseState()) {
+        getScene()->showMaskInMap(touch->getLocationInView(), this);
+      } else if(getScene()->inChooseAction() && getScene()->isAttackTarget(this)) {
+        getScene()->attackTarget(this);
+      }
+    }
     m_isMoveScreen = false;
   }
 
