@@ -1,6 +1,9 @@
 {
     "Net" : {
-      "IsHasBackServer" : 0,
-      "ListenPort" : 9999
+      "IsHasBackServer" : 1,
+      "NameOfMyself" : "fnd",
+      "ListenPort" : 9999,
+      "BackServerPublishAddress" : "inproc://radio-a",
+      "BackServerSocketAddress" : "inproc://a"
     }
 }

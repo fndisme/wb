@@ -28,7 +28,6 @@
 #include "webgame/server/ZSocketDef.h"
 #include "webgame/server/ZSlaveDef.h"
 #include "webgame/server/ZPollInManager.h"
-//#include "webgame/server/ZSocketUtility.h"
 #include "webgame/shared/identity_type.h"
 
 namespace WebGame {
@@ -38,10 +37,10 @@ template<typename SD,
          typename C = std::vector<SD> >
 class ZMasterServerSocket : boost::noncopyable {
 public:
-    typedef SD send_data_type ;
-    typedef send_data_type CacheDataType ;
-    typedef RD read_data_type ;
-    typedef typename read_data_type::DecoderType DecoderType;
+    typedef SD SendDataType ;
+    typedef SendDataType CacheDataType ;
+    typedef RD ReadDataType ;
+    typedef typename ReadDataType::DecoderType DecoderType;
     typedef C container_type ;
     typedef ZMasterServerSocket<SD, RD, C> class_type ;
     typedef std::unique_ptr<ZMasterServerSocket<SD, RD, C> > pointer ;
@@ -87,20 +86,19 @@ public:
 
     }
 
-    void sendMessage(const SlaveServerNameType& name, send_data_type msg) const {
+    void sendMessage(const SlaveServerNameType& name, SendDataType msg) const {
         assert(sizeof(msg) <= 3 * sizeof(void *)) ;
         boost::lock_guard<boost::mutex> lock(m_mutex);
         m_messages[name].push_back(msg) ;
     }
 
-    void sendMessage(const std::string& name, send_data_type msg) const {
+    void sendMessage(const std::string& name, SendDataType msg) const {
         assert(sizeof(msg) <= 3 * sizeof(void *)) ;
         boost::lock_guard<boost::mutex> lock(m_mutex);
         m_messages[SlaveServerNameType(name)].push_back(msg) ;
     }
 
-
-    void publishMessage(send_data_type msg) const {
+    void publishMessage(SendDataType msg) const {
         assert(sizeof(msg) <= 3 * sizeof(void *)) ;
         PANTHEIOS_ASSERT(m_publisher) ;
         boost::lock_guard<boost::mutex> lock(m_mutex);
@@ -153,7 +151,7 @@ private:
     mutable boost::mutex m_mutex;
 
     void recv() {
-        QSocketTraits::absorbHeaderDispatchMesage<read_data_type>(
+        QSocketTraits::absorbHeaderDispatchMesage<ReadDataType>(
             *m_socket,
             m_dealer_function,
             m_strand,
@@ -168,8 +166,7 @@ private:
         boost::lock_guard<boost::mutex> lock(m_mutex);
         data.swap(m_publishMessage);
       }
-        QSocketTraits::sendScatterMessage(data,
-                *m_publisher, m_HWM) ;
+        QSocketTraits::sendScatterMessage(data, *m_publisher) ;
     }
 
     void sendToSlave() {

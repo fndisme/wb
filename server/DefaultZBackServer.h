@@ -26,6 +26,8 @@
 #include "webgame/message/MakeCacheMessage.h"
 #include "webgame/netcore/TimerEventFwd.h"
 #include "webgame/server/ZMasterServerSocket.h"
+#include "webgame/utility/MessageManager.h"
+#include "webgame/utility/TimeoutQueue.h"
 #ifndef WIN32
 #include <folly/FBVector.h>
 #endif
@@ -45,8 +47,6 @@ namespace Server {
         makeDecorderLocked();
       }
 
-
-
 #ifdef WIN32
       typedef std::vector<Message::DataCache::const_pointer> SocketDataVector;
 #else
@@ -58,20 +58,62 @@ namespace Server {
     private:
       void makeDecorderLocked();
     protected:
+      typedef std::pair<const std::string&,
+              const std::shared_ptr<ZSocketType::ReadDataType>&> FrontMessageType;
       void init();
       typedef QSocketTraits::context_t ContextType;
       typedef boost::asio::strand Strand;
+      int secondPerTick() const { return m_tickUsedSeconds;}
+      int64_t nowTick() { return m_currentTicks;}
+      Utility::TimeoutQueue::Id addTimer(int64_t delay,
+                                         Utility::TimeoutQueue::Callback callback) {
+        return m_timeoutQueue.add(nowTick(), delay, std::move(callback));
+      }
+
+      Utility::TimeoutQueue::Id
+        addLoopTimer(int64_t inteval, Utility::TimeoutQueue::Callback callback) {
+        return m_timeoutQueue.addRepeating(nowTick(), inteval, std::move(callback));
+      }
+
+      Utility::TimeoutQueue::Id
+        addLoopTimerWithDelay(int64_t inteval, int64_t delay,
+                              Utility::TimeoutQueue::Callback callback) {
+        return m_timeoutQueue.addRepeatingWithDelay(nowTick(),
+                                           delay,
+                                           inteval,
+                                           std::move(callback));
+      }
 
     private:
       virtual void doStart() { init(); }
+      virtual void doInitProperty() {}
+      virtual void doTick() {}
+      virtual void doInitCallback() = 0;
       // data
     private:
       ContextType* m_zeroContext;
+      std::unique_ptr<ZSocketType> m_socket;
       Strand* m_readStrand;
       Strand* m_writeStrand;
       std::unique_ptr<DecoderType> m_decoder;
       NetCore::TimerEventPonter m_clockTimer;
       std::string m_propertyFile;
+      int m_tickUsedSeconds;
+      int64_t m_currentTicks;
+      Utility::TimeoutQueue m_timeoutQueue;
+      std::string m_publishAddress; // pushlish message all client
+      std::string m_socketAddress; // send message to single client
+      typedef Utility::MessageManager<int, FrontMessageType> MessageDealerType;
+      MessageDealerType m_frontMessageDealer;
+
+      void initProperty();
+      void registerDefaultTimer();
+      void initCallback();
+      void connectToFront();
+      void tick();
+      void dealFrontMessage(const std::string& frontName,
+                            std::shared_ptr<ZSocketType::ReadDataType> db);
+
     public:
       ~DefaultZBackServer() NOEXCEPT;
     protected:
@@ -80,6 +122,30 @@ namespace Server {
       Strand* writeStrand() { return m_writeStrand;}
       ContextType* context() { return m_zeroContext;}
       const std::string& propertyFile() const { return m_propertyFile;}
+      void pushlishMessage(const ZSocketType::SendDataType& msg) const {
+        m_socket->publishMessage(msg);
+      }
+      void registerConnectionMessageCallback(
+          int k,
+          MessageDealerType::function_type const& func) {
+        m_frontMessageDealer.add(k, func) ;
+      }
+
+      template<typename S, typename M>
+      void sendMessage(const S& s, M&& m, player_tt pid) const {
+        m_socket->sendMessage(s, m, pid);
+      }
+
+      void sendMessage(const SlaveServerNameType& name,
+                       const ZSocketType::SendDataType& msg) const {
+        m_socket->sendMessage(name, msg);
+      }
+      void sendMessage(const std::string& name,
+                       const ZSocketType::SendDataType& msg) const {
+        m_socket->sendMessage(name, msg);
+      }
+      DecoderType& decoder() { return *m_decoder;}
+
   };
 }
 }

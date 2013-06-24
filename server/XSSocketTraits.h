@@ -3,7 +3,7 @@
  *
  *       Filename:  XSSocketTraits.h
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2013年01月26日 17时30分23秒
@@ -11,7 +11,7 @@
  *       Compiler:  gcc
  *
  *         Author:  Fang Dongheng (fndisme), fndisme@163.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
@@ -69,7 +69,7 @@ namespace WebGame
     }
 
     template<typename Container>
-      void sendScatterMessage(Container&& container,
+      void sendScatterMessage(const Container& container,
           socket_t& socket) {
         if(container.empty()) return ;
         std::for_each(container.cbegin(), container.cend(),
@@ -172,4 +172,3 @@ namespace WebGame
   }
 }
 #endif
-

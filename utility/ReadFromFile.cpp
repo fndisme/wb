@@ -39,13 +39,10 @@ namespace Utility {
     std::string data = readFromFile(file_name) ;
 
     using namespace boost ;
-    
     std::vector<std::string> lines ;
     split(lines, data, is_any_of(linebreak), token_compress_on) ;
     return lines ;
-    
   }
-
 
   std::vector<char> readBlockFromFile(const char* file_name) {
 #ifdef WIN32
@@ -77,14 +74,13 @@ namespace Utility {
       return infomation ;
     }
     return std::vector<char>() ;
-  } 
+  }
+
   std::string readFromStream(std::istream& in) {
     in.unsetf(std::ios::skipws) ;
-        
     std::string return_info(std::istreambuf_iterator<char>(in.rdbuf()),
                             std::istreambuf_iterator<char>()) ;
     return return_info ;
-        
   }
 }
 }

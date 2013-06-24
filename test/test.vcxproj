@@ -87,10 +87,12 @@
     <ClCompile Include="..\shared\fastformat_implicit_link.cpp" />
     <ClCompile Include="..\shared\implicit_link2.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TestBackServer.cpp" />
     <ClCompile Include="TestServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\protocal\PingPong.pb.h" />
+    <ClInclude Include="TestBackServer.h" />
     <ClInclude Include="TestServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

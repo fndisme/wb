@@ -49,7 +49,7 @@ namespace WebGame{
       }
       const void* data() const { return static_cast<const void*>(m_buffer.data()) ;}
       size_t totalSize() const { return m_buffer.size() ;}
-  
+
       //template<typename T>
       friend	const_pointer makeCached(DataBlock&) ;
       friend const_pointer makeCached(const DataBlock&) ;

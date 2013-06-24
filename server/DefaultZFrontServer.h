@@ -115,7 +115,7 @@ namespace WebGame {
           doRegisterActions() ;
         }
         void makeMessageDealersFinal() {
-          m_client_handlers.lock() ; // for client
+          m_clientMessageHandlers.lock() ; // for client
           m_back_dealer_handlers.lock() ; // for back poster
           m_back_subscriber_dealers.lock() ; // for back radio
         }
@@ -133,7 +133,7 @@ namespace WebGame {
 #endif
         void registerConnectionMessageCallback(int k,
             MessageDealerType::function_type const& func) {
-          m_client_handlers.add(k, func) ;
+          m_clientMessageHandlers.add(k, func) ;
         }
 
         void registerBackMessageCallback(int k,
@@ -182,7 +182,6 @@ namespace WebGame {
             Property(property) {}
         };
       private:
-        //boost::asio::io_service* m_ioService ;
         ContextType* m_zeroContext;
         typedef boost::asio::strand Strand;
         Strand* m_readStrand;
@@ -191,7 +190,7 @@ namespace WebGame {
         std::unique_ptr<ZSocketType> m_socket ;
         const std::string m_propertyFile;
         // handle message from client....
-        MessageDealerType m_client_handlers ;
+        MessageDealerType m_clientMessageHandlers ;
         BackMessageDealerType m_back_dealer_handlers ;
         BackMessageDealerType m_back_subscriber_dealers ;
         typedef std::unique_ptr<AcceptorType> AcceptorPointer ;

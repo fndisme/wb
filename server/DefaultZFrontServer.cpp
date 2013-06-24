@@ -78,7 +78,7 @@ THIS_CLASS::DefaultZFrontServer(const OptionType& option) :
   m_decoder(new DecoderType()),
   m_socket(),
   m_propertyFile(option.PropertyFileName),
-  m_client_handlers(),
+  m_clientMessageHandlers(),
   m_back_dealer_handlers(),
   m_back_subscriber_dealers(),
   m_acceptor(),
@@ -112,8 +112,6 @@ void THIS_CLASS::registerStockMessage() {
           this,
           _1)) ;
   }
-
-  //if(needHeartBeat()) m_normal_messages.insert(Server::Stock::HeartBeat::value) ;
 }
 
 void THIS_CLASS::connectBack() {
@@ -173,7 +171,7 @@ void THIS_CLASS::onReceiveConncetionMessage(const DataType& db,
 
 void THIS_CLASS::dispatchConnectionMessage(const DataType& db,
     THIS_CLASS::NetConnectionType::pointer nc) {
-  if(!m_client_handlers.dispatch(db.messageType(), std::make_tuple(std::cref(db),
+  if(!m_clientMessageHandlers.dispatch(db.messageType(), std::make_tuple(std::cref(db),
           nc))) {
     if(isRegisterConnection(nc) && isConnectedToBack())
       pushMessageToBack(db) ;
@@ -221,7 +219,7 @@ void THIS_CLASS::startReceiveConnection() {
     PANTHEIOS_MESSAGE_ASSERT(m_maxAnswerTime> rate,
         "we need right MaxAnswerTime") ;
     registerRepeatTimer(rate, boost::bind(&THIS_CLASS::dealHeartBeat, this)) ;
-    m_client_handlers.add(Server::Stock::HeartBeat::value,
+    m_clientMessageHandlers.add(Server::Stock::HeartBeat::value,
         [](MessageHandlerType){}) ;
   }
 

@@ -51,14 +51,14 @@
 /* I need a function pause (mostly add time for a ID to call).
  * so I change the file.
  **/
- 
+
 
 /*
  * =====================================================================================
  *
  *       Filename:  TimeoutQueue.h
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2012年06月13日 14时19分26秒
@@ -66,12 +66,12 @@
  *       Compiler:  gcc
  *
  *         Author:  Fang Dongheng (fndisme), fndisme@163.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
 #ifndef UTILITY_TIMEOUTQUEUE_H_
-#define UTILITY_TIMEOUTQUEUE_H_ 
+#define UTILITY_TIMEOUTQUEUE_H_
 
 #include <stdint.h>
 #include <functional>
@@ -80,7 +80,7 @@
 #include <boost/multi_index/indexed_by.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/member.hpp>
-
+namespace WebGame {
 namespace Utility {
 
 class TimeoutQueue : boost::noncopyable {
@@ -109,9 +109,9 @@ class TimeoutQueue : boost::noncopyable {
 */
   Id addRepeating(int64_t now, int64_t interval, Callback callback);
 
-  /** 
+  /**
    * Add a repeating timeout event that will fire every 'inteval" time units
-   * (but it will first fire when run*() is called with a time value >= 
+   * (but it will first fire when run*() is called with a time value >=
    * now + delay)
    * run*() will always invoke each repeating event at most once, even if
    * more than one "interval" period has passed.
@@ -214,9 +214,7 @@ class TimeoutQueue : boost::noncopyable {
   Set timeouts_;
   Id nextId_;
 };
-
+}
 } // namespace folly
 
 #endif /* UTILITY_TIMEOUTQUEUE_H_*/
-
-

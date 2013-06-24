@@ -3,7 +3,7 @@
  *
  *       Filename:  TimeoutQueue.cpp
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2012年06月13日 14时31分31秒
@@ -11,7 +11,7 @@
  *       Compiler:  gcc
  *
  *         Author:  Fang Dongheng (fndisme), fndisme@163.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
@@ -35,7 +35,7 @@
 #include "webgame/utility/TimeoutQueue.h"
 #include <vector>
 #include <algorithm>
-
+namespace WebGame {
 namespace Utility {
 
   TimeoutQueue::Id TimeoutQueue::add(
@@ -110,7 +110,5 @@ namespace Utility {
     } while (!onceOnly && nextExp <= now);
     return nextExp;
   }
-
 } // namespace Utility
-
-
+} // namespace WebGame

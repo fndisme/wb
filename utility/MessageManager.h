@@ -21,7 +21,7 @@
 #include <stdexcept>
 #include <functional>
 #include <boost/noncopyable.hpp>
-#include	"webgame/utility/TinyFinder.h"
+#include "webgame/utility/TinyFinder.h"
 namespace WebGame {
 namespace Utility {
   template<typename Key, typename FuncParam>
@@ -29,24 +29,24 @@ namespace Utility {
   public:
     typedef MessageManager<Key, FuncParam>   class_type ;
     typedef Key                             key_type ;
-    typedef FuncParam                       function_para_type ;
+    typedef FuncParam                       ParamType;
     //typedef FuncParam*                      function_para_pointer ;
   public:
-    typedef std::function<void (const function_para_type&)> function_type ;
+    typedef std::function<void (const ParamType&)> function_type ;
     typedef TinyFinder<key_type, function_type > HandleMap ;
 
     void add(const key_type& k, const function_type& func) {
       handleMap.insert(k, func) ;
     }
-		bool dispatch(const key_type& k, const function_para_type& param) const{
-			if(!isRegistered(k)) return false ;
-			(handleMap.value(k))(param) ;
-			return true ;
+    bool dispatch(const key_type& k, const ParamType& param) const{
+      if(!isRegistered(k)) return false ;
+      (handleMap.value(k))(param) ;
+      return true ;
     }
     bool isRegistered(const key_type& k) const {
       return handleMap.hasValue(k) ;
     }
-		void lock() { handleMap.makeFinal() ;}
+    void lock() { handleMap.makeFinal() ;}
     MessageManager() : handleMap() {}
 
   private:
@@ -57,4 +57,3 @@ namespace Utility {
 }
 }
 #endif
-
