@@ -29,13 +29,14 @@ bool TestClient::doParse(
   try {
   if(cmd == PingPong && params.size() == 2) {
     auto pingpong = std::make_shared<WebGame::Protocal::PingPong>();
-    pingpang->set_information(params[1]);
+    pingpong->set_information(params[1]);
     db.setBody(pingpong);
   } else if(cmd == Login && params.size() > 3) {
     auto login = std::make_shared<WebGame::Protocal::Login>();
     login->set_name(params[1]);
     login->set_key(params[2]);
     db.setHeaderId(0);
+    db.setBody(login);
   }
   return true;
   } catch(...) {
