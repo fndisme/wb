@@ -16,6 +16,7 @@
  * =====================================================================================
  */
 #include "webgame/server/DefaultZBackServer.h"
+#include <iostream>
 #include "webgame/message/MessageBuilder.h"
 #include "webgame/netcore/TimerEvent.h"
 #include "webgame/server/LoggerUtility.h"
@@ -118,6 +119,7 @@ void THIS_CLASS::init() {
 void THIS_CLASS::dealFrontMessage(const std::string& frontName,
                                   std::shared_ptr<ZSocketType::ReadDataType> db) {
   FrontMessageType param = std::make_pair(std::cref(frontName), std::cref(db));
+  std::cout << "DISPATCH message " << db->messageType() << std::endl;
   m_frontMessageDealer.dispatch(db->messageType(), param);
 }
 

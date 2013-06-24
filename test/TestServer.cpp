@@ -19,6 +19,8 @@
 #include <iostream>
 #include "webgame/netcore/Connection.h"
 #include "webgame/protocal/PingPong.pb.h"
+#include "webgame/protocal/Login.pb.h"
+#include "webgame/protocal/InnerLogin.pb.h"
 #include "webgame/message/MessageBuilder.h"
 #include "webgame/server/ServerOption.h"
 #ifdef THIS_CLASS
@@ -41,20 +43,40 @@ void THIS_CLASS::doOnConnectionLeave(const NetErrorType& error,
 }
 bool THIS_CLASS::doIsValidMessage(const DataType& db,
     NetConnectionPointer nc) const {
-  return true;
+  return (db.headerId() != 0 &&
+          db.messageType() != WebGame::Protocal::Login::value) ||
+         (db.headerId() == 0 &&
+          db.messageType() == WebGame::Protocal::Login::value);
 }
+
 bool THIS_CLASS::doIsRegisterConnection(NetConnectionPointer nc) const {
   return true;
 }
 void THIS_CLASS::doRegisterActions() {
   decoder().registerBuilder<WebGame::Protocal::PingPong>();
   registerConnectionMessageCallback(WebGame::Protocal::PingPong::value,
-      [](MessageHandlerType msg) {
+      [this](MessageHandlerType msg) {
       const auto& db = std::get<0>(msg);
       auto conn = std::get<1>(msg);
       std::cout << db.debugString() << std::endl;
-      conn->sendAsyncMessage(db);
+      //conn->sendAsyncMessage(db);
+      pushMessageToBack(db);
       });
+  decoder().registerBuilder<WebGame::Protocal::Login>();
+  registerConnectionMessageCallback(WebGame::Protocal::Login::value,
+                                    boost::bind(&THIS_CLASS::handleLogin,
+                                                this,
+                                                _1));
+}
+
+void THIS_CLASS::handleLogin(MessageHandlerType param) {
+  const auto& db = std::get<0>(param);
+  auto msg = db.constBody<WebGame::Protocal::Login>();
+  auto conn = std::get<1>(param);
+  std::cout << "handleLogin "
+    << msg->name() << " "
+    << msg->key() << " "
+    << msg->property() << std::endl;
 
 }
 

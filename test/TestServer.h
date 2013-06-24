@@ -36,5 +36,7 @@ class TestServer : public WebGame::Server::DefaultZFrontServer {
       const DataType& db,
       PlayerGroup const& clientsIds);
 
+  // handlers
+  void handleLogin(MessageHandlerType param);
 };
 #endif

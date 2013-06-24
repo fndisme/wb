@@ -83,6 +83,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\protocal\InnerLogin.pb.cc" />
+    <ClCompile Include="..\protocal\Login.pb.cc" />
     <ClCompile Include="..\protocal\PingPong.pb.cc" />
     <ClCompile Include="..\shared\fastformat_implicit_link.cpp" />
     <ClCompile Include="..\shared\implicit_link2.cpp" />
@@ -91,6 +93,8 @@
     <ClCompile Include="TestServer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\protocal\InnerLogin.pb.h" />
+    <ClInclude Include="..\protocal\Login.pb.h" />
     <ClInclude Include="..\protocal\PingPong.pb.h" />
     <ClInclude Include="TestBackServer.h" />
     <ClInclude Include="TestServer.h" />

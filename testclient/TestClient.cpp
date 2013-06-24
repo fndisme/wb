@@ -3,7 +3,7 @@
  *
  *       Filename:  TestClient.cpp
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  2013年06月02日 17时58分51秒
@@ -11,20 +11,37 @@
  *       Compiler:  gcc
  *
  *         Author:  Fang Dongheng (fndisme), fndisme@163.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
 #include "TestClient.h"
 #include "webgame/protocal/PingPong.pb.h"
+#include "webgame/protocal/Login.pb.h"
+namespace {
+  const std::string PingPong("pingpong");
+  const std::string Login("login");
+}
 
 bool TestClient::doParse(
     const std::string& cmd,
     const std::vector<std::string>& params, WebGame::Message::DataBlock& db, int& who) {
-  auto pingpang = std::make_shared<WebGame::Protocal::PingPong>();
-  pingpang->set_information(params[1]);
-  db.setBody(pingpang);
+  try {
+  if(cmd == PingPong && params.size() == 2) {
+    auto pingpong = std::make_shared<WebGame::Protocal::PingPong>();
+    pingpang->set_information(params[1]);
+    db.setBody(pingpong);
+  } else if(cmd == Login && params.size() > 3) {
+    auto login = std::make_shared<WebGame::Protocal::Login>();
+    login->set_name(params[1]);
+    login->set_key(params[2]);
+    db.setHeaderId(0);
+  }
   return true;
+  } catch(...) {
+    pan::log_DEBUG("has error");
+    return false;
+  }
 }
 
 void TestClient::doInitHandler() {
@@ -45,4 +62,3 @@ TestClient::TestClient(boost::asio::io_service& io,
         const DecoderType& decoder
         ):
       WebGame::Mock::DummyClient(io, readStrand, writeStrand, init_file, id, mutex, decoder) {}
-
