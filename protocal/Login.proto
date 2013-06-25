@@ -1,0 +1,9 @@
+package WebGame.Protocal;
+message Login {
+  enum traits {
+    value = 1004;
+  }
+  required bytes name = 1;
+  required bytes key = 2;
+  optional int32 property = 4;
+}

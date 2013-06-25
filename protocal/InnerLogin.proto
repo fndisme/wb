@@ -1,0 +1,10 @@
+package WebGame.Protocal;
+message InnerLogin {
+  enum traits {
+    value = 1005;
+  }
+  required bytes name = 1;
+  required bytes key = 2;
+  required int64 session = 3;
+  optional int32 property = 4;
+}
