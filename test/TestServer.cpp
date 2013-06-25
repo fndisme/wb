@@ -170,7 +170,6 @@ THIS_CLASS::makeClientLoginning(NetConnectionPointer nc) {
   return player;
 }
 
-
 WebGame::Server::FrontClientStub::pointer
 THIS_CLASS::makeClientLoginned(int64_t sessionId, player_tt pid, LoginType type) {
   auto player = justLoginningPlayer(sessionId);
