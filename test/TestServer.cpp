@@ -74,7 +74,7 @@ void THIS_CLASS::doRegisterActions() {
 
 
   backDecoder().registerBuilder<WebGame::Protocal::InnerLoginResult>();
-  registerBackMessageCallback(InnerLoginResult::vaule,
+  registerBackMessageCallback(InnerLoginResult::value,
                               boost::bind(&THIS_CLASS::handleBack_InnerLoginResult,
                                           this,
                                           _1));
