@@ -87,7 +87,8 @@ THIS_CLASS::DefaultZFrontServer(const OptionType& option) :
   m_maxAnswerTime(0) ,
   m_hasBack(true),
   m_hard_system_prepared_message_limit(10000),
-  m_delayActor(MaxDelayTime) {
+  m_delayActor(MaxDelayTime),
+  m_startSessionId(1){
   }
 
 void THIS_CLASS::init() {
@@ -98,6 +99,37 @@ void THIS_CLASS::init() {
   registerStockMessage() ;
   makeMessageDealersFinal() ;
 
+}
+
+WebGame::Server::FrontClientStub::pointer
+THIS_CLASS::makeClientLoginning(NetConnectionPointer nc) {
+  auto player = justConnectedPlayer(nc);
+  if(player) {
+    removeJustConnectPlayer(nc);
+    player->setSession(m_startSessionId);
+    m_startSessionId += 2;
+    m_justLoggining.insert(player);
+  } else {
+    pan::log_DEBUG("makeClientLoginning player disappeared ");
+  }
+  return player;
+}
+
+
+WebGame::Server::FrontClientStub::pointer
+THIS_CLASS::makeClientLoginned(int64_t sessionId) {
+  auto player = justLoginningPlayer(sessionId);
+  if(player) {
+    removeJustLoginningPlayer(player);
+    m_justLoggined.insert(player);
+  } else {
+    pan::log_DEBUG("session player ", pan::i(sessionId), " has disappeared.");
+  }
+  return player;
+}
+
+void THIS_CLASS::removeJustConnectPlayer(NetConnectionPointer nc) {
+  removePlayerFromSet(m_justConnected, nc);
 }
 
 void THIS_CLASS::registerStockMessage() {
@@ -114,14 +146,33 @@ void THIS_CLASS::registerStockMessage() {
   }
 }
 
+
+bool THIS_CLASS::removeJustLoginningPlayer(FrontClientStub::pointer p) {
+  return m_justLoggining.erase(p->connection()) > 0;
+}
+
 void THIS_CLASS::removePlayerFromPlayerSet(NetConnectionPointer nc) {
   if(m_justConnected.erase(nc) == 0) {
     if(m_justLoggining.erase(nc) == 0) {
-      if(m_jsutLogged.erase(nc) == 0) {
+      if(m_justLoggined.erase(nc) == 0) {
         pan::log_WARNING("nc not exist .... error");
       }
     }
   }
+}
+
+WebGame::Server::FrontClientStub::pointer
+THIS_CLASS::justConnectedPlayer(NetConnectionPointer nc) {
+  auto iter = m_justLoggined.find(nc);
+  if(iter == m_justLoggined.end()) return FrontClientStub::pointer();
+  return *iter;
+}
+
+WebGame::Server::FrontClientStub::pointer
+THIS_CLASS::justLoginningPlayer(int64_t sessionId) {
+  auto iter = m_justLoggined.get<2>().find(sessionId);
+  if(iter == m_justLoggined.get<2>().end()) return FrontClientStub::pointer();
+  return *iter;
 }
 
 void THIS_CLASS::connectBack() {

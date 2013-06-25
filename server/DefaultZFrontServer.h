@@ -312,10 +312,18 @@ namespace WebGame {
 
         ClientSet m_justConnected;
         ClientSet m_justLoggining;
-        ClientSet m_jsutLogged;
+        ClientSet m_justLoggined;
+        int64_t m_startSessionId;
+        void removePlayerFromSet(ClientSet& clients, NetConnectionPointer nc) {
+          clients.get<0>().erase(nc);
+        }
       protected:
-        void makeClientLoginning(NetConnectionPointer nc);
-        void makeClientLoginned(NetConnectionPointer nc);
+        FrontClientStub::pointer makeClientLoginning(NetConnectionPointer nc);
+        FrontClientStub::pointer makeClientLoginned(int64_t sessionId);
+        FrontClientStub::pointer justConnectedPlayer(NetConnectionPointer nc);
+        FrontClientStub::pointer justLoginningPlayer(int64_t sessionId);
+        void removeJustConnectPlayer(NetConnectionPointer nc);
+        bool removeJustLoginningPlayer(FrontClientStub::pointer p);
 
     } ;
   }

@@ -28,13 +28,17 @@ class FrontClientStub : boost::noncopyable {
   public:
     typedef std::shared_ptr< ::WebGame::NetCore::DefaultNetConnectType> ConnectionType;
     typedef WebGame::player_tt IdType;
+    typedef int64_t SessionType;
     typedef std::shared_ptr<FrontClientStub> pointer;
     ConnectionType connection() { return m_connection;}
     IdType id() const { return m_id;}
+    SessionType session() const { return m_session;}
+    void setSession(int64_t session) { m_session = session;}
     explicit FrontClientStub(ConnectionType conn, IdType id = IdType(0)) :
       m_connection(conn),
-      m_id(id) {}
-    FrontClientStub() : m_connection(), m_id(0) {}
+      m_id(id),
+      m_session(0){}
+    FrontClientStub() : m_connection(), m_id(0), m_session(0) {}
     virtual ~FrontClientStub() {}
     void setId(IdType newId) { m_id = newId;}
     static pointer create(ConnectionType conn, IdType id = IdType(0)) {
@@ -46,6 +50,7 @@ class FrontClientStub : boost::noncopyable {
   private:
     ConnectionType m_connection;
     IdType m_id;
+    SessionType m_session;
 };
 }
 }
