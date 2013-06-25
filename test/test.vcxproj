@@ -96,7 +96,9 @@
     <ClInclude Include="..\protocal\InnerLogin.pb.h" />
     <ClInclude Include="..\protocal\Login.pb.h" />
     <ClInclude Include="..\protocal\PingPong.pb.h" />
+    <ClInclude Include="ClientSet.h" />
     <ClInclude Include="TestBackServer.h" />
+    <ClInclude Include="TestClient.h" />
     <ClInclude Include="TestServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -77,6 +77,7 @@ void THIS_CLASS::handleLogin(MessageHandlerType param) {
     << msg->name() << " "
     << msg->key() << " "
     << msg->property() << std::endl;
+  player_tt pid = db.headerId();
 
 }
 

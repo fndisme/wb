@@ -84,6 +84,7 @@
     <ClCompile Include="stock\InnerPostMessage.pb.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ClientSet.h" />
     <ClInclude Include="CommonServerDef.h" />
     <ClInclude Include="DefaultZBackServer.h" />
     <ClInclude Include="DefaultZFrontServer.h" />

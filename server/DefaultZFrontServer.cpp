@@ -114,6 +114,16 @@ void THIS_CLASS::registerStockMessage() {
   }
 }
 
+void THIS_CLASS::removePlayerFromPlayerSet(NetConnectionPointer nc) {
+  if(m_justConnected.erase(nc) == 0) {
+    if(m_justLoggining.erase(nc) == 0) {
+      if(m_jsutLogged.erase(nc) == 0) {
+        pan::log_WARNING("nc not exist .... error");
+      }
+    }
+  }
+}
+
 void THIS_CLASS::connectBack() {
   Utility::PageParser pp(m_propertyFile) ;
 
@@ -276,8 +286,10 @@ void THIS_CLASS::dealHeartBeat() {
 void
 THIS_CLASS::makeConnectionValid(THIS_CLASS::NetConnectionType::pointer nc) {
 
+  m_justConnected.insert(FrontClientStub::create(nc));
   pan::log_DEBUG("start reseive player data....") ;
   nc->start() ;
+  doMakeConnectionValid(nc);
   pan::log_DEBUG("real start ok....") ;
 }
 

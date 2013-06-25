@@ -36,6 +36,8 @@
 #include "webgame/shared/Platform.h"
 #include "webgame/utility/CircleActor.h"
 #include "webgame/utility/DelayMessageDealer.h"
+#include "webgame/server/ClientSet.h"
+#include "webgame/server/FrontClientStub.h"
 
 namespace boost {
   namespace system {
@@ -53,6 +55,8 @@ namespace WebGame {
     class DefaultZFrontServer : boost::noncopyable {
     public:
       typedef Message::DataBlock::DecoderType DecoderType;
+      typedef NetCore::DefaultNetConnectType NetConnectionType ;
+      typedef std::shared_ptr<NetConnectionType> NetConnectionPointer ;
       typedef ServerOption OptionType;
         void bindPollManager(ZPollInManager* mgr) ;
         void stop() ;
@@ -65,9 +69,7 @@ namespace WebGame {
         void init() ;
         explicit DefaultZFrontServer(const OptionType& option);
         typedef Message::DataBlock DataType;
-        typedef NetCore::DefaultNetConnectType NetConnectionType ;
         typedef NetCore::MessageHandlerType MessageHandlerType;
-        typedef std::shared_ptr<NetConnectionType> NetConnectionPointer ;
         typedef std::shared_ptr<const NetConnectionType> ConstNetConnectionPointer ;
         typedef NetCore::Acceptor<NetConnectionType> AcceptorType ;
         typedef boost::system::error_code NetErrorType ;
@@ -98,10 +100,11 @@ namespace WebGame {
          *
          * @param NetConnectionPointer
          */
-        virtual void makeConnectionValid(NetConnectionPointer);
+        void makeConnectionValid(NetConnectionPointer);
         void onReceiveConncetionMessage(const DataType&, NetConnectionPointer)  ;
         inline void onConnectionLeave(const NetErrorType& error,
                                       NetConnectionPointer nc) {
+          removePlayerFromPlayerSet(nc);
           doOnConnectionLeave(error, nc) ;
         }
         inline void sendMessageToAllConnection(const DataType& db) const {
@@ -218,6 +221,7 @@ namespace WebGame {
          * @param DataType the message back send to front
          */
         virtual void doDefaultBackMessageCallback(const DataType&) const = 0;
+        virtual void doMakeConnectionValid(NetConnectionPointer nc) {}
         /**
          * @brief send message to all client.
          *
@@ -291,12 +295,28 @@ namespace WebGame {
         size_t m_ungentMaxSendSize;
         void sendNormalMessage() ;
         size_t m_normal_max_send_size;
+        void removePlayerFromPlayerSet(NetConnectionPointer nc);
 
         typedef Utility::CircleActor<Utility::DelayMessageDealer> DelayMessageActor ;
 
         DelayMessageActor m_delayActor;
-
         enum { MaxDelayTime = 10 } ;
+
+        typedef boost::multi_index::multi_index_container<
+          std::shared_ptr<FrontClientStub>,
+          boost::multi_index::indexed_by<
+            boost::multi_index::ordered_unique<sortByConnection<FrontClientStub>>,
+          boost::multi_index::ordered_non_unique<sortById<FrontClientStub>>,
+            boost::multi_index::ordered_non_unique<sortBySession<FrontClientStub>>
+            > > ClientSet;
+
+        ClientSet m_justConnected;
+        ClientSet m_justLoggining;
+        ClientSet m_jsutLogged;
+      protected:
+        void makeClientLoginning(NetConnectionPointer nc);
+        void makeClientLoginned(NetConnectionPointer nc);
+
     } ;
   }
 }

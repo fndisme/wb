@@ -17,8 +17,8 @@
  */
 #ifndef FND_TEST_SERVER_H
 #define FND_TEST_SERVER_H
+#include <memory>
 #include "webgame/server/DefaultZFrontServer.h"
-
 class TestServer : public WebGame::Server::DefaultZFrontServer {
   public:
     TestServer(const OptionType& option);
@@ -38,5 +38,6 @@ class TestServer : public WebGame::Server::DefaultZFrontServer {
 
   // handlers
   void handleLogin(MessageHandlerType param);
+
 };
 #endif
