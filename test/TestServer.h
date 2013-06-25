@@ -75,7 +75,5 @@ class TestServer : public WebGame::Server::DefaultZFrontServer {
   void removePlayerFromPlayerSet(NetConnectionPointer nc);
   void handleBack_InnerLoginResult(const DataType& db);
 
-}
-
 };
 #endif
