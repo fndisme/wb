@@ -1,0 +1,16 @@
+package WebGame.Protocal;
+message InnerLoginResult {
+  enum traits {
+    value = 1007;
+  }
+  enum FailedReason {
+    RELOGIN = 1;
+    KEY_ERROR = 2;
+  }
+  required bool result = 1;
+  optional int32 failed_reason = 2;
+  required int64 session = 3;
+  optional int64 back_session = 4;
+  optional int32 id = 5;
+  optional int32 property = 6;
+}
