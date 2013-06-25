@@ -80,7 +80,7 @@ THIS_CLASS::DefaultZFrontServer(const OptionType& option) :
   m_socket(),
   m_propertyFile(option.PropertyFileName),
   m_clientMessageHandlers(),
-  m_back_dealer_handlers(),
+  m_backMessageHandlers(),
   m_back_subscriber_dealers(),
   m_acceptor(),
   m_timers(),
@@ -104,11 +104,12 @@ void THIS_CLASS::init() {
 
 void THIS_CLASS::registerStockMessage() {
   if(m_hasBack) {
-    m_back_dealer_handlers.add(Stock::InnerMessage::value,
+    backDecoder().registerBuilder<Stock::InnerMessage>();
+    m_backMessageHandlers.add(Stock::InnerMessage::value,
         boost::bind(&THIS_CLASS::handleBackInnerMessage,
           this,
           _1)) ;
-
+    backDecoder().registerBuilder<Stock::InnerPostMessage>();
     m_back_subscriber_dealers.add(Stock::InnerPostMessage::value,
         boost::bind(&THIS_CLASS::handleBackInnerPostMessage,
           this,
@@ -366,7 +367,7 @@ void THIS_CLASS::handleBackInnerPostMessage(const DataType& db) {
 }
 
 void THIS_CLASS::dispatchBackServerMessage(const DataType& db) {
-  if(!m_back_dealer_handlers.dispatch(db.messageType(), db)) {
+  if(!m_backMessageHandlers.dispatch(db.messageType(), db)) {
     doDefaultBackMessageCallback(db) ;
   }
 }

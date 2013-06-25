@@ -75,14 +75,14 @@ namespace WebGame {
         bool needHeartBeat() const { return maxAnswerTime() != 0;}
         second_tt maxAnswerTime() const { return m_maxAnswerTime;}
         inline bool isRegisterConnection(NetConnectionPointer nc) const {
-          return doIsRegisterConnection(nc) ;
+          return doIsRegisterConnection(nc);
         }
         DecoderType& frontDecoder() { return *m_decoder;}
         const DecoderType& frontDecoder() const { return *m_decoder;}
         const DecoderType& backDecoder() const { return *m_backDecoder;}
         DecoderType& backDecoder() { return *m_backDecoder;}
         bool isNormalPostMessage(int msg) const {
-          return m_normal_register_message.count(msg) == 1 ;
+          return m_normal_register_message.count(msg) == 1;
         }
         void registerNormalPostMessage(int msg) {
           m_normal_register_message.insert(msg) ;
@@ -118,7 +118,7 @@ namespace WebGame {
         }
         void makeMessageDealersFinal() {
           m_clientMessageHandlers.lock() ; // for client
-          m_back_dealer_handlers.lock() ; // for back poster
+          m_backMessageHandlers.lock() ; // for back poster
           m_back_subscriber_dealers.lock() ; // for back radio
         }
 
@@ -140,7 +140,7 @@ namespace WebGame {
 
         void registerBackMessageCallback(int k,
             BackMessageDealerType::function_type const& func) {
-          m_back_dealer_handlers.add(k, func) ;
+          m_backMessageHandlers.add(k, func) ;
         }
 
         void registerBackRedioMessageCallback(int k,
@@ -194,7 +194,7 @@ namespace WebGame {
         const std::string m_propertyFile;
         // handle message from client....
         MessageDealerType m_clientMessageHandlers ;
-        BackMessageDealerType m_back_dealer_handlers ;
+        BackMessageDealerType m_backMessageHandlers;
         BackMessageDealerType m_back_subscriber_dealers ;
         typedef std::unique_ptr<AcceptorType> AcceptorPointer ;
         AcceptorPointer m_acceptor ;
