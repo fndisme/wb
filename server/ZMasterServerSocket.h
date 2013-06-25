@@ -29,6 +29,7 @@
 #include "webgame/server/ZSlaveDef.h"
 #include "webgame/server/ZPollInManager.h"
 #include "webgame/shared/identity_type.h"
+#include "webgame/message/MakeCacheMessage.h"
 
 namespace WebGame {
 namespace Server {
@@ -109,14 +110,14 @@ public:
     void sendMessage(const SlaveServerNameType& name,
                      M&& msg,
                      player_tt pid = player_tt(0)) const {
-        sendMessage(name, easy_data_block_cache(msg, pid)) ;
+        sendMessage(name, Message::easyDataBlockCache(msg, pid)) ;
     }
 
     template<typename M>
     void sendMessage(const std::string& name,
                      M&& msg,
                      player_tt pid = player_tt(0)) const {
-        sendMessage(name, easy_data_block_cache(msg, pid)) ;
+        sendMessage(name, Message::easyDataBlockCache(msg, pid)) ;
     }
 
     template<typename M>

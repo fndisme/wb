@@ -76,6 +76,7 @@ THIS_CLASS::DefaultZFrontServer(const OptionType& option) :
   m_readStrand(option.ReadStrand),
   m_writeStrand(option.WriteStrand),
   m_decoder(new DecoderType()),
+  m_backDecoder(new DecoderType()),
   m_socket(),
   m_propertyFile(option.PropertyFileName),
   m_clientMessageHandlers(),
@@ -87,8 +88,8 @@ THIS_CLASS::DefaultZFrontServer(const OptionType& option) :
   m_maxAnswerTime(0) ,
   m_hasBack(true),
   m_hard_system_prepared_message_limit(10000),
-  m_delayActor(MaxDelayTime),
-  m_startSessionId(1){
+  m_delayActor(MaxDelayTime)
+  {
   }
 
 void THIS_CLASS::init() {
@@ -99,37 +100,6 @@ void THIS_CLASS::init() {
   registerStockMessage() ;
   makeMessageDealersFinal() ;
 
-}
-
-WebGame::Server::FrontClientStub::pointer
-THIS_CLASS::makeClientLoginning(NetConnectionPointer nc) {
-  auto player = justConnectedPlayer(nc);
-  if(player) {
-    removeJustConnectPlayer(nc);
-    player->setSession(m_startSessionId);
-    m_startSessionId += 2;
-    m_justLoggining.insert(player);
-  } else {
-    pan::log_DEBUG("makeClientLoginning player disappeared ");
-  }
-  return player;
-}
-
-
-WebGame::Server::FrontClientStub::pointer
-THIS_CLASS::makeClientLoginned(int64_t sessionId) {
-  auto player = justLoginningPlayer(sessionId);
-  if(player) {
-    removeJustLoginningPlayer(player);
-    m_justLoggined.insert(player);
-  } else {
-    pan::log_DEBUG("session player ", pan::i(sessionId), " has disappeared.");
-  }
-  return player;
-}
-
-void THIS_CLASS::removeJustConnectPlayer(NetConnectionPointer nc) {
-  removePlayerFromSet(m_justConnected, nc);
 }
 
 void THIS_CLASS::registerStockMessage() {
@@ -144,35 +114,6 @@ void THIS_CLASS::registerStockMessage() {
           this,
           _1)) ;
   }
-}
-
-
-bool THIS_CLASS::removeJustLoginningPlayer(FrontClientStub::pointer p) {
-  return m_justLoggining.erase(p->connection()) > 0;
-}
-
-void THIS_CLASS::removePlayerFromPlayerSet(NetConnectionPointer nc) {
-  if(m_justConnected.erase(nc) == 0) {
-    if(m_justLoggining.erase(nc) == 0) {
-      if(m_justLoggined.erase(nc) == 0) {
-        pan::log_WARNING("nc not exist .... error");
-      }
-    }
-  }
-}
-
-WebGame::Server::FrontClientStub::pointer
-THIS_CLASS::justConnectedPlayer(NetConnectionPointer nc) {
-  auto iter = m_justLoggined.find(nc);
-  if(iter == m_justLoggined.end()) return FrontClientStub::pointer();
-  return *iter;
-}
-
-WebGame::Server::FrontClientStub::pointer
-THIS_CLASS::justLoginningPlayer(int64_t sessionId) {
-  auto iter = m_justLoggined.get<2>().find(sessionId);
-  if(iter == m_justLoggined.get<2>().end()) return FrontClientStub::pointer();
-  return *iter;
 }
 
 void THIS_CLASS::connectBack() {
@@ -208,7 +149,7 @@ void THIS_CLASS::connectBack() {
         new ZSocketType(
           *m_readStrand,
           *m_zeroContext,
-          decoder(),
+          backDecoder(),
           m_nameForBackServer,
           radio_address,
           socket_address)) ;
@@ -267,12 +208,12 @@ void THIS_CLASS::startReceiveConnection() {
   m_acceptor = AcceptorType::create(
       *m_readStrand,
       *m_writeStrand,
-      decoder(),
+      frontDecoder(),
       m_port, prop) ;
 
   second_tt rate = second_tt(pp.get(ClientOption, HeartBeatRate, 0)) ;
   if(rate > 0) {
-    decoder().registerBuilder<Server::Stock::HeartBeat>();
+    frontDecoder().registerBuilder<Server::Stock::HeartBeat>();
     m_maxAnswerTime=
       second_tt(pp.get(ClientOption, MaxAnswerTime, 0)) ;
     pan::log_DEBUG("heart beat rate : ", pan::i(rate.base_type_value()),
@@ -294,7 +235,8 @@ void THIS_CLASS::startReceiveConnection() {
 }
 
 void THIS_CLASS::makeDecorderLocked() {
-    decoder().makeFinal();
+    frontDecoder().makeFinal();
+    backDecoder().makeFinal();
 }
 
 void THIS_CLASS::registerRepeatTimer(second_tt inteval,
@@ -337,7 +279,6 @@ void THIS_CLASS::dealHeartBeat() {
 void
 THIS_CLASS::makeConnectionValid(THIS_CLASS::NetConnectionType::pointer nc) {
 
-  m_justConnected.insert(FrontClientStub::create(nc));
   pan::log_DEBUG("start reseive player data....") ;
   nc->start() ;
   doMakeConnectionValid(nc);
@@ -398,7 +339,7 @@ void THIS_CLASS::handleBackInnerMessage(const DataType& db) {
   auto msg = db.constBody<Stock::InnerMessage>() ;
   PANTHEIOS_ASSERT(msg) ;
   DataType db2 ;
-  bool ok = db2.importFromString(msg->information(), decoder()) ;
+  bool ok = db2.importFromString(msg->information(), backDecoder()) ;
   PANTHEIOS_ASSERT(ok) ;
   PANTHEIOS_ASSERT(db2.messageType() != db.messageType()) ;
   db2.setHeaderId(db.headerId()) ;
@@ -409,7 +350,7 @@ void THIS_CLASS::handleBackInnerPostMessage(const DataType& db) {
   auto msg = db.constBody<Stock::InnerPostMessage>() ;
   PANTHEIOS_ASSERT(msg) ;
   DataType db2 ;
-  bool ok = db2.importFromString(msg->information(), decoder()) ;
+  bool ok = db2.importFromString(msg->information(), backDecoder()) ;
   PANTHEIOS_ASSERT(ok) ;
   PlayerGroup ids ;
   for(int i = 0, size = msg->omitted_id_size() ; i < size ; ++i)

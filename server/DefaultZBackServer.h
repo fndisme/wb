@@ -133,9 +133,13 @@ namespace Server {
 
       template<typename S, typename M>
       void sendMessage(const S& s, M&& m, player_tt pid) const {
-        m_socket->sendMessage(s, m, pid);
+        m_socket->sendMessage(s, std::move(m), pid);
       }
 
+      template<typename S, typename M>
+      void sendMessage(const S& s, M&& m) const {
+        m_socket->sendMessage(s, std::move(m));
+      }
       void sendMessage(const SlaveServerNameType& name,
                        const ZSocketType::SendDataType& msg) const {
         m_socket->sendMessage(name, msg);

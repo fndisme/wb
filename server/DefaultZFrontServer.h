@@ -36,8 +36,6 @@
 #include "webgame/shared/Platform.h"
 #include "webgame/utility/CircleActor.h"
 #include "webgame/utility/DelayMessageDealer.h"
-#include "webgame/server/ClientSet.h"
-#include "webgame/server/FrontClientStub.h"
 
 namespace boost {
   namespace system {
@@ -79,8 +77,10 @@ namespace WebGame {
         inline bool isRegisterConnection(NetConnectionPointer nc) const {
           return doIsRegisterConnection(nc) ;
         }
-        DecoderType& decoder() { return *m_decoder;}
-        const DecoderType& decoder() const { return *m_decoder;}
+        DecoderType& frontDecoder() { return *m_decoder;}
+        const DecoderType& frontDecoder() const { return *m_decoder;}
+        const DecoderType& backDecoder() const { return *m_backDecoder;}
+        DecoderType& backDecoder() { return *m_backDecoder;}
         bool isNormalPostMessage(int msg) const {
           return m_normal_register_message.count(msg) == 1 ;
         }
@@ -104,7 +104,6 @@ namespace WebGame {
         void onReceiveConncetionMessage(const DataType&, NetConnectionPointer)  ;
         inline void onConnectionLeave(const NetErrorType& error,
                                       NetConnectionPointer nc) {
-          removePlayerFromPlayerSet(nc);
           doOnConnectionLeave(error, nc) ;
         }
         inline void sendMessageToAllConnection(const DataType& db) const {
@@ -158,7 +157,7 @@ namespace WebGame {
 
         template<typename MSG>
           void pushMessageToBack(MSG&& msg, player_tt pid = player_tt(0)) const {
-            pushCacheMessageToBack(easy_data_block_cache(std::forward<MSG>(msg), pid)) ;
+            pushCacheMessageToBack(Message::easyDataBlockCache(std::forward<MSG>(msg), pid)) ;
           }
 
         const std::string& name() const { return m_nameForBackServer;}
@@ -190,6 +189,7 @@ namespace WebGame {
         Strand* m_readStrand;
         Strand* m_writeStrand;
         std::unique_ptr<DecoderType> m_decoder;
+        std::unique_ptr<DecoderType> m_backDecoder;
         std::unique_ptr<ZSocketType> m_socket ;
         const std::string m_propertyFile;
         // handle message from client....
@@ -221,7 +221,7 @@ namespace WebGame {
          * @param DataType the message back send to front
          */
         virtual void doDefaultBackMessageCallback(const DataType&) const = 0;
-        virtual void doMakeConnectionValid(NetConnectionPointer nc) {}
+        virtual void doMakeConnectionValid(NetConnectionPointer nc) = 0;
         /**
          * @brief send message to all client.
          *
@@ -295,35 +295,11 @@ namespace WebGame {
         size_t m_ungentMaxSendSize;
         void sendNormalMessage() ;
         size_t m_normal_max_send_size;
-        void removePlayerFromPlayerSet(NetConnectionPointer nc);
 
         typedef Utility::CircleActor<Utility::DelayMessageDealer> DelayMessageActor ;
 
         DelayMessageActor m_delayActor;
         enum { MaxDelayTime = 10 } ;
-
-        typedef boost::multi_index::multi_index_container<
-          std::shared_ptr<FrontClientStub>,
-          boost::multi_index::indexed_by<
-            boost::multi_index::ordered_unique<sortByConnection<FrontClientStub>>,
-          boost::multi_index::ordered_non_unique<sortById<FrontClientStub>>,
-            boost::multi_index::ordered_non_unique<sortBySession<FrontClientStub>>
-            > > ClientSet;
-
-        ClientSet m_justConnected;
-        ClientSet m_justLoggining;
-        ClientSet m_justLoggined;
-        int64_t m_startSessionId;
-        void removePlayerFromSet(ClientSet& clients, NetConnectionPointer nc) {
-          clients.get<0>().erase(nc);
-        }
-      protected:
-        FrontClientStub::pointer makeClientLoginning(NetConnectionPointer nc);
-        FrontClientStub::pointer makeClientLoginned(int64_t sessionId);
-        FrontClientStub::pointer justConnectedPlayer(NetConnectionPointer nc);
-        FrontClientStub::pointer justLoginningPlayer(int64_t sessionId);
-        void removeJustConnectPlayer(NetConnectionPointer nc);
-        bool removeJustLoginningPlayer(FrontClientStub::pointer p);
 
     } ;
   }

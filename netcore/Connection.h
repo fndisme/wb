@@ -34,6 +34,7 @@
 #include "webgame/netcore/DataSender.h"
 
 #include "webgame/message/DataBlock.h"
+#include "webgame/message/MakeCacheMessage.h"
 #include "webgame/shared/identity_type.h"
 
 // create connection easy for async
@@ -51,7 +52,7 @@ namespace WebGame {
     namespace bs2 = boost::signals2;
     using namespace bs2::keywords;
     template<typename ConnectionTraits>
-      class Connection : 
+      class Connection :
         public std::enable_shared_from_this<Connection<ConnectionTraits> >,
         boost::noncopyable {
           public:
@@ -75,7 +76,7 @@ namespace WebGame {
               huge_message_mini_size = 4096,
             } ;
             typedef typename bs2::signal_type<void (const boost::system::error_code&,
-                std::shared_ptr<class_type >), mutex_type<bs2::dummy_mutex> >::type 
+                std::shared_ptr<class_type >), mutex_type<bs2::dummy_mutex> >::type
               NetConnectSignalType ;
             //typedef boost::signals2::signal<void (const boost::system::error_code&,
             //			std::shared_ptr<class_type >)>
@@ -91,7 +92,7 @@ namespace WebGame {
              *
              * @Param nc the connection to be described
              *
-             * @Returns  string 
+             * @Returns  string
              */
             /* ----------------------------------------------------------------------------*/
             static std::string describeRemoteConnection(const_pointer nc) ;
@@ -103,9 +104,9 @@ namespace WebGame {
              *
              * @Param io_service io service
              * @Param option contain the value of connection option
-             * @Param property The callback functions when some event create 
+             * @Param property The callback functions when some event create
              *
-             * @Returns  connection. 
+             * @Returns  connection.
              */
             /* ----------------------------------------------------------------------------*/
             static
@@ -146,7 +147,7 @@ namespace WebGame {
 
             template<typename ND>
               void sendAsyncMessage(ND&& msg, typename data_type::IdentityType id) {
-                sendAsyncMessage(easy_data_block_cache(std::forward<ND>(msg), id)) ;
+                sendAsyncMessage(Message::easyDataBlockCache(std::forward<ND>(msg), id)) ;
               }
             void sendAsyncMessage(Message::DataCache::const_pointer cache) ;
             void sendAsyncMessage(IdentityType pid, const data_type& db) ;

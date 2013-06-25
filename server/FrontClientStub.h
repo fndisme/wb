@@ -47,6 +47,11 @@ class FrontClientStub : boost::noncopyable {
       p->setId(id);
       return p;
     }
+    template<typename Msg>
+    void sendAsyncMessage(Msg&& msg) {
+      if(m_connection)
+        m_connection->sendAsyncMessage(std::forward<MSG>(msg));
+    }
   private:
     ConnectionType m_connection;
     IdType m_id;
