@@ -31,6 +31,7 @@
 
 #define THIS_CLASS TestServer
 using WebGame::player_tt;
+using namespace WebGame::Protocal;
 
 void THIS_CLASS::doDefaultBackMessageCallback(const DataType&) const {
 
@@ -71,6 +72,18 @@ void THIS_CLASS::doRegisterActions() {
                                                 this,
                                                 _1));
 
+
+  backDecoder().registerBuilder<WebGame::Protocal::InnerLoginResult>();
+  registerBackMessageCallback(InnerLoginResult::vaule,
+                              boost::bind(&THIS_CLASS::handleBack_InnerLoginResult,
+                                          this,
+                                          _1));
+
+}
+
+void THIS_CLASS::handleBack_InnerLoginResult(
+    const DataType& db) {
+  PANTHEIOS_ASSERT(false);
 }
 
 void THIS_CLASS::handleLogin(MessageHandlerType param) {

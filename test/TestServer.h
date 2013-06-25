@@ -73,6 +73,9 @@ class TestServer : public WebGame::Server::DefaultZFrontServer {
   bool hasLoginnedPlayer(FrontClientStub::IdType pid) const;
   bool hasLoginnedPlayer(int64_t sessionId) const;
   void removePlayerFromPlayerSet(NetConnectionPointer nc);
+  void handleBack_InnerLoginResult(const DataType& db);
+
+}
 
 };
 #endif
