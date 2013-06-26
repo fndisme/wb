@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{E21FBA6A-72F3-4BA3-BDB2-84910A1F588A}</ProjectGuid>
+    <ProjectGuid>{6B975A81-4D96-46F7-86A4-7F8BE33C6EB1}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>server</RootNamespace>
+    <RootNamespace>http</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -27,7 +27,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v110</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -47,8 +47,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0501;_DEBUG;_LIB;BOOST_ASIO_SEPARATE_COMPILATION;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../..;$(BOOST_ROOT)\include;$(STLSOFT_1_10)\include;$(STLSOFT)\include;$(PANTHEIOS_ROOT)\include;$(FASTFORMAT_ROOT)\include;$(PROTOBUF_ROOT)\include;$(ZEROMQ_ROOT)\include;$(CROSSROADS_ROOT)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4819</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>../..;$(BOOST_ROOT)\include;$(STLSOFT_1_10)\include;$(STLSOFT)\include;$(PANTHEIOS_ROOT)\include;$(FASTFORMAT_ROOT)\include;$(PROTOBUF_ROOT)\include;$(ZEROMQ_ROOT)\include;$(CROSSROADS_ROOT)\include;$(CPP_NETLIB_ROOT);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -63,8 +62,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0501;NDEBUG;_LIB;BOOST_ASIO_SEPARATE_COMPILATION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../..;$(BOOST_ROOT)\include;$(STLSOFT)\include;$(PANTHEIOS_ROOT)\include;$(FASTFORMAT_ROOT)\include;$(PROTOBUF_ROOT)\include;$(ZEROMQ_ROOT)\include;$(CROSSROAD_ROOT)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -77,33 +75,10 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DefaultZBackServer.cpp" />
-    <ClCompile Include="DefaultZFrontServer.cpp" />
-    <ClCompile Include="stock\HeartBeat.pb.cc" />
-    <ClCompile Include="stock\HttpMessage.pb.cc" />
-    <ClCompile Include="stock\InnerMessage.pb.cc" />
-    <ClCompile Include="stock\InnerPostMessage.pb.cc" />
+    <ClCompile Include="HttpServer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ClientSet.h" />
-    <ClInclude Include="CommonServerDef.h" />
-    <ClInclude Include="DefaultZBackServer.h" />
-    <ClInclude Include="DefaultZFrontServer.h" />
-    <ClInclude Include="LoggerUtility.h" />
-    <ClInclude Include="SearchingPlayerFleetProperty.h" />
-    <ClInclude Include="ServerOption.h" />
-    <ClInclude Include="stock\HeartBeat.pb.h" />
-    <ClInclude Include="stock\HttpMessage.pb.h" />
-    <ClInclude Include="stock\InnerMessage.pb.h" />
-    <ClInclude Include="stock\InnerPostMessage.pb.h" />
-    <ClInclude Include="XSSocketTraits.h" />
-    <ClInclude Include="ZMasterServerSocket.h" />
-    <ClInclude Include="ZMQSocketTraits.h" />
-    <ClInclude Include="ZPollInManager.h" />
-    <ClInclude Include="ZSlaveDef.h" />
-    <ClInclude Include="ZSlaveServerSocket.h" />
-    <ClInclude Include="ZSocketDef.h" />
-    <ClInclude Include="ZSocketUtility.h" />
+    <ClInclude Include="HttpServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

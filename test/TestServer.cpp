@@ -83,7 +83,9 @@ void THIS_CLASS::doRegisterActions() {
 
 void THIS_CLASS::handleBack_InnerLoginResult(
     const DataType& db) {
-  PANTHEIOS_ASSERT(false);
+  auto innerResult = db.constBody<WebGame::Protocal::InnerLoginResult>();
+  std::cout << "result is " << innerResult->result() << std::endl;
+
 }
 
 void THIS_CLASS::handleLogin(MessageHandlerType param) {
