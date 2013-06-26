@@ -56,8 +56,10 @@ void THIS_CLASS::pushMessage(const HttpServer::request& req,
   std::cout << "method " << req.method << std::endl;
   std::cout << "source " << req.source << std::endl;
   for(auto& header : req.headers) {
-    std::cout << "h " << header << std::endl;
+    std::cout << "name " << header.name << std::endl;
+    std::cout << "value " << header.value << std::endl;
   }
+  std::cout << "des " << req.destination << std::endl;
   std::cout << req.body << std::endl;
   message->Information = req.body;
   message->Connection = conn;

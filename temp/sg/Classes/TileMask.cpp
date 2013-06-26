@@ -39,7 +39,7 @@ namespace WebGame {
         CCSprite* s = CCSprite::createWithTexture(tex);
         s->setPosition(ccp(mask->m_tilePositions[i].x * tileSize.width,
               mask->m_tilePositions[i].y * tileSize.height));
-        s->setAnchorPoint(ccp(0.0,0.0));
+        s->setAnchorPoint(ccp(0.0f,0.0f));
         s->setScale(scale);
         mask->addChild(s);
       }

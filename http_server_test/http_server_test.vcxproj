@@ -57,7 +57,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(BOOST_ROOT)\lib;$(CROSSROADS_ROOT)\lib\Win32;$(PANTHEIOS_ROOT)\lib;$(FASTFORMAT_ROOT)\lib;$(PROTOBUF_ROOT)\Debug;..\utility\Debug;$(CPP_NETLIB_ROOT)\build\libs\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(BOOST_ROOT)\lib;$(CROSSROADS_ROOT)\lib\Win32;$(PANTHEIOS_ROOT)\lib;$(FASTFORMAT_ROOT)\lib;$(PROTOBUF_ROOT)\Debug;..\utility\Debug;$(CPP_NETLIB_ROOT)\lib\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libxs_d.lib;libprotobuf.lib;server.lib;message.lib;netcore.lib;utility.lib;http.lib;cppnetlib-uri.lib;cppnetlib-server-parsers.lib;cppnetlib-client-connections.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

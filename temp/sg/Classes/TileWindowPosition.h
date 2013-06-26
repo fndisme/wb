@@ -122,6 +122,8 @@ namespace WebGame {
         pos.y += p.y;
         pos.x /= m_tileSize.width;
         pos.y /= m_tileSize.height;
+        pos.x = floor(pos.x);
+        pos.y = floor(pos.y);
         return pos;
 
       }

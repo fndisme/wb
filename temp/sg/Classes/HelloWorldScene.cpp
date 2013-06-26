@@ -186,7 +186,7 @@ void HelloWorld::initGameProperty() {
 }
 
 void HelloWorld::generateRandomPlayers() {
-  CCPoint pos1 = m_tileWindowPosition->translateTilePositionToWindowPosition(0, 0);
+  CCPoint pos1 = m_tileWindowPosition->translateTilePositionToWindowPosition(4, 3);
   CCPoint pos2 = m_tileWindowPosition->translateTilePositionToWindowPosition(5, 8);
 
   using WebGame::Player;
@@ -201,6 +201,7 @@ void HelloWorld::generateRandomPlayers() {
   p = Player::create(1, "bb","DQV (1).png", rect, m_scale, m_tileWindowPosition.get());
   addChild(p, 10);
   p->setPosition(pos2);
+  p->setColor(1);
   pp2 = m_tileWindowPosition->getTilePosition(pos2.x, pos2.y);
   CCLog("init pos is %f %f %f %f", pp2.x, pp2.y, pos2.x, pos2.y);
   p->setMeta(*(m_gameProperty->playerMeta(2)));
@@ -350,7 +351,11 @@ bool HelloWorld::inCanChooseState() const {
 }
 
  bool HelloWorld::isAttackTarget(WebGame::Player* target) const {
-   assert(false);
+   CCLog("current pos is %f %f", target->tilePosition().x, target->tilePosition().y);
+   if(m_currentPlayer->color() != target->color() &&
+       m_attackMask->hasPosition(target->tilePosition())) {
+     return true;
+   }
    return false;
 
  }

@@ -42,7 +42,8 @@ namespace WebGame {
         m_sprite(0),
         m_isMoveScreen(false),
         m_graph(0),
-        m_scale(1.0f){}
+        m_scale(1.0f),
+        m_color(0){}
       static Player* create(int id, const std::string& name,
           const std::string& texName,
           const cocos2d::CCRect& rect,
@@ -76,6 +77,8 @@ namespace WebGame {
           const std::vector<cocos2d::CCPoint>& path);
       virtual void setPosition(const cocos2d::CCPoint& pos);
       const cocos2d::CCPoint& tilePosition() const { return m_mapPosition;}
+      int color() const { return m_color;}
+      void setColor(int c) { m_color = c;}
     private:
       bool hasNode(const std::shared_ptr<GraphNode>& node) const;
       int m_id;
@@ -92,6 +95,7 @@ namespace WebGame {
       const TileWindowPosition* m_graph;
       cocos2d::CCPoint m_mapPosition;
       float m_scale;
+      int m_color;
   };
 }
 #endif

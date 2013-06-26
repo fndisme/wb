@@ -30,6 +30,13 @@ namespace WebGame {
             const cocos2d::CCSize& tileSize,
             float scale,
             std::vector<cocos2d::CCPoint>&& tilepos);
+      /**
+       * @brief check map mask has map pos
+       *
+       * @param pos tile pos
+       *
+       * @return true for has it
+       */
       bool hasPosition(const cocos2d::CCPoint& pos) const;
     private:
       cocos2d::CCPoint m_mapPosition;
