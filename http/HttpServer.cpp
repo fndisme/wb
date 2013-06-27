@@ -40,8 +40,10 @@ void THIS_CLASS::init(const ServerOption& option) {
 void THIS_CLASS::operator()(const HttpServer::request& req,
                             HttpServer::connection_ptr conn) {
   std::cout << "call here ..... " << isRunning() << std::endl;
-  if(isRunning())
+  if(isRunning()) {
+    conn->read();
     doWork(req, conn);
+  }
 }
 
 void THIS_CLASS::bindPollManager(ZPollInManager* mgr) {
@@ -60,7 +62,7 @@ void THIS_CLASS::pushMessage(const HttpServer::request& req,
     std::cout << "value " << header.value << std::endl;
   }
   std::cout << "des " << req.destination << std::endl;
-  std::cout << req.body << std::endl;
+  std::cout <<"body is "<< req.body << std::endl;
   message->Information = req.body;
   message->Connection = conn;
   boost::lock_guard<boost::mutex> lock(m_mutex);

@@ -30,7 +30,8 @@ int main(int argc, char *argv[]) {
   http::client client;
   http::client::request request(argv[1]);
   request << header("Connection", "close");
-  http::client::response response = client.get(request);
+  std::string postInfo("aa=bb");
+  http::client::response response = client.post(request, postInfo);
   std::cout << body(response) << std::endl;
 
   return 0;
