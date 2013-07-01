@@ -45,8 +45,8 @@ namespace WebGame {
             typedef std::unique_ptr<ZSlaveServerSocket<SD, RD, C> > pointer ;
 
             typedef boost::function<void (std::shared_ptr<RD>)> MessageDealerFunctionType ;
+
             ZSlaveServerSocket(
-                boost::asio::strand& strand,
                 QSocketTraits::context_t& ctx,
                 const DecoderType& decoder,
                 std::string const& name,
@@ -54,7 +54,7 @@ namespace WebGame {
                 std::string const& socketaddress,
                 NeedLingerOption nl = NEED_LINGER,
                 std::string const& default_filter = "") :
-              m_strand(strand),
+              m_strand(nullptr),
               m_decoder(decoder),
               m_subscriber(new QSocketTraits::socket_t(ctx, QSocketTraits::typeSub())),
               m_socket(new QSocketTraits::socket_t(ctx, QSocketTraits::typeDealer())),
@@ -71,9 +71,43 @@ namespace WebGame {
                 QSocketTraits::context_t& ctx,
                 const DecoderType& decoder,
                 std::string const& name,
+                std::string const& subaddress,
+                std::string const& socketaddress,
+                NeedLingerOption nl = NEED_LINGER,
+                std::string const& default_filter = "") :
+              m_strand(&strand),
+              m_decoder(decoder),
+              m_subscriber(new QSocketTraits::socket_t(ctx, QSocketTraits::typeSub())),
+              m_socket(new QSocketTraits::socket_t(ctx, QSocketTraits::typeDealer())),
+              m_name(name),
+              m_send_data(),
+              m_dealer_function(),
+              m_subscriber_function(),
+              m_HWM(1000) {
+                init(socketaddress, subaddress, nl == NEED_LINGER, default_filter) ;
+              }
+            ZSlaveServerSocket(
+                QSocketTraits::context_t& ctx,
+                const DecoderType& decoder,
+                std::string const& name,
                 std::string const& socketaddress,
                 NeedLingerOption nl = NEED_LINGER) :
-              m_strand(strand),
+              m_strand(nullptr),
+              m_decoder(decoder),
+              m_socket(new QSocketTraits::socket_t(ctx, QSocketTraits::typeDealer())),
+              //m_socket(new socket_t(ctx, XS_DEALER)),
+              m_name(name),
+              m_HWM(1000) {
+                init(socketaddress, std::string(), nl == NEED_LINGER, std::string()) ;
+              }
+            ZSlaveServerSocket(
+                boost::asio::strand& strand,
+                QSocketTraits::context_t& ctx,
+                const DecoderType& decoder,
+                std::string const& name,
+                std::string const& socketaddress,
+                NeedLingerOption nl = NEED_LINGER) :
+              m_strand(&strand),
               m_decoder(decoder),
               m_socket(new QSocketTraits::socket_t(ctx, QSocketTraits::typeDealer())),
               //m_socket(new socket_t(ctx, XS_DEALER)),
@@ -105,7 +139,10 @@ namespace WebGame {
               m_subscriber_function = func_s ;
 
               mgr->registerWriteActor(std::bind(&class_type::send, this)) ;
-              mgr->registerReadActor(*m_socket, std::bind(&class_type::recv, this)) ;
+              if(m_strand)
+                  mgr->registerReadActor(*m_socket, std::bind(&class_type::recv, this)) ;
+              else
+                  mgr->registerReadActor(*m_socket, std::bind(&class_type::recvNoStrand, this));
               if(m_subscriber)
                 mgr->registerReadActor(*m_subscriber, std::bind(&class_type::recvSubscribeMessage, this)) ;
             }
@@ -114,7 +151,10 @@ namespace WebGame {
                 MessageDealerFunctionType const& func_d) {
               m_dealer_function = func_d ;
               mgr->registerWriteActor(std::bind(&class_type::send, this)) ;
-              mgr->registerReadActor(*m_socket, std::bind(&class_type::recv, this)) ;
+              if(m_strand)
+                  mgr->registerReadActor(*m_socket, std::bind(&class_type::recv, this)) ;
+              else
+                  mgr->registerReadActor(*m_socket, std::bind(&class_type::recvNoStrand, this));
               assert(!m_subscriber) ;
 
             }
@@ -124,7 +164,7 @@ namespace WebGame {
             }
 
           private:
-            boost::asio::strand& m_strand;
+            boost::asio::strand* m_strand;
             const DecoderType& m_decoder;
             ZSocketPointer m_subscriber ;
             ZSocketPointer m_socket;
@@ -148,13 +188,18 @@ namespace WebGame {
 
             void recv() {
               QSocketTraits::absorbAndDispatchMessage<read_data_type>(
-                  *m_socket, m_dealer_function, m_strand, m_decoder) ;
+                  *m_socket, m_dealer_function, *m_strand, m_decoder) ;
+            }
+
+            void recvNoStrand() {
+                QSocketTraits::absorbAndDispatchMessage<read_data_type>(
+                  *m_socket, m_dealer_function, m_decoder) ;
             }
 
             void recvSubscribeMessage() {
               PANTHEIOS_ASSERT(m_subscriber) ;
               QSocketTraits::absorbAndDispatchMessage<read_data_type>(
-                  *m_subscriber, m_subscriber_function, m_strand, m_decoder) ;
+                  *m_subscriber, m_subscriber_function, *m_strand, m_decoder) ;
             }
 
             void init(const std::string& socketaddress,

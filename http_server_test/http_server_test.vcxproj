@@ -51,14 +51,14 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_WIN32_WINNT=0x0501;BOOST_ASIO_SEPARATE_COMPILATION;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../..;$(BOOST_ROOT)\include;$(STLSOFT_1_10)\include;$(STLSOFT)\include;$(PANTHEIOS_ROOT)\include;$(FASTFORMAT_ROOT)\include;$(PROTOBUF_ROOT)\include;$(ZEROMQ_ROOT)\include;$(CROSSROADS_ROOT)\include;$(CPP_NETLIB_ROOT);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_WIN32_WINNT=0x0501;BOOST_ASIO_SEPARATE_COMPILATION;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;PCRE_STATIC;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../..;$(BOOST_ROOT)\include;$(STLSOFT_1_10)\include;$(STLSOFT)\include;$(PANTHEIOS_ROOT)\include;$(FASTFORMAT_ROOT)\include;$(PROTOBUF_ROOT)\include;$(ZEROMQ_ROOT)\include;$(CROSSROADS_ROOT)\include;$(CPP_NETLIB_ROOT);$(CPPCMS_DEBUG_ROOT);$(CPPCMS_DEBUG_ROOT)\booster;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(BOOST_ROOT)\lib;$(CROSSROADS_ROOT)\lib\Win32;$(PANTHEIOS_ROOT)\lib;$(FASTFORMAT_ROOT)\lib;$(PROTOBUF_ROOT)\Debug;..\utility\Debug;$(CPP_NETLIB_ROOT)\lib\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libxs_d.lib;libprotobuf.lib;server.lib;message.lib;netcore.lib;utility.lib;http.lib;cppnetlib-uri.lib;cppnetlib-server-parsers.lib;cppnetlib-client-connections.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(BOOST_ROOT)\lib;$(CROSSROADS_ROOT)\lib\Win32;$(PANTHEIOS_ROOT)\lib;$(FASTFORMAT_ROOT)\lib;$(PROTOBUF_ROOT)\Debug;..\utility\Debug;$(CPP_NETLIB_ROOT)\lib\debug;$(CPPCMS_DEBUG_ROOT);$(CPPCMS_DEBUG_ROOT)\booster;$(CPPCMS_DEBUG_ROOT)\thirdlib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libxs_d.lib;libprotobuf.lib;server.lib;message.lib;netcore.lib;utility.lib;http.lib;libcppcms-d.lib;libbooster-d.lib;booster-d.lib;icuind.lib;icuiod.lib;iculed.lib;iculxd.lib;icutud.lib;icuucd.lib;icudt.lib;Ws2_32.lib;zlib.lib;pcrecppd.lib;pcred.lib;pcreposixd.lib;Dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

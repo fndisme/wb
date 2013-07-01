@@ -97,6 +97,42 @@ namespace WebGame
         PANTHEIOS_ASSERT(iter == iter_end) ;
       }
 
+    template<typename D, typename Fun>
+      void absorbHeaderDispatchMesage(
+              socket_t& socket,
+              const Fun& fun,
+              typename D::DecoderType const& decoder) {
+        message_t headermsg ;
+        bool status = socket.recv(&headermsg) ;
+        if(!status)  {
+          pantheios::log_WARNING("no receive header error ") ;
+          return ;
+        }
+        std::string header(static_cast<const char*>(headermsg.data()),
+            static_cast<const char*>(headermsg.data()) + headermsg.size()) ;
+        int hasmore(0) ;
+        size_t more_size = sizeof hasmore ;
+        headermsg.getmsgopt(XS_MORE, &hasmore, &more_size) ;
+
+        while(hasmore) {
+          message_t msg ;
+          status = socket.recv(&msg);
+          PANTHEIOS_ASSERT(status) ;
+
+          auto db = std::make_shared<D>();
+          bool ok = db->importFromArray(static_cast<const void*>(msg.data()), msg.size(), decoder) ;
+          if(ok)
+              fun(header, db);
+          else {
+            pantheios::log_WARNING("not parse db ok..... IGNORE") ;
+          }
+
+          msg.getmsgopt(XS_MORE, &hasmore, &more_size) ;
+
+        }
+      }
+
+
     template<typename D, typename Fun, typename Strand>
       void absorbHeaderDispatchMesage(
               socket_t& socket,
@@ -147,6 +183,32 @@ namespace WebGame
 
           if(ok) {
             strand.dispatch([fun,db](){fun(db);});
+          } else {
+            pantheios::log_WARNING("absorb not valid message.... Ignore") ;
+          }
+
+          int has_more(0);
+          size_t more_size = sizeof has_more ;
+          msg.getmsgopt(XS_MORE, &has_more, &more_size) ;
+          if(!has_more) break ;
+        }
+      }
+
+
+    template<typename D, typename Fun>
+      void absorbAndDispatchMessage(socket_t& socket, Fun fun,
+              typename D::DecoderType const& decoder) {
+        while(true) {
+          message_t msg ;
+          bool status = socket.recv(&msg);
+
+          if(!status) break ; // because bolock
+
+          std::shared_ptr<D> db = std::make_shared<D>();
+          bool ok = db->importFromArray(static_cast<const void*>(msg.data()), msg.size(), decoder) ;
+
+          if(ok) {
+            fun(db);
           } else {
             pantheios::log_WARNING("absorb not valid message.... Ignore") ;
           }
