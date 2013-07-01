@@ -16,6 +16,7 @@
  * =====================================================================================
  */
 #include "webgame/http/HttpServer.h"
+#include <iostream>
 #include "webgame/server/ServerOption.h"
 #include "webgame/server/LoggerUtility.h"
 #include "webgame/server/ZPollInManager.h"
@@ -49,6 +50,7 @@ void THIS_CLASS::transferMessageWithOther() {
   while(m_isRunning.load()) {
     mgr.pollOne(1);
   }
+  std::cout << "bye" << std::endl;
 }
 
 void THIS_CLASS::main(std::string url) {

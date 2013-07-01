@@ -15,7 +15,7 @@
  *
  * =====================================================================================
  */
-#include <atomic>
+#include <iostream>
 #include <memory>
 #include <stlsoft/memory/auto_buffer.hpp>
 #include <boost/network/protocol/http/server.hpp>
@@ -36,13 +36,14 @@ PANTHEIOS_EXTERN_C const char PANTHEIOS_FE_PROCESS_IDENTITY[] = "http";
 boost::function<void ()> signalHandle;
 
 void signalHandler(int sig) {
+  std::cout << "call signal......" << std::endl;
   signalHandle();
 }
 
 int main(int argc, char** argv) {
   std::string logFile("http.log");
-  signal(SIGABRT, signalHandler);
-  signal(SIGINT, signalHandler);
+//  signal(SIGABRT, signalHandler);
+//  signal(SIGINT, signalHandler);
   pantheios_be_file_setFilePath(logFile.c_str(),
                                 PANTHEIOS_BE_FILE_F_TRUNCATE,
                                 PANTHEIOS_BE_FILE_F_TRUNCATE,
@@ -58,9 +59,11 @@ int main(int argc, char** argv) {
       srv.shutdown();
     };
     boost::thread t(boost::bind(&HttpServer::transferMessageWithOther, s));
-    boost::thread loop(boost::bind(&cppcms::service::run, &srv));
+    //boost::thread loop(boost::bind(&cppcms::service::run, &srv));
+    srv.run();
+    s->stop();
     t.join();
-    loop.join();
+    //loop.join();
     pan::log_DEBUG("quit normal");
     return 0;
 }
