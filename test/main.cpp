@@ -13,8 +13,9 @@
 #include "webgame/server/DefaultZBackServer.h"
 #include "webgame/server/ServerOption.h"
 #include "webgame/server/ZPollInManager.h"
-#include "TestServer.h"
-#include "TestBackServer.h"
+//#include "TestServer.h"
+//#include "TestBackServer.h"
+#include "HttpBackServer.h"
 
 static bool is_running = true;
 
@@ -42,29 +43,29 @@ int main(int argc, char** argv) {
     boost::asio::strand strand(io_service);
     WebGame::Server::ZPollInManager poller(boost::this_thread::get_id());
 
-    TestServer::OptionType option(
-        "TestServer.json",
+//    TestServer::OptionType option(
+//        "TestServer.json",
+//        &io_service,
+//        &ctx,
+//        &strand,
+//        &strand);
+//
+//    std::cout << "start the server\n";
+//
+    HttpBackServer::OptionType option2(
+        "httpBackServer.json",
         &io_service,
         &ctx,
         &strand,
         &strand);
 
-    std::cout << "start the server\n";
-
-    TestBackServer::OptionType option2(
-        "BackServer.json",
-        &io_service,
-        &ctx,
-        &strand,
-        &strand);
-
-    TestServer server(option);
-    TestBackServer backServer(option2);
+    //TestServer server(option);
+    HttpBackServer backServer(option2);
     backServer.start();
-    server.start();
+    //server.start();
     std::cout << "ok start io\n";
     backServer.bindPollManager(&poller);
-    server.bindPollManager(&poller);
+    //server.bindPollManager(&poller);
 
     boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service));
     while(is_running) {

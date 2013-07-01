@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
 
     cppcms::service srv(argc,argv);
     using WebGame::Server::Http::HttpServer;
-    HttpServer* s = new HttpServer(srv, "test.js");
+    HttpServer* s = new HttpServer(srv, "http.js");
     booster::intrusive_ptr<HttpServer> httpServer(s);
     srv.applications_pool().mount(httpServer);
     signalHandle = [s, &srv]() {
