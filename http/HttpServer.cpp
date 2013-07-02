@@ -21,6 +21,7 @@
 #include <cppcms/http_response.h>
 #include <cppcms/http_context.h>
 #include <cppcms/http_request.h>
+#include <cppcms/service.h>
 #include <cppcms/url_dispatcher.h>
 #include <cppdb/frontend.h>
 #include "webgame/server/ServerOption.h"
@@ -46,7 +47,8 @@ THIS_CLASS::HttpServer(cppcms::service& srv,
     m_context(nullptr),
     m_isRunning(true),
     m_initFile(initFile),
-    m_startSesionId(0){
+    m_startSessionId(0),
+    m_receiveSessionId(0){
     dispatcher().assign("/get/(\\d+)", &THIS_CLASS::get, this, 1);
     dispatcher().assign("/post", &THIS_CLASS::post,this);
     dispatcher().assign(".*",&THIS_CLASS::redirect,this);
@@ -54,7 +56,24 @@ THIS_CLASS::HttpServer(cppcms::service& srv,
 }
 
 void THIS_CLASS::get(std::string no) {
-    response().status(404);
+    int id = atoi(no.c_str());
+    if(id > m_receiveSessionId) {
+        response().status(404);
+        return;
+    } else if(id < m_receiveSessionId) {
+        response().set_plain_text_header();
+        response().out() << m_receiveMessage[id]->information();
+        return;
+    } else {
+        auto context = release_context();
+        context->async_on_peer_reset(
+            boost::bind(
+                &THIS_CLASS::removeContext,
+                booster::intrusive_ptr<THIS_CLASS>(this),
+                context));
+        boost::lock_guard<boost::mutex> lock(m_mutex);
+        m_waitings.insert(context);
+    }
 }
 
 void THIS_CLASS::redirect() {
@@ -84,12 +103,24 @@ void THIS_CLASS::transferMessageWithOther() {
 }
 
 void THIS_CLASS::removeContext(booster::shared_ptr<cppcms::http::context> context) {
-  auto iter = m_contextPointers.find(context);
-  if(iter != m_contextPointers.end()) {
-      for(auto index : (*iter).second)
-        m_stockMessages.erase(index);
-      m_contextPointers.erase(iter);
-  }
+  boost::lock_guard<boost::mutex> lock(m_mutex);
+  m_waitings.erase(context);
+}
+
+void THIS_CLASS::broadcast(int64_t last) {
+    std::set<ContextPointer> w;
+    ConstMessagePointer msg;
+    {
+        boost::lock_guard<boost::mutex> lock(m_mutex);
+        msg = m_receiveMessage[last];
+        w.swap(m_waitings);
+    }
+
+    for(auto context : w) {
+       context->response().set_plain_text_header();
+       context->response().out() << msg->information();
+       context->async_complete_response();
+    }
 }
 
 void THIS_CLASS::registerActions() {
@@ -97,8 +128,22 @@ void THIS_CLASS::registerActions() {
 }
 
 void THIS_CLASS::bindPollManager(ZPollInManager* mgr) {
-  m_socket->bindPollManager(mgr);
+  m_socket->bindPollManager(mgr, boost::bind(&THIS_CLASS::handleOtherServerMessage,
+                                             this,
+                                             _1));
 }
+
+void THIS_CLASS::handleOtherServerMessage(std::shared_ptr<DataType> d) {
+    std::cout << "get from others" << std::endl;
+    auto db = d->constBody<WebGame::Server::Stock::HttpMessage>();
+    int64_t id = m_receiveSessionId++;
+    {
+    boost::lock_guard<boost::mutex> lock(m_mutex);
+    m_receiveMessage.push_back(db);
+    }
+    service().post(boost::bind(&THIS_CLASS::broadcast, this, id));
+}
+
 
 void THIS_CLASS::initResource() {
   m_decoder.reset(new DecoderType());
@@ -135,27 +180,20 @@ void THIS_CLASS::recordInformation(const std::string& info) {
     stat = (*m_dbSession) <<
         "INSERT INTO test(sessionId,who,t,information) "
         "VALUES(?,?,?,?)"
-        << m_startSesionId << 1 << now << info;
+        << m_startSessionId.load() << 1 << now << info;
     stat.exec();
 }
 
 void THIS_CLASS::handlePost() {
   booster::shared_ptr<cppcms::http::context> context=release_context();
-  ++m_startSesionId;
+  int64_t sessionId = ++m_startSessionId;
   MessagePointer msg = std::make_shared<WebGame::Server::Stock::HttpMessage>();
   StockMessage stockMsg = std::make_pair(context, msg);
-  msg->set_session(m_startSesionId);
+  msg->set_session(sessionId);
   msg->set_type(0);
   msg->set_information(context->request().post("message"));
-  m_contextPointers[context].push_back(m_startSesionId);
-  m_stockMessages.insert(std::make_pair(m_startSesionId, stockMsg));
   recordInformation(msg->information());
   m_socket->sendMessage(*msg);
-  context->async_on_peer_reset(
-      boost::bind(
-          &THIS_CLASS::removeContext,
-          booster::intrusive_ptr<THIS_CLASS>(this),
-          context));
 }
 
 void THIS_CLASS::post() {

@@ -19,6 +19,7 @@
 #define FND_WEBGAEM_SERVER_HTTP_HTTPSERVER_H
 #include <atomic>
 #include <list>
+#include <set>
 #include <memory>
 #include <map>
 #include <stlsoft/memory/auto_buffer.hpp>
@@ -54,6 +55,7 @@ namespace WebGame { namespace Server { namespace Http {
       void transferMessageWithOther();
       void stop() { m_isRunning.store(false);}
     private:
+      mutable boost::mutex m_mutex;
       std::unique_ptr<QSocketTraits::context_t> m_context;
       std::atomic<bool> m_isRunning;
       std::string m_initFile;
@@ -73,20 +75,25 @@ namespace WebGame { namespace Server { namespace Http {
       void removeContext(booster::shared_ptr<cppcms::http::context> context);
       typedef booster::shared_ptr<cppcms::http::context> ContextPointer;
       typedef std::shared_ptr<WebGame::Server::Stock::HttpMessage> MessagePointer;
+      typedef std::shared_ptr<const WebGame::Server::Stock::HttpMessage> ConstMessagePointer;
       typedef std::pair<ContextPointer, MessagePointer> StockMessage;
-      std::map<int64_t, StockMessage> m_stockMessages;
-      std::map<ContextPointer, std::list<int64_t>> m_contextPointers;
+      std::vector<ConstMessagePointer> m_receiveMessage;
+      std::set<ContextPointer> m_waitings;
       std::unique_ptr<ZSocketType> m_socket;
       std::unique_ptr<DecoderType> m_decoder;
       std::unique_ptr<cppdb::session> m_dbSession;
       void registerActions();
-      int64_t m_startSesionId;
+      std::atomic<int64_t> m_startSessionId;
+      std::atomic<int64_t> m_receiveSessionId;
       void handlePost();
       void redirect();
       void get(std::string no);
       void post();
       void initDb();
       void recordInformation(const std::string& info);
+      void handleOtherServerMessage(std::shared_ptr<DataType> d);
+      void broadcast(int64_t no);
+
   };
 } } }
 #endif

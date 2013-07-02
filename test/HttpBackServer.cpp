@@ -42,6 +42,7 @@ void THIS_CLASS::doInitCallback() {
         std::cout << "session id " << httpMessage->session()
         << " type " << httpMessage->type()
         << " information " << httpMessage->information() << std::endl;
+        sendMessage(name, *httpMessage);
       });
 }
 
