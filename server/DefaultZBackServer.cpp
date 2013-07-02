@@ -65,7 +65,10 @@ void THIS_CLASS::initProperty() {
     pantheios::log_NOTICE("use seconds per tick is ", pan::i(m_tickUsedSeconds));
 
     m_publishAddress = pp.get(Net, PublishAddress, std::string());
+
+    pan::log_NOTICE("use radio address is ", m_publishAddress);
     m_socketAddress = pp.get(Net, SocketAddress, std::string());
+    pan::log_NOTICE("use socket address is ", m_socketAddress);
     if(m_socketAddress.empty()) {
       pantheios::log_ERROR("empty socket address is not valid....");
       throw std::runtime_error("empty socket address");

@@ -18,6 +18,7 @@
 #ifndef FND_WEBGAEM_SERVER_HTTP_HTTPSERVER_H
 #define FND_WEBGAEM_SERVER_HTTP_HTTPSERVER_H
 #include <atomic>
+#include <list>
 #include <memory>
 #include <map>
 #include <stlsoft/memory/auto_buffer.hpp>
@@ -35,7 +36,13 @@
 namespace WebGame {
   namespace Server {
     class ZPollInManager;
+    namespace Stock {
+        class HttpMessage;
+    }
   }
+}
+namespace cppdb {
+    class session;
 }
 namespace WebGame { namespace Server { namespace Http {
   class HttpServer : public cppcms::application {
@@ -64,11 +71,22 @@ namespace WebGame { namespace Server { namespace Http {
       typedef ZSlaveServerSocket<Message::DataCache::const_pointer,
               DataType, SocketDataVector> ZSocketType;
       void removeContext(booster::shared_ptr<cppcms::http::context> context);
-      typedef booster::shared_ptr<cppcms::http::context> contextPointer;
-      std::map<contextPointer, int> m_contextPointers;
+      typedef booster::shared_ptr<cppcms::http::context> ContextPointer;
+      typedef std::shared_ptr<WebGame::Server::Stock::HttpMessage> MessagePointer;
+      typedef std::pair<ContextPointer, MessagePointer> StockMessage;
+      std::map<int64_t, StockMessage> m_stockMessages;
+      std::map<ContextPointer, std::list<int64_t>> m_contextPointers;
       std::unique_ptr<ZSocketType> m_socket;
       std::unique_ptr<DecoderType> m_decoder;
+      std::unique_ptr<cppdb::session> m_dbSession;
       void registerActions();
+      int64_t m_startSesionId;
+      void handlePost();
+      void redirect();
+      void get(std::string no);
+      void post();
+      void initDb();
+      void recordInformation(const std::string& info);
   };
 } } }
 #endif

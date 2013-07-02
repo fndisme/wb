@@ -57,8 +57,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(BOOST_ROOT)\lib;$(CROSSROADS_ROOT)\lib\Win32;$(PANTHEIOS_ROOT)\lib;$(FASTFORMAT_ROOT)\lib;$(PROTOBUF_ROOT)\Debug;..\utility\Debug;$(CPP_NETLIB_ROOT)\lib\debug;$(CPPCMS_DEBUG_ROOT);$(CPPCMS_DEBUG_ROOT)\booster;$(CPPCMS_DEBUG_ROOT)\thirdlib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libxs_d.lib;libprotobuf.lib;server.lib;message.lib;netcore.lib;utility.lib;http.lib;libcppcms-d.lib;libbooster-d.lib;booster-d.lib;icuind.lib;icuiod.lib;iculed.lib;iculxd.lib;icutud.lib;icuucd.lib;icudt.lib;Ws2_32.lib;zlib.lib;pcrecppd.lib;pcred.lib;pcreposixd.lib;Dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(BOOST_ROOT)\lib;$(CROSSROADS_ROOT)\lib\Win32;$(PANTHEIOS_ROOT)\lib;$(FASTFORMAT_ROOT)\lib;$(PROTOBUF_ROOT)\Debug;..\utility\Debug;$(CPP_NETLIB_ROOT)\lib\debug;$(CPPCMS_DEBUG_ROOT);$(CPPCMS_DEBUG_ROOT)\booster;$(CPPCMS_DEBUG_ROOT)\thirdlib;$(CPPDB_ROOT)\lib;$(SQLITE3_PATH)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libxs_d.lib;libprotobuf.lib;server.lib;message.lib;netcore.lib;utility.lib;http.lib;libcppcms-d.lib;libbooster-d.lib;booster-d.lib;icuind.lib;icuiod.lib;iculed.lib;iculxd.lib;icutud.lib;icuucd.lib;icudt.lib;Ws2_32.lib;zlib.lib;pcrecppd.lib;pcred.lib;pcreposixd.lib;Dbghelp.lib;libcppdbd.lib;libcppdb_sqlite3d.lib;sqlite3d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

@@ -46,8 +46,8 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0501;_DEBUG;_LIB;BOOST_ASIO_SEPARATE_COMPILATION;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../..;$(BOOST_ROOT)\include;$(STLSOFT_1_10)\include;$(STLSOFT)\include;$(PANTHEIOS_ROOT)\include;$(FASTFORMAT_ROOT)\include;$(PROTOBUF_ROOT)\include;$(ZEROMQ_ROOT)\include;$(CROSSROADS_ROOT)\include;$(CPP_NETLIB_ROOT);$(CPPCMS_DEBUG_ROOT);$(CPPCMS_DEBUG_ROOT)/booster;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0501;_DEBUG;_LIB;BOOST_ASIO_SEPARATE_COMPILATION;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;CPPDB_WITH_SQLITE3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../..;$(BOOST_ROOT)\include;$(STLSOFT_1_10)\include;$(STLSOFT)\include;$(PANTHEIOS_ROOT)\include;$(FASTFORMAT_ROOT)\include;$(PROTOBUF_ROOT)\include;$(ZEROMQ_ROOT)\include;$(CROSSROADS_ROOT)\include;$(CPP_NETLIB_ROOT);$(CPPCMS_DEBUG_ROOT);$(CPPCMS_DEBUG_ROOT)/booster;$(CPPDB_ROOT);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

@@ -27,6 +27,7 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread/lock_guard.hpp>
 #include <pantheios/assert.h>
+#include "webgame/message/MakeCacheMessage.h"
 #include "webgame/server/ZSocketDef.h"
 #include "webgame/server/ZPollInManager.h"
 
@@ -130,7 +131,7 @@ namespace WebGame {
 
             template<typename M>
               void sendMessage(M&& msg, player_tt pid = player_tt(0)) const {
-                sendMessage(easy_data_block_cache(std::forward<M>(msg), pid)) ;
+                sendMessage(::WebGame::Message::easyDataBlockCache(std::forward<M>(msg), pid)) ;
               }
 
             void bindPollManager(ZPollInManager* mgr, MessageDealerFunctionType const& func_d,
