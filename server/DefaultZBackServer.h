@@ -83,7 +83,8 @@ namespace Server {
                                            inteval,
                                            std::move(callback));
       }
-
+    protected:
+      typedef Utility::MessageManager<int, FrontMessageType> MessageDealerType;
     private:
       virtual void doStart() { init(); }
       virtual void doInitProperty() {}
@@ -103,7 +104,6 @@ namespace Server {
       Utility::TimeoutQueue m_timeoutQueue;
       std::string m_publishAddress; // pushlish message all client
       std::string m_socketAddress; // send message to single client
-      typedef Utility::MessageManager<int, FrontMessageType> MessageDealerType;
       MessageDealerType m_frontMessageDealer;
 
       void initProperty();

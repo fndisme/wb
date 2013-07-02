@@ -63,7 +63,7 @@ namespace {
   const std::string PlayerHeartBeat("PlayerHeartBeat") ;
 }
 
-THIS_CLASS::~DefaultZFrontServer() NOEXCEPT {}
+THIS_CLASS::~DefaultZFrontServer() {}
 
 void THIS_CLASS::stop() {
   m_acceptor->stopAll() ;

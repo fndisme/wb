@@ -19,7 +19,9 @@
 #define FND_WEBGAME_SERVER_FRONTCLIENTSTUB_H
 #include <memory>
 #include <boost/noncopyable.hpp>
+#include "webgame/message/DataBlock.h"
 #include "webgame/netcore/DefaultNetConnectionDef.h"
+#include "webgame/netcore/Connection.h"
 #include "webgame/shared/identity_type.h"
 namespace WebGame {
 namespace Server {
@@ -47,8 +49,8 @@ class FrontClientStub : boost::noncopyable {
       p->setId(id);
       return p;
     }
-    template<typename Msg>
-    void sendAsyncMessage(Msg&& msg) {
+    template<typename MSG>
+    void sendAsyncMessage(MSG&& msg) {
       if(m_connection)
         m_connection->sendAsyncMessage(std::forward<MSG>(msg));
     }

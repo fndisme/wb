@@ -37,9 +37,13 @@
 		<Compiler>
 			<Add directory="/home/fndisme/work/github" />
 		</Compiler>
+		<Unit filename="ClientSet.h" />
 		<Unit filename="CommonServerDef.h" />
+		<Unit filename="DefaultZBackServer.cpp" />
+		<Unit filename="DefaultZBackServer.h" />
 		<Unit filename="DefaultZFrontServer.cpp" />
 		<Unit filename="DefaultZFrontServer.h" />
+		<Unit filename="FrontClientStub.h" />
 		<Unit filename="LoggerUtility.h" />
 		<Unit filename="SearchingPlayerFleetProperty.h" />
 		<Unit filename="ServerOption.h" />
@@ -53,6 +57,8 @@
 		<Unit filename="ZSocketUtility.h" />
 		<Unit filename="stock/HeartBeat.pb.cc" />
 		<Unit filename="stock/HeartBeat.pb.h" />
+		<Unit filename="stock/HttpMessage.pb.cc" />
+		<Unit filename="stock/HttpMessage.pb.h" />
 		<Unit filename="stock/InnerMessage.pb.cc" />
 		<Unit filename="stock/InnerMessage.pb.h" />
 		<Unit filename="stock/InnerPostMessage.pb.cc" />

@@ -47,18 +47,6 @@ namespace WebGame {
           return p->session();
         }
       } ;
-
-#ifndef WIN32
-  namespace mi = boost::multi_index ;
-  template<typename T>
-    using ClientSet = mi::multi_index_container<
-    std::shared_ptr<T>,
-    mi::indexed_by<
-      mi::ordered_unique<sortByConnection<T>>,
-    mi::ordered_non_unique<sortById<T>>,
-    mi::ordered_non_unique,sortBySession<T>>
-      > >;
-#endif
   }
 }
 #endif

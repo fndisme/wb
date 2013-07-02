@@ -2,12 +2,12 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="message" />
+		<Option title="http" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="messaged" prefix_auto="1" extension_auto="1" />
+				<Option output="httpd" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
 				<Option object_output="obj/Debug/" />
 				<Option type="2" />
@@ -19,7 +19,7 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="message" prefix_auto="1" extension_auto="1" />
+				<Option output="http" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
 				<Option object_output="obj/Release/" />
 				<Option type="2" />
@@ -35,20 +35,13 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-pedantic" />
+			<Add option="-std=c++11" />
+			<Add option="-Wall" />
 			<Add directory="/home/fndisme/work/github" />
 		</Compiler>
-		<Unit filename="DataBlock.cpp" />
-		<Unit filename="DataBlock.h" />
-		<Unit filename="DataBlockFwd.h" />
-		<Unit filename="DataCache.h" />
-		<Unit filename="DataCache_fwd.h" />
-		<Unit filename="Header.pb.cc" />
-		<Unit filename="Header.pb.h" />
-		<Unit filename="MakeCacheMessage.h" />
-		<Unit filename="MessageBuilder.h" />
-		<Unit filename="MessageUtility.cpp" />
-		<Unit filename="MessageUtility.h" />
-		<Unit filename="shims/DataBlock.h" />
+		<Unit filename="HttpServer.cpp" />
+		<Unit filename="HttpServer.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

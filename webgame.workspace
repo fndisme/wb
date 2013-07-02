@@ -6,6 +6,7 @@
 			<Depends filename="message/message.cbp" />
 			<Depends filename="netcore/netcore.cbp" />
 			<Depends filename="server/server.cbp" />
+			<Depends filename="http/http.cbp" />
 		</Project>
 		<Project filename="utility/utility.cbp" />
 		<Project filename="message/message.cbp">
@@ -28,6 +29,12 @@
 			<Depends filename="mock/mock.cbp" />
 		</Project>
 		<Project filename="mock/mock.cbp">
+			<Depends filename="utility/utility.cbp" />
+			<Depends filename="message/message.cbp" />
+			<Depends filename="netcore/netcore.cbp" />
+			<Depends filename="server/server.cbp" />
+		</Project>
+		<Project filename="http/http.cbp">
 			<Depends filename="utility/utility.cbp" />
 			<Depends filename="message/message.cbp" />
 			<Depends filename="netcore/netcore.cbp" />

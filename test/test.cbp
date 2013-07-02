@@ -9,7 +9,7 @@
 			<Target title="Debug">
 				<Option output="bin/Debug/test" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
-				<Option external_deps="../message/libmessaged.a;../utility/libutilityd.a;../netcore/libnetcored.a;../server/libserverd.a;" />
+				<Option external_deps="../message/libmessaged.a;../utility/libutilityd.a;../netcore/libnetcored.a;../server/libserverd.a;../http/libhttpd.a;" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -40,6 +40,7 @@
 			<Add option="-lserverd" />
 			<Add option="-lxs" />
 			<Add option="-lnetcored" />
+			<Add option="-lhttp" />
 			<Add option="-lutilityd" />
 			<Add option="-lmessaged" />
 			<Add option="-lpthread" />
@@ -60,9 +61,20 @@
 			<Add directory="/home/fndisme/work/github/webgame/message" />
 			<Add directory="/home/fndisme/lib/pantheios/pantheios-1.0.1-beta214/lib" />
 			<Add directory="/home/fndisme/lib/fastformat/fastformat-0.7.1-alpha-9/lib" />
+			<Add directory="/home/fndisme/work/github/webgame/http" />
 		</Linker>
+		<Unit filename="../protocal/InnerLogin.pb.cc" />
+		<Unit filename="../protocal/InnerLogin.pb.h" />
+		<Unit filename="../protocal/InnerLoginResult.pb.cc" />
+		<Unit filename="../protocal/InnerLoginResult.pb.h" />
+		<Unit filename="../protocal/Login.pb.cc" />
+		<Unit filename="../protocal/Login.pb.h" />
+		<Unit filename="../protocal/LoginResult.pb.cc" />
+		<Unit filename="../protocal/LoginResult.pb.h" />
 		<Unit filename="../protocal/PingPong.pb.cc" />
 		<Unit filename="../protocal/PingPong.pb.h" />
+		<Unit filename="HttpBackServer.cpp" />
+		<Unit filename="HttpBackServer.h" />
 		<Unit filename="TestServer.cpp" />
 		<Unit filename="TestServer.h" />
 		<Unit filename="main.cpp" />

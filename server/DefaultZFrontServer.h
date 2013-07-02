@@ -63,7 +63,7 @@ namespace WebGame {
           makeDecorderLocked();
         }
       protected:
-        virtual ~DefaultZFrontServer() NOEXCEPT;
+        virtual ~DefaultZFrontServer();
         void init() ;
         explicit DefaultZFrontServer(const OptionType& option);
         typedef Message::DataBlock DataType;
