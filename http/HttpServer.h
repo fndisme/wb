@@ -19,16 +19,11 @@
 #define FND_WEBGAEM_SERVER_HTTP_HTTPSERVER_H
 #include <atomic>
 #include <list>
-#include <set>
 #include <memory>
 #include <map>
 #include <stlsoft/memory/auto_buffer.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/thread/mutex.hpp>
 #include <cppcms/application.h>
-#include "webgame/server/ZSlaveServerSocket.h"
-#include "webgame/server/ServerOption.h"
-#include "webgame/message/DataCache.h"
 #ifndef WIN32
 #include <folly/FBVector.h>
 #endif
@@ -46,19 +41,15 @@ namespace cppdb {
     class session;
 }
 namespace WebGame { namespace Server { namespace Http {
+  class HttpLogic;
   class HttpServer : public cppcms::application {
     public:
       typedef cppcms::application base_class;
-      HttpServer(cppcms::service& srv, const std::string& initFile);
+      HttpServer(cppcms::service& srv, HttpLogic& logic);
       ~HttpServer();
       virtual void main(std::string url);
-      void transferMessageWithOther();
       void stop() { m_isRunning.store(false);}
     private:
-      mutable boost::mutex m_mutex;
-      std::unique_ptr<QSocketTraits::context_t> m_context;
-      std::atomic<bool> m_isRunning;
-      std::string m_initFile;
       void bindPollManager(ZPollInManager* mgr);
       void initResource();
       void releaseResource();
@@ -75,14 +66,9 @@ namespace WebGame { namespace Server { namespace Http {
       void removeContext(booster::shared_ptr<cppcms::http::context> context);
       typedef booster::shared_ptr<cppcms::http::context> ContextPointer;
       typedef std::shared_ptr<WebGame::Server::Stock::HttpMessage> MessagePointer;
-      typedef std::shared_ptr<const WebGame::Server::Stock::HttpMessage> ConstMessagePointer;
       typedef std::pair<ContextPointer, MessagePointer> StockMessage;
-      std::vector<ConstMessagePointer> m_receiveMessage;
-      std::set<ContextPointer> m_waitings;
-      std::unique_ptr<ZSocketType> m_socket;
-      std::unique_ptr<DecoderType> m_decoder;
+
       std::unique_ptr<cppdb::session> m_dbSession;
-      void registerActions();
       std::atomic<int64_t> m_startSessionId;
       std::atomic<int64_t> m_receiveSessionId;
       void handlePost();

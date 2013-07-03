@@ -51,8 +51,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "http", "..\http\http.vcxpro
 		{DB662CDE-EADA-4499-84BB-B3EC61D80C89} = {DB662CDE-EADA-4499-84BB-B3EC61D80C89}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "http_client_test", "..\http_client_test\http_client_test.vcxproj", "{89FEED51-A70B-42B8-B33D-71A5D99D5F7C}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "http_server_test", "..\http_server_test\http_server_test.vcxproj", "{689AB2DC-540B-4268-AA12-1BE9C11BD165}"
 	ProjectSection(ProjectDependencies) = postProject
 		{49158449-7120-455A-9F75-AC6ABFD1D44E} = {49158449-7120-455A-9F75-AC6ABFD1D44E}
@@ -100,10 +98,6 @@ Global
 		{6B975A81-4D96-46F7-86A4-7F8BE33C6EB1}.Debug|Win32.Build.0 = Debug|Win32
 		{6B975A81-4D96-46F7-86A4-7F8BE33C6EB1}.Release|Win32.ActiveCfg = Release|Win32
 		{6B975A81-4D96-46F7-86A4-7F8BE33C6EB1}.Release|Win32.Build.0 = Release|Win32
-		{89FEED51-A70B-42B8-B33D-71A5D99D5F7C}.Debug|Win32.ActiveCfg = Debug|Win32
-		{89FEED51-A70B-42B8-B33D-71A5D99D5F7C}.Debug|Win32.Build.0 = Debug|Win32
-		{89FEED51-A70B-42B8-B33D-71A5D99D5F7C}.Release|Win32.ActiveCfg = Release|Win32
-		{89FEED51-A70B-42B8-B33D-71A5D99D5F7C}.Release|Win32.Build.0 = Release|Win32
 		{689AB2DC-540B-4268-AA12-1BE9C11BD165}.Debug|Win32.ActiveCfg = Debug|Win32
 		{689AB2DC-540B-4268-AA12-1BE9C11BD165}.Debug|Win32.Build.0 = Debug|Win32
 		{689AB2DC-540B-4268-AA12-1BE9C11BD165}.Release|Win32.ActiveCfg = Release|Win32

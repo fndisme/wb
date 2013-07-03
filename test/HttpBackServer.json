@@ -1,0 +1,7 @@
+{
+    "Net" : {
+      "SecondsPerTick" : 1,
+      "SocketAddress" : "inproc://b",
+      "PublishAddress" : "inproc://radio-b"
+    }
+}

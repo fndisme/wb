@@ -27,9 +27,7 @@
 #include "webgame/server/ServerOption.h"
 #include "webgame/server/LoggerUtility.h"
 #include "webgame/server/ZPollInManager.h"
-#include "webgame/message/MessageBuilder.h"
-#include "webgame/utility/PageParser.h"
-#include "webgame/server/stock/HttpMessage.pb.h"
+
 #include <boost/exception/diagnostic_information.hpp>
 
 #ifdef THIS_CLASS
@@ -46,7 +44,6 @@ THIS_CLASS::HttpServer(cppcms::service& srv,
     base_class(srv),
     m_context(nullptr),
     m_isRunning(true),
-    m_initFile(initFile),
     m_startSessionId(0),
     m_receiveSessionId(0){
     dispatcher().assign("/get/(\\d+)", &THIS_CLASS::get, this, 1);
@@ -72,66 +69,14 @@ void THIS_CLASS::get(std::string no) {
                 booster::intrusive_ptr<THIS_CLASS>(this),
                 context));
         boost::lock_guard<boost::mutex> lock(m_mutex);
-        m_waitings.insert(context);
     }
 }
 
 void THIS_CLASS::redirect() {
-    std::cout << "call redirect" << std::endl;
     response().set_redirect_header("/the_chat.html");
 }
 
-void THIS_CLASS::transferMessageWithOther() {
-  pan::log_DEBUG("start transferMessageWithOther");
-  if(m_context)
-    return;
-  m_context.reset(new QSocketTraits::context_t());
-  ZPollInManager mgr(boost::this_thread::get_id());
-  try {
-    initResource();
-    bindPollManager(&mgr);
-    while(m_isRunning.load()) {
-      mgr.pollOne(1);
-    }
-    releaseResource();
-  } catch(...) {
-    std::cerr << "Unhandled exception!" << " " <<
-            boost::current_exception_diagnostic_information() << std::endl;
-    pan::log_ERROR("excpetion ", boost::current_exception_diagnostic_information());
-  }
-  std::cout << "bye" << std::endl;
-}
 
-void THIS_CLASS::removeContext(booster::shared_ptr<cppcms::http::context> context) {
-  boost::lock_guard<boost::mutex> lock(m_mutex);
-  m_waitings.erase(context);
-}
-
-void THIS_CLASS::broadcast(int64_t last) {
-    std::set<ContextPointer> w;
-    ConstMessagePointer msg;
-    {
-        boost::lock_guard<boost::mutex> lock(m_mutex);
-        msg = m_receiveMessage[last];
-        w.swap(m_waitings);
-    }
-
-    for(auto context : w) {
-       context->response().set_plain_text_header();
-       context->response().out() << msg->information();
-       context->async_complete_response();
-    }
-}
-
-void THIS_CLASS::registerActions() {
-  m_decoder->registerBuilder<WebGame::Server::Stock::HttpMessage>();
-}
-
-void THIS_CLASS::bindPollManager(ZPollInManager* mgr) {
-  m_socket->bindPollManager(mgr, boost::bind(&THIS_CLASS::handleOtherServerMessage,
-                                             this,
-                                             _1));
-}
 
 void THIS_CLASS::handleOtherServerMessage(std::shared_ptr<DataType> d) {
     std::cout << "get from others" << std::endl;
