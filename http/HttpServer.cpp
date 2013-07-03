@@ -76,43 +76,6 @@ void THIS_CLASS::redirect() {
     response().set_redirect_header("/the_chat.html");
 }
 
-
-
-void THIS_CLASS::handleOtherServerMessage(std::shared_ptr<DataType> d) {
-    std::cout << "get from others" << std::endl;
-    auto db = d->constBody<WebGame::Server::Stock::HttpMessage>();
-    int64_t id = m_receiveSessionId++;
-    {
-    boost::lock_guard<boost::mutex> lock(m_mutex);
-    m_receiveMessage.push_back(db);
-    }
-    service().post(boost::bind(&THIS_CLASS::broadcast, this, id));
-}
-
-
-void THIS_CLASS::initResource() {
-  m_decoder.reset(new DecoderType());
-  registerActions();
-  m_decoder->makeFinal();
-  Utility::PageParser pp(m_initFile);
-  std::string name = pp.get(std::string("Socket"), std::string("Name"), std::string());
-  if(name.empty()) {
-    throw std::logic_error("must use named socket");
-  }
-  pan::log_NOTICE("use socket name is ", name);
-  std::string address  = pp.get(std::string("Socket"),
-                                std::string("Address"),
-                                std::string());
-
-  pan::log_NOTICE("use socket address is ", address);
-  m_socket.reset(new ZSocketType(
-          *m_context,
-          *m_decoder,
-          name,
-          address
-          ));
-}
-
 void THIS_CLASS::releaseResource() {
   m_socket.reset();
   m_decoder.reset();

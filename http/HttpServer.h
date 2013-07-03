@@ -51,22 +51,10 @@ namespace WebGame { namespace Server { namespace Http {
       void stop() { m_isRunning.store(false);}
     private:
       void bindPollManager(ZPollInManager* mgr);
-      void initResource();
       void releaseResource();
 
-      typedef Message::DataBlock DataType;
-      typedef Message::DataBlock::DecoderType DecoderType;
-#ifdef WIN32
-      typedef std::vector<Message::DataCache::const_pointer> SocketDataVector;
-#else
-      typedef folly::fbvector<Message::DataCache::const_pointer> SocketDataVector ;
-#endif
-      typedef ZSlaveServerSocket<Message::DataCache::const_pointer,
-              DataType, SocketDataVector> ZSocketType;
-      void removeContext(booster::shared_ptr<cppcms::http::context> context);
+
       typedef booster::shared_ptr<cppcms::http::context> ContextPointer;
-      typedef std::shared_ptr<WebGame::Server::Stock::HttpMessage> MessagePointer;
-      typedef std::pair<ContextPointer, MessagePointer> StockMessage;
 
       std::unique_ptr<cppdb::session> m_dbSession;
       std::atomic<int64_t> m_startSessionId;
@@ -77,7 +65,6 @@ namespace WebGame { namespace Server { namespace Http {
       void post();
       void initDb();
       void recordInformation(const std::string& info);
-      void handleOtherServerMessage(std::shared_ptr<DataType> d);
       void broadcast(int64_t no);
 
   };
