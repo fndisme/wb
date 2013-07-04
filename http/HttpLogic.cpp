@@ -18,6 +18,8 @@
 #include "webgame/http/httplogic.h"
 #include <boost/exception/diagnostic_information.hpp>
 #include <cppcms/http_context.h>
+#include <cppcms/json.h>
+#include "webgame/http/HttpMessageToJson.h"
 #include "webgame/message/MessageBuilder.h"
 #include "webgame/server/LoggerUtility.h"
 #include "webgame/server/stock/HttpMessage.pb.h"
@@ -79,20 +81,24 @@ void THIS_CLASS::init() {
 
 void THIS_CLASS::addSession(ContextPointer context,
                             int type,
-                            const std::string& info) {
-  int64_t sid = ++m_startSessionId;
-  Server::Stock::HttpMessage message;
-  message.set_type(type);
-  message.set_session(sid);
-  message.set_information(info);
-  m_socket->sendMessage(message);
-  context->async_on_peer_reset(
-      boost::bind(
-          &THIS_CLASS::removeContext,
-          this,
-          context));
-  boost::lock_guard<boost::mutex> lock(m_mutex);
-  m_sessions.left.insert(std::make_pair(sid, context));
+                            const cppcms::json::value& info) {
+  try {
+    Server::Stock::HttpMessage message = info.get_value<Server::Stock::HttpMessage>();
+    int64_t sid = ++m_startSessionId;
+    message.set_type(type);
+    message.set_session(sid);
+    //message.set_information(info);
+    m_socket->sendMessage(message);
+    context->async_on_peer_reset(
+        boost::bind(
+            &THIS_CLASS::removeContext,
+            this,
+            context));
+    boost::lock_guard<boost::mutex> lock(m_mutex);
+    m_sessions.left.insert(std::make_pair(sid, context));
+  } catch(std::exception& error) {
+    std::cout << "error for " << error.what() << std::endl;
+  }
 }
 
 void THIS_CLASS::removeContext(ContextPointer context) {

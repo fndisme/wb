@@ -17,10 +17,12 @@
  */
 #include "webgame/http/HttpServer.h"
 #include <iostream>
+#include <sstream>
 #include <boost/bind.hpp>
 #include <cppcms/http_response.h>
 #include <cppcms/http_context.h>
 #include <cppcms/http_request.h>
+#include <cppcms/json.h>
 #include <cppcms/service.h>
 #include <cppcms/url_dispatcher.h>
 #include <cppdb/frontend.h>
@@ -86,12 +88,20 @@ void THIS_CLASS::recordInformation(const std::string& info) {
 
 void THIS_CLASS::handlePost() {
   booster::shared_ptr<cppcms::http::context> context=release_context();
-  m_logic.addSession(context, 1, context->request().post("message"));
+  std::stringstream ss;
+  ss << context->request().post("message");
+  cppcms::json::value object;
+  ss >> object;
+  if(object.type() == cppcms::json::is_object)
+    m_logic.addSession(context, 1, object);
+  else {
+    std::cerr << "error for get object"
+      << context->request().post("message") << std::endl;
+  }
 }
 
 void THIS_CLASS::post() {
   if(request().request_method() == "POST") {
-    std::cout << "handle request" << std::endl;
     handlePost();
   }
 }

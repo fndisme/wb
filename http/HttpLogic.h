@@ -38,6 +38,12 @@ namespace WebGame {
   }
 }
 
+namespace cppcms {
+  namespace json {
+    class value;
+  }
+}
+
 namespace WebGame { namespace Server { namespace Http {
   class HttpLogic : boost::noncopyable {
     public:
@@ -46,7 +52,7 @@ namespace WebGame { namespace Server { namespace Http {
       virtual ~HttpLogic();
       void stop();
       typedef booster::shared_ptr<cppcms::http::context> ContextPointer;
-      void addSession(ContextPointer context, int type, const std::string& sendInfo);
+      void addSession(ContextPointer context, int type, const cppcms::json::value& sendInfo);
       bool isWaitingContext(ContextPointer context) const;
     protected:
       typedef std::shared_ptr<const Server::Stock::HttpMessage> MessagePointer;
