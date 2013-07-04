@@ -49,6 +49,7 @@ namespace WebGame { namespace Server { namespace Http {
       void addSession(ContextPointer context, int type, const std::string& sendInfo);
       bool isWaitingContext(ContextPointer context) const;
     protected:
+      typedef std::shared_ptr<const Server::Stock::HttpMessage> MessagePointer;
       cppcms::service& service() { return m_service;}
       void sendMessage(ContextPointer context, const std::string& msg);
     private:
@@ -77,10 +78,10 @@ namespace WebGame { namespace Server { namespace Http {
       void handleMessage(std::shared_ptr<DataType> d);
       ContextPointer releaseContext(int64_t);
       virtual void doDispatch(ContextPointer,
-                              const std::shared_ptr<const Server::Stock::HttpMessage>&) {
+                              const MessagePointer&) {
       }
       virtual void doDispatchServerMessage(
-          const std::shared_ptr<const Server::Stock::HttpMessage>&) {
+          const MessagePointer&) {
       }
       void removeContext(ContextPointer);
   };

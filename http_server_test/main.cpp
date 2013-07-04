@@ -29,6 +29,7 @@
 #include <boost/thread.hpp>
 #include "webgame/server/LoggerUtility.h"
 #include "webgame/http/HttpServer.h"
+#include "webgame/http_server_test/TestLogic.h"
 #include <pantheios/backends/bec.file.h> // for logger
 #include <boost/asio/impl/src.hpp>
 PANTHEIOS_EXTERN_C const char PANTHEIOS_FE_PROCESS_IDENTITY[] = "http";
@@ -51,19 +52,15 @@ int main(int argc, char** argv) {
 
     cppcms::service srv(argc,argv);
     using WebGame::Server::Http::HttpServer;
-    HttpServer* s = new HttpServer(srv, "http.js");
+    TestLogic l(srv, "http.js");
+    HttpServer* s = new HttpServer(srv, l);
     booster::intrusive_ptr<HttpServer> httpServer(s);
     srv.applications_pool().mount(httpServer);
-    signalHandle = [s, &srv]() {
-      s->stop();
-      srv.shutdown();
-    };
-    boost::thread t(boost::bind(&HttpServer::transferMessageWithOther, s));
-    //boost::thread loop(boost::bind(&cppcms::service::run, &srv));
+
+    boost::thread t(boost::bind(&TestLogic::run, &l));
     srv.run();
-    s->stop();
+    l.stop();
     t.join();
-    //loop.join();
     pan::log_DEBUG("quit normal");
     return 0;
 }

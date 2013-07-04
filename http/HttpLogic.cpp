@@ -58,6 +58,7 @@ void THIS_CLASS::init() {
   Utility::PageParser pp(m_initFile);
   std::string name = pp.get(std::string("Socket"), std::string("Name"), std::string());
   if(name.empty()) {
+    std::cerr << "name error " << name << std::endl;
     throw std::logic_error("must use named socket");
   }
   pan::log_NOTICE("use socket name is ", name);
@@ -66,12 +67,14 @@ void THIS_CLASS::init() {
                                 std::string());
 
   pan::log_NOTICE("use socket address is ", address);
+  initDecoder();
   m_socket.reset(new ZSocketType(
           *m_context,
           *m_decoder,
           name,
           address
           ));
+  std::cout << "create socket ok....." << std::endl;
 }
 
 void THIS_CLASS::addSession(ContextPointer context,
@@ -81,6 +84,7 @@ void THIS_CLASS::addSession(ContextPointer context,
   Server::Stock::HttpMessage message;
   message.set_type(type);
   message.set_session(sid);
+  message.set_information(info);
   m_socket->sendMessage(message);
   context->async_on_peer_reset(
       boost::bind(
@@ -150,7 +154,7 @@ void THIS_CLASS::handleMessage(std::shared_ptr<DataType> d) {
 
 void THIS_CLASS::run() {
 
-  if(initContext()) return;
+  if(!initContext()) return;
   ZPollInManager mgr(boost::this_thread::get_id());
   try {
     init();

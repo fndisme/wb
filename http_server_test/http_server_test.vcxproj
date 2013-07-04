@@ -82,9 +82,11 @@
     <ClCompile Include="..\shared\fastformat_implicit_link.cpp" />
     <ClCompile Include="..\shared\implicit_link2.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TestLogic.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestHttpServer.h" />
+    <ClInclude Include="TestLogic.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -27,8 +27,7 @@
 #include "webgame/server/ServerOption.h"
 #include "webgame/server/LoggerUtility.h"
 #include "webgame/server/ZPollInManager.h"
-
-#include <boost/exception/diagnostic_information.hpp>
+#include "webgame/http/HttpLogic.h"
 
 #ifdef THIS_CLASS
 #undef THIS_CLASS
@@ -86,15 +85,8 @@ void THIS_CLASS::recordInformation(const std::string& info) {
 }
 
 void THIS_CLASS::handlePost() {
-//  booster::shared_ptr<cppcms::http::context> context=release_context();
-//  int64_t sessionId = ++m_startSessionId;
-//  MessagePointer msg = std::make_shared<WebGame::Server::Stock::HttpMessage>();
-//  StockMessage stockMsg = std::make_pair(context, msg);
-//  msg->set_session(sessionId);
-//  msg->set_type(0);
-//  msg->set_information(context->request().post("message"));
-//  recordInformation(msg->information());
-//  m_socket->sendMessage(*msg);
+  booster::shared_ptr<cppcms::http::context> context=release_context();
+  m_logic.addSession(context, 1, context->request().post("message"));
 }
 
 void THIS_CLASS::post() {
