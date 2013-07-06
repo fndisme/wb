@@ -87,7 +87,6 @@ void THIS_CLASS::addSession(ContextPointer context,
     message.set_type(type);
     message.set_session(sid);
     m_socket->sendMessage(message);
-    //context->response().io_mode(cppcms::http::response::asynchronous);
     context->async_on_peer_reset(
         boost::bind(
             &THIS_CLASS::removeContext,
