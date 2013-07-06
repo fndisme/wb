@@ -27,6 +27,7 @@
 #include <cppcms/application.h>
 #include <cppcms/service.h>
 #include <cppcms/http_response.h>
+#include <cppcms/http_context.h>
 #include "webgame/server/DefaultSlaveSocket.h"
 
 namespace WebGame {
@@ -90,6 +91,9 @@ namespace WebGame { namespace Server { namespace Http {
           const MessagePointer&) {
       }
       void removeContext(ContextPointer);
+
+      void handleSendMessge(cppcms::http::context::completion_type,
+                            ContextPointer context);
   };
 
 } } }

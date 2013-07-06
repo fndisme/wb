@@ -34,9 +34,7 @@ THIS_CLASS::TestLogic(cppcms::service& srv, const std::string& initFile) :
 void THIS_CLASS::doDispatch(ContextPointer context,
                 const MessagePointer& msg) {
   std::cout << "call here msg is " << msg->information() << " ok \n";
-  context->response().set_plain_text_header();
-  context->response().out() << msg->information();
-  context->async_complete_response();
+  sendMessage(context, msg->information());
 }
 
 #undef THIS_CLASS

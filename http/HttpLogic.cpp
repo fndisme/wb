@@ -17,7 +17,6 @@
  */
 #include "webgame/http/httplogic.h"
 #include <boost/exception/diagnostic_information.hpp>
-#include <cppcms/http_context.h>
 #include <cppcms/json.h>
 #include "webgame/http/HttpMessageToJson.h"
 #include "webgame/message/MessageBuilder.h"
@@ -87,8 +86,8 @@ void THIS_CLASS::addSession(ContextPointer context,
     int64_t sid = ++m_startSessionId;
     message.set_type(type);
     message.set_session(sid);
-    //message.set_information(info);
     m_socket->sendMessage(message);
+    //context->response().io_mode(cppcms::http::response::asynchronous);
     context->async_on_peer_reset(
         boost::bind(
             &THIS_CLASS::removeContext,
@@ -123,10 +122,6 @@ void THIS_CLASS::bindPollManager(ZPollInManager* mgr) {
                                              _1));
 }
 
-bool THIS_CLASS::isWaitingContext(ContextPointer context) const {
-  boost::lock_guard<boost::mutex> lock(m_mutex);
-  return m_sessions.right.count(context) > 0;
-}
 
 THIS_CLASS::ContextPointer THIS_CLASS::releaseContext(int64_t sessionId) {
   ContextPointer context;
@@ -140,11 +135,17 @@ THIS_CLASS::ContextPointer THIS_CLASS::releaseContext(int64_t sessionId) {
 }
 
 void THIS_CLASS::sendMessage(ContextPointer context, const std::string& msg) {
-  m_service.post([context, msg]() {
+  std::cout << context.get() << std::endl;
+  m_service.post([this, context, msg]() {
                  context->response().set_plain_text_header();
                  context->response().out() << msg;
                  context->async_complete_response();
                  });
+}
+
+void THIS_CLASS::handleSendMessge(cppcms::http::context::completion_type,
+                                  ContextPointer context) {
+  std::cout << "do nothing....\n";
 }
 
 void THIS_CLASS::handleMessage(std::shared_ptr<DataType> d) {
